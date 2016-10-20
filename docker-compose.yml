@@ -1,0 +1,36 @@
+version: '2'
+
+volumes:
+    symfony_logs:
+        driver: local
+    symfony_cache:
+        driver: local
+    nginx_logs:
+        driver: local
+
+
+services:
+    db:
+        image: mysql
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: password
+    php:
+        build: ./php-fpm
+        volumes:
+            - ./symfony:/var/www/symfony
+            - symfony_logs:/var/www/symfony/app/logs
+            - symfony_cache:/var/www/symfony/app/cache
+
+    nginx:
+        build: ./nginx
+        ports:
+            - 80:80
+        volumes_from:
+            - php:ro
+        volumes:
+            - nginx_logs:/var/log/nginx
