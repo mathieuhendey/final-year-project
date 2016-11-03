@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/mathieuhendey/final-year-project.svg?token=moUsqfQSbWDYrgRb2xXP&branch=master)](https://travis-ci.com/mathieuhendey/final-year-project)
+
 # Final Year Project AJ02
 
 ## Description
