@@ -1,5 +1,7 @@
 FROM debian:jessie
 
+MAINTAINER Mathieu Hendey
+
 RUN apt-get update && apt-get install -y nginx
 
 ADD nginx.conf /etc/nginx/

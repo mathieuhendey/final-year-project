@@ -11,6 +11,7 @@ volumes:
 
 services:
     db:
+        container_name: database
         image: mysql
         ports:
             - 3306:3306
@@ -20,6 +21,7 @@ services:
             MYSQL_USER: symfony
             MYSQL_PASSWORD: password
     php:
+        container_name: php_fpm
         build: ./php-fpm
         volumes:
             - ./symfony:/var/www/symfony
@@ -27,6 +29,7 @@ services:
             - symfony_cache:/var/www/symfony/app/cache
 
     nginx:
+        container_name: nginx
         build: ./nginx
         ports:
             - 80:80

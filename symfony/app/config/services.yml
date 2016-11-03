@@ -4,18 +4,17 @@ parameters:
   twitter_oauth_class: Abraham\TwitterOAuth\TwitterOAuth
   twitter_consumer_key: 55rheipAflYpFF2j4Vm9gSPw4
   twitter_consumer_secret: 75L0rGl8xMjwZMb3oZnG0BGnvS3Wik5opwcrDv49rsVAyi68mZ
-  hi: hi
 
 services:
   twitter_oauth:
     class:     Abraham\TwitterOAuth\TwitterOAuth
     arguments: ['%twitter_consumer_key%', '%twitter_consumer_secret%']
   app.tweet_fetcher:
-    class:     AppBundle\Service\TweetFetcher
+    class:     AppBundle\Service\TwitterCommunication\TweetFetcher
     arguments: ['@twitter_oauth', '@session']
-  app.default_controller:
-    class:     AppBundle\Controller\DefaultController
+  app.home_page_controller:
+    class:     AppBundle\Controller\HomePageController
     arguments: ['@app.tweet_fetcher', '@templating', '@router', '@session']
-  app.twitter_authoriser:
-    class:     AppBundle\Controller\TwitterAuthorisation\TwitterAuthoriser
-    arguments: ['@app.tweet_fetcher']
+  app.twitter_authorisation:
+    class:     AppBundle\Controller\TwitterAuthorisation\TwitterAuthorisationController
+    arguments: ['@app.tweet_fetcher', '@session', '@router']
