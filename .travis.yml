@@ -3,4 +3,5 @@ services:
 
 script:
   - docker-compose up -d
-  - docker-compose ps
+  - cd symfony && composer install
+  - docker exec -it php_fpm bash -lc "cd /var/www/symfony && php vendor/phpunit/phpunit/phpunit"
