@@ -5,7 +5,7 @@
  *
  * PHP version 7
  *
- * @link https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+ * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
  */
 
 namespace AppBundle\Service\TwitterCommunication;
@@ -31,6 +31,8 @@ class TweetFetcher implements TweetFetcherInterface
      * given permission for the app to access Twitter on their behalf.
      * 
      * @todo load this value from config
+     *
+     * @var string
      */
     const OAUTH_CALLBACK = 'http://localhost/app_dev.php/authorise';
 

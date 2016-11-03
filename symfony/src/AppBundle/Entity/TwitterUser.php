@@ -5,7 +5,7 @@
  *
  * PHP version 7
  *
- * @link https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+ * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
  */
 
 namespace AppBundle\Entity;
