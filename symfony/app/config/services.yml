@@ -11,7 +11,7 @@ services:
     arguments: ['%twitter_consumer_key%', '%twitter_consumer_secret%']
   app.tweet_fetcher:
     class:     AppBundle\Service\TwitterCommunication\TweetFetcher
-    arguments: ['@twitter_oauth', '@session']
+    arguments: ['@twitter_oauth', '@session', '%twitter_callback_url%']
   app.home_page_controller:
     class:     AppBundle\Controller\HomePageController
     arguments: ['@app.tweet_fetcher', '@templating', '@router', '@session']

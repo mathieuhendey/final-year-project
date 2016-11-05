@@ -10,5 +10,4 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
-    twitter_consumer_key: 55rheipAflYpFF2j4Vm9gSPw4
-    twitter_consumer_secret: 75L0rGl8xMjwZMb3oZnG0BGnvS3Wik5opwcrDv49rsVAyi68mZ
+

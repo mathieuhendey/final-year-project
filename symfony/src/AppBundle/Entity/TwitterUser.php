@@ -1,11 +1,19 @@
 <?php
 
+/**
+ * Part of the AJ02 project at Queen's University Belfast.
+ *
+ * PHP version 7
+ *
+ * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+ */
+
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * TwitterUser
+ * TwitterUser.
  *
  * @ORM\Table(name="twitter_user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\TwitterUserRepository")
@@ -21,9 +29,8 @@ class TwitterUser
      */
     private $id;
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -32,4 +39,3 @@ class TwitterUser
         return $this->id;
     }
 }
-

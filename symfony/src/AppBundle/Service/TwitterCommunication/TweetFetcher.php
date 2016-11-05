@@ -27,16 +27,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 class TweetFetcher implements TweetFetcherInterface
 {
     /**
-     * The callback URL that Twitter will redirect the user to after they've
-     * given permission for the app to access Twitter on their behalf.
-     *
-     * @todo load this value from config
-     *
-     * @var string
-     */
-    const OAUTH_CALLBACK = 'http://localhost/app_dev.php/authorise';
-
-    /**
      * Third party library that allows hitting generic endpoints on the Twitter
      * API.
      *
@@ -53,15 +43,25 @@ class TweetFetcher implements TweetFetcherInterface
     private $session;
 
     /**
+     * The callback URL that Twitter will redirect the user to after they've
+     * given permission for the app to access Twitter on their behalf.
+     *
+     * @var string
+     */
+    private $callbackUrl;
+
+    /**
      * TweetFetcher constructor.
      *
      * @param TwitterOAuth $twitterOAuth
      * @param Session      $session
+     * @param string       $callbackUrl
      */
-    public function __construct(TwitterOAuth $twitterOAuth, Session $session)
+    public function __construct(TwitterOAuth $twitterOAuth, Session $session, string $callbackUrl)
     {
         $this->twitterOAuth = $twitterOAuth;
         $this->session = $session;
+        $this->callbackUrl = $callbackUrl;
 
         /*
          * If we already have an access token stored in session, the current
@@ -78,7 +78,7 @@ class TweetFetcher implements TweetFetcherInterface
      */
     public function getAuthorisationUrl(): string
     {
-        $requestToken = $this->twitterOAuth->oauth('oauth/request_token', ['oauth_callback' => self::OAUTH_CALLBACK]);
+        $requestToken = $this->twitterOAuth->oauth('oauth/request_token', ['oauth_callback' => $this->callbackUrl]);
         $this->session->set('oauth_token', $requestToken['oauth_token']);
         $this->session->set('oauth_token_secret', $requestToken['oauth_token_secret']);
 
@@ -133,6 +133,7 @@ class TweetFetcher implements TweetFetcherInterface
     public function getAccountDetails()
     {
         $detailsArray = json_decode(json_encode($this->twitterOAuth->get('account/verify_credentials')), true);
+
         return $detailsArray;
     }
 
