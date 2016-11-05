@@ -1,6 +1,11 @@
 imports:
     - { resource: config_dev.yml }
 
+parameters:
+    twitter_consumer_key: 55rheipAflYpFF2j4Vm9gSPw4
+    twitter_consumer_secret: 75L0rGl8xMjwZMb3oZnG0BGnvS3Wik5opwcrDv49rsVAyi68mZ
+    twitter_callback_url: "http://localhost/app_dev.php/authorise"
+
 framework:
     test: ~
     session:
