@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Tweet.
  *
  * @author Mathieu Hendey <mhendey01@qub.ac.uk>
- * 
+ *
  * @ORM\Entity
  * @ORM\Table(name="tweet")
  */

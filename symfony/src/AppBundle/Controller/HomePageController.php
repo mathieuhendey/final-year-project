@@ -29,14 +29,14 @@ class HomePageController extends Controller
 {
     /**
      * Service for communicating with the Twitter API.
-     * 
+     *
      * @var TweetFetcher
      */
     private $tweetFetcher;
 
     /**
      * Symfony's templating engine. Converts Twig templates into HTML.
-     * 
+     *
      * @var EngineInterface
      */
     private $templating;
@@ -44,7 +44,7 @@ class HomePageController extends Controller
     /**
      * Symfony's router. Generates URLs from route names and replaces any
      * provided parameter placeholders.
-     * 
+     *
      * @var RouterInterface
      */
     private $router;

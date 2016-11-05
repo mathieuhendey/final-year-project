@@ -29,7 +29,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * The callback URL that Twitter will redirect the user to after they've
      * given permission for the app to access Twitter on their behalf.
-     * 
+     *
      * @todo load this value from config
      *
      * @var string
@@ -39,7 +39,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * Third party library that allows hitting generic endpoints on the Twitter
      * API.
-     * 
+     *
      * @var TwitterOAuth
      */
     private $twitterOAuth;
@@ -47,14 +47,14 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * The session used to share data between this service and the rest of the
      * application. Used to store the user's access credentials.
-     * 
+     *
      * @var Session
      */
     private $session;
 
     /**
      * TweetFetcher constructor.
-     * 
+     *
      * @param TwitterOAuth $twitterOAuth
      * @param Session      $session
      */
@@ -64,7 +64,7 @@ class TweetFetcher implements TweetFetcherInterface
         $this->session = $session;
 
         /*
-         * If we already have an access token stored in session, the current 
+         * If we already have an access token stored in session, the current
          * user must already be authenticated.
          */
         if ($this->session->has('access_token')) {
@@ -90,7 +90,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * {@inheritdoc}
      *
-     * @todo implement getTweetsFromUser() method.
+     * @todo implement getTweetsFromUser() method
      */
     public function getTweetsFromUser(TwitterUser $twitterUser): array
     {
@@ -100,7 +100,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * {@inheritdoc}
      *
-     * @todo implement getResponsesToTweet() method.
+     * @todo implement getResponsesToTweet() method
      */
     public function getResponsesToTweet(Tweet $tweet): array
     {
@@ -110,7 +110,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * {@inheritdoc}
      *
-     * @todo implement getLikesForTweet() method.
+     * @todo implement getLikesForTweet() method
      */
     public function getLikesForTweet(Tweet $tweet): array
     {
@@ -120,7 +120,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * {@inheritdoc}
      *
-     * @todo implement getRetweetsForTweet() method.
+     * @todo implement getRetweetsForTweet() method
      */
     public function getRetweetsForTweet(Tweet $tweet): array
     {

@@ -15,13 +15,13 @@ namespace AppBundle\Entity;
  * first time they were scanned by the app, their popularity score, as well
  * as any information from Twitter that could be useful (sign-up date, whether
  * they have a blue tick, whether their account is private etc.).
- * 
+ *
  * This does not store any access credentials, I am still
  * deciding whether to persist credentials to the DB or just make the user
  * authorise again each time they visit the app.
  *
  * @author Mathieu Hendey <mhendey01@qub.ac.uk>
- * 
+ *
  * @ORM\Entity
  * @ORM\Table(name="twitter_user")
  */
