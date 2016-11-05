@@ -15,9 +15,11 @@ services:
         image: mysql
         ports:
             - 3306:3306
+        volumes:
+            - "./.data/db:/var/lib/mysql"
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: symfony
+            MYSQL_DATABASE: twitter_analyser
             MYSQL_USER: symfony
             MYSQL_PASSWORD: password
     php:
@@ -25,8 +27,10 @@ services:
         build: ./php-fpm
         volumes:
             - ./symfony:/var/www/symfony
-            - symfony_logs:/var/www/symfony/app/logs
-            - symfony_cache:/var/www/symfony/app/cache
+            - ./symfony_logs:/var/www/symfony/app/logs
+            - ./symfony_cache:/var/www/symfony/app/cache
+        links:
+          - db:mysqldb
 
     nginx:
         container_name: nginx
