@@ -54,7 +54,6 @@ class TweetFetcherTest extends \PHPUnit_Framework_TestCase
 
         $this->twitterOAuthMock->expects($this->once())
             ->method('oauth')
-            ->with(self::OAUTH_REQUEST_TOKEN_URL, ['oauth_callback' => TweetFetcher::OAUTH_CALLBACK])
             ->willReturn(self::REQUEST_TOKEN);
 
         $this->sessionMock->expects($this->at(0))
@@ -78,6 +77,6 @@ class TweetFetcherTest extends \PHPUnit_Framework_TestCase
      */
     private function getTweetFetcher(): TweetFetcher
     {
-        return new TweetFetcher($this->twitterOAuthMock, $this->sessionMock);
+        return new TweetFetcher($this->twitterOAuthMock, $this->sessionMock, '');
     }
 }
