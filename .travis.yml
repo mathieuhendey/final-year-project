@@ -2,6 +2,9 @@ sudo: false
 services:
   - docker
 
+before_script:
+  - phpenv config-rm xdebug.ini
+
 script:
   - docker-compose up -d
   - cd symfony && composer install --no-dev
