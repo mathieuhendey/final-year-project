@@ -4,12 +4,6 @@
 
 <a href="{{ url('authorise_with_twitter') }}">Authorise on Twitter</a>
 
-
-    <ul>
-        {% for key, value in account_information %}
-            <li>{{ key }}: {{ value }}</li>
-        {% endfor %}
-    </ul>
-
+    <h1>{{ account_information['screen_name']|default('You haven\'t authorised with Twitter yet.') }}</h1>
 
 {% endblock %}

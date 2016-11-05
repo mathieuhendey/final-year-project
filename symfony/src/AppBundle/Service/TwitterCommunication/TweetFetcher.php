@@ -34,7 +34,7 @@ class TweetFetcher implements TweetFetcherInterface
      *
      * @var string
      */
-    const OAUTH_CALLBACK = 'http://localhost/authorise';
+    const OAUTH_CALLBACK = 'http://localhost/app_dev.php/authorise';
 
     /**
      * Third party library that allows hitting generic endpoints on the Twitter
