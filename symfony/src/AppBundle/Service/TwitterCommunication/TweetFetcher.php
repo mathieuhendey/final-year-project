@@ -34,7 +34,7 @@ class TweetFetcher implements TweetFetcherInterface
      *
      * @var string
      */
-    const OAUTH_CALLBACK = 'http://localhost/app_dev.php/authorise';
+    const OAUTH_CALLBACK = 'http://localhost/authorise';
 
     /**
      * Third party library that allows hitting generic endpoints on the Twitter
@@ -76,7 +76,7 @@ class TweetFetcher implements TweetFetcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getAuthorisationURL(): string
+    public function getAuthorisationUrl(): string
     {
         $requestToken = $this->twitterOAuth->oauth('oauth/request_token', ['oauth_callback' => self::OAUTH_CALLBACK]);
         $this->session->set('oauth_token', $requestToken['oauth_token']);
@@ -132,7 +132,8 @@ class TweetFetcher implements TweetFetcherInterface
      */
     public function getAccountDetails()
     {
-        return $this->twitterOAuth->get('account/verify_credentials');
+        $detailsArray = json_decode(json_encode($this->twitterOAuth->get('account/verify_credentials')), true);
+        return $detailsArray;
     }
 
     /**

@@ -4,4 +4,12 @@
 
 <a href="{{ url('authorise_with_twitter') }}">Authorise on Twitter</a>
 
+
+    <ul>
+        {% for key, value in account_information %}
+            <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+
 {% endblock %}

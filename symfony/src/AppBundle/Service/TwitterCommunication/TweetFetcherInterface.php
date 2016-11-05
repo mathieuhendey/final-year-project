@@ -28,7 +28,7 @@ interface TweetFetcherInterface
      *
      * @throws \Exception
      */
-    public function getAuthorisationURL(): string;
+    public function getAuthorisationUrl(): string;
 
     /**
      * Given a user, return their Tweets.
@@ -72,7 +72,7 @@ interface TweetFetcherInterface
      * This includes things like their real name, their user name, a summary
      * of their recent Tweets etc.
      *
-     * @return array|object
+     * @return array
      */
     public function getAccountDetails();
 

@@ -10,7 +10,7 @@
 
 namespace AppBundle\Controller\TwitterAuthorisation;
 
-use AppBundle\Service\TwitterCommunication\TweetFetcher;
+use AppBundle\Service\TwitterCommunication\TweetFetcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +30,7 @@ use Symfony\Component\Routing\RouterInterface;
 class TwitterAuthorisationController extends Controller
 {
     /**
-     * @var TweetFetcher
+     * @var TweetFetcherInterface
      */
     private $tweetFetcher;
 
@@ -47,12 +47,12 @@ class TwitterAuthorisationController extends Controller
     /**
      * TwitterAuthorisation constructor.
      *
-     * @param TweetFetcher    $tweetFetcher
-     * @param Session         $session
-     * @param RouterInterface $router
+     * @param TweetFetcherInterface $tweetFetcher
+     * @param Session               $session
+     * @param RouterInterface       $router
      */
     public function __construct(
-        TweetFetcher $tweetFetcher,
+        TweetFetcherInterface $tweetFetcher,
         Session $session,
         RouterInterface $router
     ) {
@@ -72,8 +72,7 @@ class TwitterAuthorisationController extends Controller
      */
     public function authoriseOnTwitterAction(): RedirectResponse
     {
-        $url = $this->tweetFetcher->getAuthorisationURL();
-        $this->redirect($url);
+        $url = $this->tweetFetcher->getAuthorisationUrl();
 
         return $this->redirect($url);
     }

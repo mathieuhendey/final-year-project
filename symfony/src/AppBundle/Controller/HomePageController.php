@@ -10,12 +10,10 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Service\TwitterCommunication\TweetFetcher;
+use AppBundle\Service\TwitterCommunication\TweetFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Templating\EngineInterface;
 
 /**
@@ -28,53 +26,27 @@ use Symfony\Component\Templating\EngineInterface;
 class HomePageController extends Controller
 {
     /**
-     * Service for communicating with the Twitter API.
-     *
-     * @var TweetFetcher
+     * @var TweetFetcherInterface
      */
     private $tweetFetcher;
 
     /**
-     * Symfony's templating engine. Converts Twig templates into HTML.
-     *
      * @var EngineInterface
      */
     private $templating;
 
     /**
-     * Symfony's router. Generates URLs from route names and replaces any
-     * provided parameter placeholders.
-     *
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * Session used for sharing data throughout the app. Used while I implement
-     * persistence to the DB.
-     *
-     * @var Session
-     */
-    private $session;
-
-    /**
      * DefaultController constructor.
      *
-     * @param TweetFetcher    $tweetFetcher
-     * @param EngineInterface $templating
-     * @param RouterInterface $router
-     * @param Session         $session
+     * @param TweetFetcherInterface $tweetFetcher
+     * @param EngineInterface       $templating
      */
     public function __construct(
-        TweetFetcher $tweetFetcher,
-        EngineInterface $templating,
-        RouterInterface $router,
-        Session $session
+        TweetFetcherInterface $tweetFetcher,
+        EngineInterface $templating
     ) {
         $this->tweetFetcher = $tweetFetcher;
         $this->templating = $templating;
-        $this->router = $router;
-        $this->session = $session;
     }
 
     /**
@@ -86,8 +58,7 @@ class HomePageController extends Controller
     public function indexAction(): array
     {
         // For a POC just dump the authenticated user's details to the screen.
-        var_dump($this->tweetFetcher->getAccountDetails());
 
-        return [];
+        return ['account_information' => $this->tweetFetcher->getAccountDetails()];
     }
 }
