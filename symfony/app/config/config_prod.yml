@@ -1,6 +1,11 @@
 imports:
     - { resource: config.yml }
 
+parameters:
+    twitter_consumer_key: JV17DbGnqbEvj9NX7r1Rqlx8F
+    twitter_consumer_secret: NA0miJ5a58bglYIwtOAa0WiMMaC3lGCMmNuJi3Db4k1azgnU0u
+    twitter_callback_url: "http://178.62.71.43/authorise"
+
 #doctrine:
 #    orm:
 #        metadata_cache_driver: apc
