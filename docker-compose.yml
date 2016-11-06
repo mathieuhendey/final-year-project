@@ -30,7 +30,7 @@ services:
             - ./symfony_logs:/var/www/symfony/app/logs
             - ./symfony_cache:/var/www/symfony/app/cache
         links:
-          - db:mysqldb
+          - db:database
 
     nginx:
         container_name: nginx

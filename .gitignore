@@ -2,3 +2,4 @@
 /symfony/vendor
 /symfony/var/cache
 .idea
+.data
