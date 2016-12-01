@@ -10,10 +10,10 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Service\TwitterCommunication\TweetFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Templating\EngineInterface;
 
 /**
@@ -26,11 +26,6 @@ use Symfony\Component\Templating\EngineInterface;
 class HomePageController extends Controller
 {
     /**
-     * @var TweetFetcherInterface
-     */
-    private $tweetFetcher;
-
-    /**
      * @var EngineInterface
      */
     private $templating;
@@ -38,14 +33,10 @@ class HomePageController extends Controller
     /**
      * DefaultController constructor.
      *
-     * @param TweetFetcherInterface $tweetFetcher
      * @param EngineInterface       $templating
      */
-    public function __construct(
-        TweetFetcherInterface $tweetFetcher,
-        EngineInterface $templating
-    ) {
-        $this->tweetFetcher = $tweetFetcher;
+    public function __construct(EngineInterface $templating)
+    {
         $this->templating = $templating;
     }
 
@@ -57,8 +48,6 @@ class HomePageController extends Controller
      */
     public function indexAction(): array
     {
-        // For a POC just dump the authenticated user's details to the screen.
 
-        return ['account_information' => $this->tweetFetcher->getAccountDetails()];
     }
 }
