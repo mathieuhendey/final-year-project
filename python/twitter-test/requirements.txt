@@ -1,0 +1,6 @@
+tweepy == 3.5.0
+falcon
+gunicorn
+PyMySQL
+dataset
+celery
