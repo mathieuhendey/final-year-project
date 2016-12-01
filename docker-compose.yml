@@ -10,6 +10,11 @@ volumes:
 
 
 services:
+    rabbit:
+      container_name: rabbitMQ
+      image: rabbitmq:latest
+      ports:
+        - 5672
     db:
         container_name: database
         image: mysql
@@ -25,12 +30,16 @@ services:
     php:
         container_name: php_fpm
         build: ./php-fpm
+        environment:
+          - AMPQ_ADDRESS=amqp://rabbit:5672
         volumes:
             - ./symfony:/var/www/symfony
             - ./symfony_logs:/var/www/symfony/app/logs
             - ./symfony_cache:/var/www/symfony/app/cache
         links:
           - db:database
+          - python:python
+          - rabbit
 
     nginx:
         container_name: nginx
@@ -41,3 +50,16 @@ services:
             - php:ro
         volumes:
             - nginx_logs:/var/log/nginx
+
+    python:
+      container_name: python
+      build: ./python
+      environment:
+        - AMPQ_ADDRESS=amqp://rabbit:5672
+      expose:
+        - "80"
+      depends_on:
+        - db
+      links:
+        - db:database
+        - rabbit
