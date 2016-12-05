@@ -1,9 +1,9 @@
 import falcon
-from os import environ
-from celery import Celery
 import tweepy
 import time
 import dataset
+import logging
+import traceback
 
 TWITTER_APP_KEY = '8QIz3eR8jPgzGbyl6kzw'
 TWITTER_APP_SECRET = 'uDaycgKRCHRIilZFdkvZznJCWGZqcvZ6t9aZeo1GiI'
@@ -11,7 +11,6 @@ TWITTER_KEY = '69321956-8hNBZHTC48vrXgcfyJkE81MgpUrv46r2GdevAMsF4'
 TWITTER_SECRET = 'mbINiYnlWxaxxoghhIwjGib2baZ9u21qiODXJxUUCwy0K'
 
 endpoint = application = falcon.API()
-celery = Celery('twitter_sentiment', broker=environ.get('AMPQ_ADDRESS'))
 
 
 class StreamListener(tweepy.StreamListener):
@@ -27,32 +26,32 @@ class StreamListener(tweepy.StreamListener):
     def on_status(self, status):
         if self.num_tweets > 200 or time.time() > self.start + self.MAX_EXEC_TIME:
             return False
-        self.table.insert(dict(status_text=status.text.encode('latin-1', 'ignore')))
-        print(status.text)
+        status_dict = {
+            'tweet_id': status.id_str,
+            'author': status.user.name.encode('latin-1', 'ignore'),
+            'text': status.text.encode('latin-1', 'ignore'),
+            'in_reply_to_status_id': getattr(status, 'in_reply_to_status_id_str', None),
+            'in_reply_to_user_id': getattr(status, 'in_reply_to_user_id_str', None)
+        }
+        self.table.insert(status_dict)
         self.num_tweets += 1
 
     def on_error(self, status_code):
+        logging.critical(status_code)
         if status_code == 420:
             print('Rate limited!')
 
 
 class Tweet(object):
-
-    def __init__(self):
-        self.auth = tweepy.OAuthHandler(TWITTER_APP_KEY, TWITTER_APP_SECRET)
-        self.auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
-        self.api = tweepy.API(self.auth)
-        self.stream_listener = StreamListener()
-        self.stream = tweepy.Stream(auth=self.api.auth, listener=self.stream_listener)
+    auth = tweepy.OAuthHandler(TWITTER_APP_KEY, TWITTER_APP_SECRET)
+    auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
+    api = tweepy.API(auth)
+    stream_listener = StreamListener()
+    stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
 
     def on_get(self, req, resp):
-        if not self.stream.running:
-            self.stream_listener.num_tweets = 0
-            self.stream.filter(track=["trump", "clinton", "hillary clinton", "donald trump"])
-            resp.status = falcon.HTTP_200
-            resp.body = "Processing..."
-        else:
-            resp.status = falcon.HTTP_429
+        self.stream.filter(track=['and'], async=True)
+        resp.status = falcon.HTTP_200
 
 tweets = Tweet()
 endpoint.add_route('/tweets', tweets)
