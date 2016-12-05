@@ -15,11 +15,11 @@ endpoint = application = falcon.API()
 
 class StreamListener(tweepy.StreamListener):
     MAX_EXEC_TIME = 300
+    num_tweets = 0
+    start = time.time()
 
     def __init__(self):
         super(StreamListener, self).__init__()
-        self.num_tweets = 0
-        self.start = time.time()
         self.db = dataset.connect('mysql+pymysql://root:root@database/twitter_analyser?charset=utf8&use_unicode=1')
         self.table = self.db['tweets']
 
@@ -39,7 +39,7 @@ class StreamListener(tweepy.StreamListener):
     def on_error(self, status_code):
         logging.critical(status_code)
         if status_code == 420:
-            print('Rate limited!')
+            logging.critical('Rate limited!')
 
 
 class Tweet(object):
@@ -50,8 +50,13 @@ class Tweet(object):
     stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
 
     def on_get(self, req, resp):
-        self.stream.filter(track=['and'], async=True)
-        resp.status = falcon.HTTP_200
+        if not self.stream.running:
+            self.stream.listener.start = time.time()
+            self.stream.listener.num_tweets = 0
+            self.stream.filter(track=['and'], async=True)
+            resp.status = falcon.HTTP_200
+        else:
+            resp.status = falcon.HTTP_409
 
 tweets = Tweet()
 endpoint.add_route('/tweets', tweets)
