@@ -7,21 +7,16 @@ volumes:
         driver: local
     nginx_logs:
         driver: local
-
+    db_data:
 
 services:
-    rabbit:
-      container_name: rabbitMQ
-      image: rabbitmq:latest
-      ports:
-        - 5672
     db:
         container_name: database
         image: mysql
         ports:
             - 3306:3306
         volumes:
-            - "./.data/db:/var/lib/mysql"
+            - ./db_data:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: twitter_analyser
@@ -30,16 +25,15 @@ services:
     php:
         container_name: php_fpm
         build: ./php-fpm
-        environment:
-          - AMPQ_ADDRESS=amqp://rabbit:5672
         volumes:
             - ./symfony:/var/www/symfony
             - ./symfony_logs:/var/www/symfony/app/logs
             - ./symfony_cache:/var/www/symfony/app/cache
+        depends_on:
+            - db
         links:
           - db:database
           - python:python
-          - rabbit
 
     nginx:
         container_name: nginx
@@ -54,12 +48,10 @@ services:
     python:
       container_name: python
       build: ./python
-      environment:
-        - AMPQ_ADDRESS=amqp://rabbit:5672
+      restart: always
       expose:
         - "80"
       depends_on:
         - db
       links:
         - db:database
-        - rabbit
