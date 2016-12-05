@@ -4,3 +4,4 @@
 .idea
 *.pyc
 python/twitter-test/__pycache__
+db_data/
