@@ -27,9 +27,6 @@
         "sensio/generator-bundle": "^3.0",
         "symfony/phpunit-bridge": "^3.0"
     },
-    "require-dev": {
-        "etsy/phan": "dev-master"
-    },
     "scripts": {
         "symfony-scripts": [
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",

@@ -48,6 +48,6 @@ class HomePageController extends Controller
      */
     public function indexAction(): array
     {
-
+        return ['test' => 'todo'];
     }
 }
