@@ -2,4 +2,5 @@
 /symfony/vendor
 /symfony/var/cache
 .idea
-.data
+*.pyc
+python/twitter-test/__pycache__
