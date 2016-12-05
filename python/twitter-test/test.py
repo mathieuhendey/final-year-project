@@ -3,7 +3,6 @@ import tweepy
 import time
 import dataset
 import logging
-import traceback
 
 TWITTER_APP_KEY = '8QIz3eR8jPgzGbyl6kzw'
 TWITTER_APP_SECRET = 'uDaycgKRCHRIilZFdkvZznJCWGZqcvZ6t9aZeo1GiI'
@@ -29,6 +28,7 @@ class StreamListener(tweepy.StreamListener):
         status_dict = {
             'tweet_id': status.id_str,
             'author': status.user.name.encode('latin-1', 'ignore'),
+            'author_id': status.user.id_str,
             'text': status.text.encode('latin-1', 'ignore'),
             'in_reply_to_status_id': getattr(status, 'in_reply_to_status_id_str', None),
             'in_reply_to_user_id': getattr(status, 'in_reply_to_user_id_str', None)
