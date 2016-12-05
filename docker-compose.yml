@@ -14,7 +14,9 @@ services:
         container_name: database
         image: mysql
         ports:
-            - 3306:3306
+            - 3305:3306
+        expose:
+            - "3306"
         volumes:
             - ./db_data:/var/lib/mysql
         environment:
