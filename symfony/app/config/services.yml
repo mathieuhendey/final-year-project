@@ -7,3 +7,6 @@ services:
   app.home_page_controller:
     class:     AppBundle\Controller\HomePageController
     arguments: ['@templating', '@router', '@session']
+  app.results_page_controller:
+      class:     AppBundle\Controller\HomePageController
+      arguments: ['@app.analysis_getter']
