@@ -1,9 +1,9 @@
 services:
   app.curl_wrapper:
     class: AppBundle\Service\CurlWrapper
-  app.analaysis_getter:
+  app.analysis_getter:
     class: AppBundle\Service\AnalysisGetter
-    arguments: ['@app.analysis_getter']
+    arguments: ['@app.curl_wrapper']
   app.home_page_controller:
     class:     AppBundle\Controller\HomePageController
     arguments: ['@templating', '@router', '@session']
