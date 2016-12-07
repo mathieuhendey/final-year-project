@@ -6,6 +6,7 @@ before_script:
   - phpenv config-rm xdebug.ini
 
 script:
+  - docker-compose up -d db
   - docker-compose up -d
   - cd symfony && composer install --no-dev
   - docker exec -it php_fpm bash -lc "cd /var/www/symfony && php vendor/phpunit/phpunit/phpunit"

@@ -10,35 +10,23 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\AnalysisTopic;
+use AppBundle\Entity\AnalysisUser;
+use AppBundle\Model\AnalysisObject;
+use AppBundle\Service\AnalysisGetter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Templating\EngineInterface;
 
 /**
  * Handles the home page of the application.
  *
  * @author Mathieu Hendey <mhendey01@qub.ac.uk>
- *
- * @Route(service="app.home_page_controller")
  */
 class HomePageController extends Controller
 {
-    /**
-     * @var EngineInterface
-     */
-    private $templating;
-
-    /**
-     * DefaultController constructor.
-     *
-     * @param EngineInterface       $templating
-     */
-    public function __construct(EngineInterface $templating)
-    {
-        $this->templating = $templating;
-    }
 
     /**
      * @Route("/", name="homepage")
@@ -49,5 +37,32 @@ class HomePageController extends Controller
     public function indexAction(): array
     {
         return ['test' => 'todo'];
+    }
+
+    /**
+     * @Route("/analyse", name="analyse")
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function beginAnalysisAction(Request $request)
+    {
+        $analysisGetter = $this->get('app.analysis_getter');
+        $result = $analysisGetter->startAnalysis($request);
+
+        if ($result === false) {
+        } elseif ($result->isTopic()) {
+            $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
+            return $this->redirectToRoute(
+                'results',
+                ['type' => AnalysisGetter::TYPE_PARAM_TOPIC_VALUE, 'term' => $topic->getTerm()]
+            );
+        } else {
+            $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
+            return $this->redirectToRoute(
+                'results',
+                ['type' => AnalysisGetter::TYPE_PARAM_USER_VALUE, 'term' => $user->getTerm()]
+            );
+        }
     }
 }

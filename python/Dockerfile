@@ -1,9 +1,11 @@
 FROM python:latest
 
-ADD ./twitter-test/requirements.txt /twitter-test/requirements.txt
-WORKDIR /twitter-test
+MAINTAINER Mathieu Hendey
+
+COPY ./twitter-analyser/requirements.txt /twitter-analyser/requirements.txt
+WORKDIR /twitter-analyser
 RUN pip install -r requirements.txt
 
-ADD ./twitter-test /twitter-test
+COPY ./twitteranalyser /twitteranalyser
 
-CMD gunicorn -b 0.0.0.0:80 test
+CMD gunicorn -b 0.0.0.0:80 analyser_endpoint
