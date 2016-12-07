@@ -3,4 +3,3 @@ falcon
 gunicorn
 PyMySQL
 dataset
-celery
