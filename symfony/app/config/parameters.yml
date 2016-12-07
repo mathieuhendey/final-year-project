@@ -1,6 +1,6 @@
 # This file is auto-generated during the composer install
 parameters:
-    database_host: mysqldb
+    database_host: database
     database_port: null
     database_name: twitter_analyser
     database_user: root
