@@ -2,8 +2,8 @@ FROM python:latest
 
 MAINTAINER Mathieu Hendey
 
-COPY ./twitter-analyser/requirements.txt /twitter-analyser/requirements.txt
-WORKDIR /twitter-analyser
+COPY ./twitteranalyser/requirements.txt /twitteranalyser/requirements.txt
+WORKDIR /twitteranalyser
 RUN pip install -r requirements.txt
 
 COPY ./twitteranalyser /twitteranalyser
