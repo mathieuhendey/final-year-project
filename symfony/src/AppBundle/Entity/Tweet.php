@@ -14,14 +14,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tweets",uniqueConstraints={@ORM\UniqueConstraint(name="id_UNIQUE", columns={"id"})})
+ * @ORM\Table(name="tweet")
  */
 class Tweet
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue
      */
@@ -30,9 +30,46 @@ class Tweet
     /**
      * @var string
      *
-     * @ORM\Column(name="tweet_id", type="string", nullable=false)
+     * @ORM\ManyToOne(targetEntity="AnalysisTopic", inversedBy="tweets")
+     * @ORM\JoinColumn(name="analysis_topic_id", nullable=true)
      */
-    protected $tweetId;
+    protected $analysisTopicId;
+
+    /**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="AnalysisUser", inversedBy="tweets")
+     * @ORM\JoinColumn(name="analysis_user_id", nullable=true)
+     */
+    protected $analysisUserId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="author_screen_name", type="string")
+     */
+    protected $authorScreenName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="author_id", type="string")
+     */
+    protected $authorId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="in_reply_to_user_id")
+     */
+    protected $inReplyToUserId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="in_reply_to_screen_name", type="string")
+     */
+    protected $inReplyToScreenName;
 
     /**
      * @var string
@@ -44,30 +81,21 @@ class Tweet
     /**
      * @var string
      *
-     * @ORM\Column(name="text", type="string")
+     * @ORM\Column(name="tweet_id", type="string")
+     */
+    protected $tweetId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tweet_text", type="string")
      */
     protected $text;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="in_reply_to_user_id", type="string")
-     */
-    protected $inReplyToUserId;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="author", type="string")
-     */
-    protected $author;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="author_id", type="string")
-     */
-    protected $authorId;
+    public function __construct()
+    {
+        $this->analysisTopicId = null;
+    }
 
     /**
      * @return int
@@ -80,25 +108,33 @@ class Tweet
     /**
      * @return string
      */
-    public function getTweetId(): string
+    public function getAnalysisTopicId(): string
     {
-        return $this->tweetId;
+        return $this->analysisTopicId;
     }
 
     /**
      * @return string
      */
-    public function getInReplyToStatusId(): string
+    public function getAnalysisUserId(): string
     {
-        return $this->inReplyToStatusId;
+        return $this->analysisUserId;
     }
 
     /**
      * @return string
      */
-    public function getText(): string
+    public function getAuthorScreenName(): string
     {
-        return $this->text;
+        return $this->authorScreenName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthorId(): string
+    {
+        return $this->authorId;
     }
 
     /**
@@ -112,17 +148,32 @@ class Tweet
     /**
      * @return string
      */
-    public function getAuthor(): string
+    public function getInReplyToScreenName(): string
     {
-        return $this->author;
+        return $this->inReplyToScreenName;
     }
 
     /**
      * @return string
      */
-    public function getAuthorId(): string
+    public function getInReplyToStatusId(): string
     {
-        return $this->authorId;
+        return $this->inReplyToStatusId;
     }
 
+    /**
+     * @return string
+     */
+    public function getTweetId(): string
+    {
+        return $this->tweetId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getText(): string
+    {
+        return $this->text;
+    }
 }
