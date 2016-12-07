@@ -19,6 +19,7 @@ services:
             - "3306"
         volumes:
             - ./db_data:/var/lib/mysql
+            - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: twitter_analyser
@@ -49,6 +50,8 @@ services:
 
     python:
       container_name: python
+      environment:
+          - PYTHONUNBUFFERED=0
       build: ./python
       restart: always
       expose:
