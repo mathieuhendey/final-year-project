@@ -10,29 +10,30 @@
 
 namespace AppBundle\Service;
 
-
 class CurlWrapper
 {
-    private $curl;
 
-    public function __construct()
+    /**
+     * @param string $path
+     * @return mixed The body or false on error
+     */
+    public function makeGetRequest(string $path)
     {
-        $this->curl = curl_init();
-    }
-
-    public function makeGetRequest(string $path): string
-    {
-        curl_setopt_array($this->curl, array(
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HEADER => true,
-            CURLOPT_NOBODY => true,
             CURLOPT_URL => $path
         ));
 
-        curl_exec($this->curl);
-        $responseCode = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
-        curl_close($this->curl);
+        $response = curl_exec($curl);
 
-        return $responseCode;
+        if (curl_getinfo($curl, CURLINFO_HTTP_CODE) == '409') {
+            return false;
+        }
+        $body = json_decode($response, true);
+
+        curl_close($curl);
+
+        return $body;
     }
 }
