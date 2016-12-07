@@ -13,6 +13,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * A topic, as opposed to a user.
+ *
  * @ORM\Entity
  * @ORM\Table(name="analysis_topic")
  */

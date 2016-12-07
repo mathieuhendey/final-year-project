@@ -9,6 +9,11 @@
 
 namespace AppBundle\Model;
 
+/**
+ * Represents the response from the Python API.
+ *
+ * @package AppBundle\Model
+ */
 class AnalysisObject
 {
     /**

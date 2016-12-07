@@ -13,6 +13,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * A Twitter user that someone has told the analyser to follow.
+ *
  * @ORM\Entity
  * @ORM\Table(name="analysis_user")
  */

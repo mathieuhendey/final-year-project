@@ -13,6 +13,8 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * A Tweet.
+ *
  * @ORM\Entity
  * @ORM\Table(name="tweet")
  */
@@ -28,6 +30,9 @@ class Tweet
     protected $id;
 
     /**
+     * This will be null if the Tweet was collected during streaming of a
+     * topic.
+     *
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AnalysisTopic", inversedBy="tweets")
@@ -36,6 +41,7 @@ class Tweet
     protected $analysisTopicId;
 
     /**
+     * This will be null if the Tweet was collected during streaming of a user.
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AnalysisUser", inversedBy="tweets")

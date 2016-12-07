@@ -10,6 +10,11 @@
 
 namespace AppBundle\Service;
 
+/**
+ * Simple wrapper around curl to make unit testing easier.
+ *
+ * @package AppBundle\Service
+ */
 class CurlWrapper
 {
 

@@ -106,6 +106,10 @@ class AnalysisGetter
         return $url;
     }
 
+    /**
+     * @param string $filterTerm The filter term to be streamed.
+     * @return string The type of the filter term, user or topic.
+     */
     private function getFilterType(string $filterTerm): string
     {
         if ($filterTerm[0] == '@') {
