@@ -10,41 +10,108 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Model\AnalysisObject;
+use Symfony\Component\HttpFoundation\Request;
+
 class AnalysisGetter
 {
     const API_URL = 'http://python/tweets';
+    const TYPE_PARAM = 'type';
+    const TERM_PARAM = 'term';
+    const EXEC_TIME_PARAM = 'exec_time';
+    const EXEC_NUMBER_PARAM = 'exec_number';
+
+    const USER_RESPONSE_BODY_KEY = 'user_id';
+    const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
+
+    const TYPE_PARAM_TOPIC_VALUE = 'topic';
+    const TYPE_PARAM_USER_VALUE = 'user';
+
+    const DEFAULT_EXEC_NUMBER = '200';
+    const DEFAULT_EXEC_TIME = '300';
+
     /**
      * @var CurlWrapper
      */
     private $curl;
 
-    public function __construct(CurlWrapper $curl)
+    private $logger;
+
+    public function __construct(CurlWrapper $curl, $logger)
     {
         $this->curl = $curl;
+        $this->logger = $logger;
     }
 
     /**
-     * @param string $filterTerm
-     * @return bool true if analysis was successfully started, false if not
+     * @param Request $request
+     * @return AnalysisObject if analysis was successfully started, false if not
      */
-    public function startAnalysis(string $filterTerm): bool
+    public function startAnalysis(Request $request): AnalysisObject
     {
-        $httpCode = $this->curl->makeGetRequest($this->assembleUrl($filterTerm));
-        if ($httpCode === "200") {
-            return true;
+        $filterTerm = $request->get(self::TERM_PARAM);
+        $filterType = $this->getFilterType($filterTerm);
+        $execTime = $request->get(self::EXEC_TIME_PARAM);
+        $execNumber = $request->get(self::EXEC_NUMBER_PARAM);
+
+        $url = $this->assembleUrl($filterType, $filterTerm, $execTime, $execNumber);
+        $response = $this->curl->makeGetRequest($url);
+
+        if ($response === false) {
+            return new AnalysisObject(false, 0, true);
+        }
+        if (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $response)) {
+            return new AnalysisObject(true, $response[self::TOPIC_RESPONSE_BODY_KEY]);
+        } elseif (array_key_exists(self::USER_RESPONSE_BODY_KEY, $response)) {
+            return new AnalysisObject(false, $response[self::USER_RESPONSE_BODY_KEY]);
         }
 
-        return false;
+        return new AnalysisObject(false, 0, true);
     }
 
     /**
+     * @param string $filterType
      * @param string $filterTerm
+     * @param string $execTime
+     * @param string $execNumber
+     *
      * @return string
      */
-    private function assembleUrl(string $filterTerm): string
-    {
-        $url = self::API_URL.'?track='.$filterTerm;
+    private function assembleUrl(
+        string $filterType,
+        string $filterTerm,
+        string $execTime,
+        string $execNumber
+    ): string {
+        if ($filterType == self::TYPE_PARAM_USER_VALUE) {
+            $filterTerm = str_replace('@', '', $filterTerm);
+        } elseif ($filterType == self::TYPE_PARAM_TOPIC_VALUE) {
+            $filterTerm = rawurlencode($filterTerm);
+        }
+
+        if (is_null($execTime)) {
+            $execTime = self::DEFAULT_EXEC_TIME;
+        }
+
+        if (is_null($execNumber)) {
+            $execNumber = self::DEFAULT_EXEC_NUMBER;
+        }
+
+        $url = self::API_URL.'?'
+            .self::TYPE_PARAM.'='.$filterType.'&'
+            .self::TERM_PARAM.'='.$filterTerm.'&'
+            .self::EXEC_TIME_PARAM.'='.$execTime.'&'
+            .self::EXEC_NUMBER_PARAM .'='.$execNumber;
 
         return $url;
+    }
+
+    private function getFilterType(string $filterTerm): string
+    {
+        if ($filterTerm[0] == '@') {
+            return self::TYPE_PARAM_USER_VALUE;
+        } else {
+            return self::TYPE_PARAM_TOPIC_VALUE;
+        }
     }
 }
