@@ -1,7 +1,22 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <div id="tweet_list">
+        {% include 'default/tweet_list.html.twig' %}
+    </div>
 
-    {{ test }}
-
+    {#<script>#}
+        {#$.ajax({#}
+            {#url: '{{ path("refresh") }}',#}
+            {#type: 'get',#}
+            {#data: null,#}
+            {#async: false,#}
+            {#dataType: 'html',#}
+            {#success: function(data, textStatus, jqXHR){#}
+                {#$("#tweet_list").html(data);#}
+            {#},#}
+            {#error: function(jqXHR, textStatus, errorThrown){},#}
+            {#complete: function( jqXHR, textStatus ){}#}
+        {#});#}
+    {#</script>#}
 {% endblock %}

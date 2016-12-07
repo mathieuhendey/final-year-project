@@ -1,7 +1,16 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <form action="{{ path('analyse') }}" method="get">
+        <label for="term">Term:</label>
+        <input id="term" name='term' type="text">
 
-{{ test }}
+        <label for="exec_time">Execution time:</label>
+        <input id="exec_time" name='exec_time' type="text">
 
+        <label for="exec_number">Number of tweets:</label>
+        <input id="exec_number" name='exec_number' type="text">
+
+        <input type="submit" value="Analyse">
+    </form>
 {% endblock %}
