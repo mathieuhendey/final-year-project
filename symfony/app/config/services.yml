@@ -3,10 +3,4 @@ services:
     class: AppBundle\Service\CurlWrapper
   app.analysis_getter:
     class: AppBundle\Service\AnalysisGetter
-    arguments: ['@app.curl_wrapper']
-  app.home_page_controller:
-    class:     AppBundle\Controller\HomePageController
-    arguments: ['@templating', '@router', '@session']
-  app.results_page_controller:
-      class:     AppBundle\Controller\HomePageController
-      arguments: ['@app.analysis_getter']
+    arguments: ['@app.curl_wrapper', '@logger']
