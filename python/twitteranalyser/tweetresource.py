@@ -1,90 +1,143 @@
-import json
-from urllib import parse
+from json import dumps
+from urllib.parse import unquote
 import logging
-import time
+from time import time
 
 import falcon
 import tweepy
 import dataset
 
 from twitteranalyserstreamlistener import StreamListener
-
-TWITTER_APP_KEY = 'GpFmKlYeKJ2WoAuPydGqXDnZW'
-TWITTER_APP_SECRET = 'mLste69X6FOqNwcAw8b6tcI8m2avhnl8QYpjUXlsd5mncW6CGE'
-TWITTER_KEY = '69321956-eExmX9kaFmtutwXrrn5nfuu8p2n1bxZtXjhScUV82'
-TWITTER_SECRET = 'a832WpLH7ERGpAqhtt6K4Nj07hI83LDXaOZZxp7QhjMaM'
-
-DB_URL = 'mysql+pymysql://root:root@database/twitter_analyser?charset=utf8mb4'
-TWEET_TOPIC_TABLE = 'analysis_topic'
-TWEET_USER_TABLE = 'analysis_user'
-TWEET_TABLE = 'tweet'
-TWEET_TOPIC_TABLE_KEY_NAME = 'analysis_topic_id'
-TWEET_USER_TABLE_KEY_NAME = 'analysis_user_id'
-
-REQUEST_TYPE_PARAM = 'type'
-REQUEST_TERM_PARAM = 'term'
-REQUEST_EXEC_TIME_PARAM = 'exec_time'
-REQUEST_EXEC_NUMBER_PARAM = 'exec_number'
-
-FILTER_TYPE_USER = 'user'
-FILTER_TYPE_TOPIC = 'topic'
+import constants
 
 
 class Tweet(object):
-    auth = tweepy.OAuthHandler(TWITTER_APP_KEY, TWITTER_APP_SECRET)
-    auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
-    api = tweepy.API(auth)
-    db = dataset.connect(DB_URL)
-    tweet_topic_table = db[TWEET_TOPIC_TABLE]
-    tweet_user_table = db[TWEET_USER_TABLE]
-    tweet_table = db[TWEET_TABLE]
-    stream_listener = StreamListener()
-    stream_listener.tweet_table = tweet_table
-    stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
-    logging.critical('Ready!')
+    """Represents the '/tweets' endpoint of the API."""
 
-    def on_get(self, req, resp):
+    def __init__(self):
+        self.auth = tweepy.OAuthHandler(
+            constants.TWITTER_APP_KEY,
+            constants.TWITTER_APP_SECRET
+        )
+
+        self.auth.set_access_token(
+            constants.TWITTER_KEY,
+            constants.TWITTER_SECRET
+        )
+
+        self.api = tweepy.API(self.auth)
+        self.db = dataset.connect(constants.DB_URL)
+        self.tweet_topic_table = self.db[constants.TWEET_TOPIC_TABLE]
+        self.tweet_user_table = self.db[constants.TWEET_USER_TABLE]
+        self.stream_listener = StreamListener()
+        self.stream_listener.tweet_table = self.db[constants.TWEET_TABLE]
+        self.stream = tweepy.Stream(
+            auth=self.api.auth,
+            listener=self.stream_listener
+        )
+        logging.critical('Ready!')
+
+    def on_get(self, req: falcon.Request, resp: falcon.Response) -> falcon.Response:
+        """
+        When a GET request is received, parse the query parameters provided
+        and begin streaming from Twitter.
+
+        :param req: The request from the client.
+        :param resp: The response to return to the client.
+
+        :return resp: The response to return to the client.
+        """
+
+        # Twitter allows only one stream to be running at once.
         if not self.stream.running:
             logging.critical('Starting stream...')
-            filter_term = req.get_param(REQUEST_TERM_PARAM)
-            filter_type = req.get_param(REQUEST_TYPE_PARAM)
-            filter_term = parse.unquote(filter_term)
-            filter_exec_time = req.get_param_as_int(REQUEST_EXEC_TIME_PARAM)
-            filter_number = req.get_param_as_int(REQUEST_EXEC_NUMBER_PARAM)
 
-            self.stream.listener.start = time.time()
+            # Get query parameters from request.
+            filter_term = req.get_param(constants.REQUEST_TERM_PARAM)
+            filter_type = req.get_param(constants.REQUEST_TYPE_PARAM)
+            filter_exec_time = req.get_param_as_int(constants.REQUEST_EXEC_TIME_PARAM)
+            filter_number = req.get_param_as_int(constants.REQUEST_EXEC_NUMBER_PARAM)
+
+            # Convert %20s into actual spaces (' ').
+            filter_term = unquote(filter_term)
+
+            # Initialise stream constraint counters.
+            self.stream.listener.start = time()
             self.stream.listener.num_tweets = 0
+
+            # Set stream constraints.
             self.stream_listener.max_exec_time = filter_exec_time
             self.stream_listener.max_tweets = filter_number
 
-            if filter_type == FILTER_TYPE_USER:
+            # If the query is for a user...
+            if filter_type == constants.FILTER_TYPE_USER:
+                # Check if analysis on the requested user has already been
+                # performed. If it has, get the ID of the already existing
+                # query, if not, insert a new row into the analysis_user
+                # table and get its ID.
                 analysis_user = self.tweet_user_table.find_one(term=filter_term)
                 if analysis_user is None:
                     analysis_user_id = self.tweet_user_table.insert({'term': filter_term})
                 else:
                     analysis_user_id = analysis_user['id']
-                self.stream_listener.analysis_key_name = TWEET_USER_TABLE_KEY_NAME
+
+                # Set the type of query we are performing and the id of the
+                # query so the listener knows which field should be populated
+                # and what its value should be.
+                self.stream_listener.analysis_key_name = constants.TWEET_USER_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_user_id
+
+                # Twitter requires that you get a user by their ID, not by
+                # their screen name. Therefore we need an extra call to
+                # convert the screen name into an ID.
                 user = self.api.get_user(filter_term)
+
+                # Check if the requested user actually exists. If not, return
+                # 404 not found. If it is a valid user, begin streaming
+                # asynchronously and immediately return a 200 OK to the
+                # client, with the ID of the user in the body. This is used by
+                # the client to find the Tweets associated with the user once
+                # they've been stored in our database.
                 if user is not None:
                     self.stream.filter(follow=[user.id_str], async=True)
-                    resp.body = json.dumps({'user_id': analysis_user_id})
+                    resp.body = dumps({'user_id': analysis_user_id})
                     resp.status = falcon.HTTP_OK
                 else:
                     resp.status = falcon.HTTP_NOT_FOUND
 
-            elif filter_type == FILTER_TYPE_TOPIC:
+            # If the query is for a topic...
+            elif filter_type == constants.FILTER_TYPE_TOPIC:
+
+                # Check if analysis on the requested topic has already been
+                # performed. If it has, get the ID of the already existing
+                # query, if not, insert a new row into the analysis_topic
+                # table and get its ID.
                 analysis_topic = self.tweet_topic_table.find_one(term=filter_term)
                 if analysis_topic is None:
                     analysis_topic_id = self.tweet_topic_table.insert({'term': filter_term})
                 else:
                     analysis_topic_id = analysis_topic['id']
-                self.stream_listener.analysis_key_name = TWEET_TOPIC_TABLE_KEY_NAME
+
+                # Set the type of query we are performing and the id of the
+                # query so the listener knows which field should be populated
+                # and what its value should be.
+                self.stream_listener.analysis_key_name = constants.TWEET_TOPIC_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_topic_id
+
+                # Begin streaming. We only care about Tweets in English so we
+                # specify that we only want to receive Tweets in English. Once
+                # the stream has been started, return 200 OK with the ID of
+                # the topic in the body. This is used by the client to find
+                # the Tweets associated with the topic once they've been
+                # stored in our database.
                 self.stream.filter(track=[filter_term], languages=["en"], async=True)
-                resp.body = json.dumps({'topic_id': analysis_topic_id})
+                resp.body = dumps({'topic_id': analysis_topic_id})
                 resp.status = falcon.HTTP_OK
 
+        # Only one stream can be running at once, so if another request comes
+        # in before the previous one has been completed, return 409 conflict,
+        # letting the client know that their request conflicts with an ongoing
+        # one.
         else:
-            logging.critical('Stream already running')
+            logging.critical('Stream already running!')
             resp.status = falcon.HTTP_CONFLICT
