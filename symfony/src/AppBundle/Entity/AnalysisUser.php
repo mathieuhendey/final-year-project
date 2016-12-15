@@ -69,7 +69,7 @@ class AnalysisUser
      */
     public function getTweets(): array
     {
-        return $this->tweets;
+        return $this->tweets->toArray();
     }
 
     /**

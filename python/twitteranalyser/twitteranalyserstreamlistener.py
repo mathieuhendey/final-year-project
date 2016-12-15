@@ -25,7 +25,7 @@ class StreamListener(tweepy.StreamListener):
     @max_exec_time.setter
     def max_exec_time(self, new_time: float):
         """Limit query time to 10 minutes."""
-        if new_time > 600:
+        if new_time is None or new_time > 600:
             self._max_exec_time = 600
         else:
             self._max_exec_time = new_time
@@ -37,7 +37,7 @@ class StreamListener(tweepy.StreamListener):
     @max_tweets.setter
     def max_tweets(self, tweets_to_get: int):
         """Limit number of Tweets to fetch to 10,000 Tweets."""
-        if tweets_to_get > 10000:
+        if tweets_to_get is None or tweets_to_get > 10000:
             self._max_tweets = 10000
         else:
             self._max_tweets = tweets_to_get
