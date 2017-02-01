@@ -3,3 +3,4 @@ falcon
 gunicorn
 PyMySQL
 dataset
+nltk
