@@ -2,18 +2,16 @@
 This module contains code related to extracting features and classifying Tweets
 as 'positive' or 'negative'.
 """
-
-import string
-import csv
-from typing import Union
+from csv import reader
 from math import floor
-
-from re import sub, search
-from tweepy import Status
+from string import punctuation
+from re import search
+from re import sub
+from typing import Union
 
 from nltk.corpus import stopwords
 from nltk import FreqDist
-
+from tweepy import Status
 
 class TweetPreprocessor(object):
     """
@@ -54,7 +52,7 @@ class TweetPreprocessor(object):
         for word in word_list:
             word = self.replace_letter_repetitions(word)
             starts_with_alpha = self.is_word_alpha(word)
-            if word in self.stopwords or starts_with_alpha:
+            if word in self.stopwords or not starts_with_alpha:
                 continue
             else:
                 processed_word_list.append(word)
@@ -115,7 +113,7 @@ class TweetPreprocessor(object):
         Remove all punctuation marks.
         """
 
-        no_punc_translator = str.maketrans("", "", string.punctuation)
+        no_punc_translator = str.maketrans("", "", punctuation)
         return tweet.translate(no_punc_translator)
 
     @staticmethod
@@ -169,7 +167,7 @@ class Classifier(object):
 
     def initialise_tweet_sets(self):
         """Read labelled data from CSV file."""
-        raw_labelled_tweets = csv.reader(open('data/full-corpus.csv'), delimiter=',')
+        raw_labelled_tweets = reader(open('data/full-corpus.csv'), delimiter=',')
         labelled_tweets = []
         for tweet in raw_labelled_tweets:
             sentiment = tweet[1]
@@ -180,7 +178,7 @@ class Classifier(object):
 
     def initialise_word_features(self):
         """Initialise instance variable containing all words in vector"""
-        self.word_features = self.get_word_features(self.get_all_words_in_labelled_tweets(self.training_set))
+        self.word_features = self.get_word_features(self.get_all_words(self.training_set))
 
     def split_training_and_test_sets(self):
         """Split the labelled Tweet set into 80% training and 20% testing."""
@@ -191,11 +189,11 @@ class Classifier(object):
         self.test_set = self.labelled_tweets[training_entries_number:]
 
     @staticmethod
-    def get_all_words_in_labelled_tweets(tweets: list) -> list:
+    def get_all_words(tweets: list) -> list:
         """Get every word from the data in the training set."""
 
         all_words = []
-        for (words, sentiment) in tweets:
+        for (words, _) in tweets:
             all_words.extend(words.split())
         return all_words
 
