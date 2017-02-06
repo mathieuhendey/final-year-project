@@ -6,3 +6,4 @@
 python/twitter-test/__pycache__
 db_data/
 .php_cs.cache
+.DS_Store
