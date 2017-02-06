@@ -5,6 +5,7 @@ MAINTAINER Mathieu Hendey
 COPY ./twitteranalyser/requirements.txt /twitteranalyser/requirements.txt
 WORKDIR /twitteranalyser
 RUN pip install -r requirements.txt
+RUN python -m nltk.downloader stopwords
 
 COPY ./twitteranalyser /twitteranalyser
 
