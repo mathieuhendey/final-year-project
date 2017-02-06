@@ -1,3 +1,6 @@
+"""
+Related to processing events from the Tweepy stream.
+"""
 import logging
 import time
 
@@ -7,7 +10,10 @@ import constants
 
 
 class StreamListener(tweepy.StreamListener):
-
+    """
+    The listener which listens for events on the Tweet stream and provides a
+    method to process them.
+    """
     def __init__(self):
         super(StreamListener, self).__init__()
         self._max_exec_time = 0
@@ -20,11 +26,16 @@ class StreamListener(tweepy.StreamListener):
 
     @property
     def max_exec_time(self):
+        """Getter for max_exec_time"""
         return self._max_exec_time
 
     @max_exec_time.setter
     def max_exec_time(self, new_time: float):
-        """Limit query time to 10 minutes."""
+        """
+        Setter for max_exec_time.
+
+        Limit query time to 10 minutes.
+        """
         if new_time is None or new_time > 600:
             self._max_exec_time = 600
         else:
@@ -32,11 +43,16 @@ class StreamListener(tweepy.StreamListener):
 
     @property
     def max_tweets(self):
+        """Getter for max_tweets"""
         return self._max_tweets
 
     @max_tweets.setter
     def max_tweets(self, tweets_to_get: int):
-        """Limit number of Tweets to fetch to 10,000 Tweets."""
+        """
+        Setter for max_exec_time.
+
+        Limit number of Tweets to fetch to 10,000 Tweets.
+        """
         if tweets_to_get is None or tweets_to_get > 10000:
             self._max_tweets = 10000
         else:

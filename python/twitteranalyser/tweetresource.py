@@ -1,3 +1,5 @@
+"""Represents the '/tweets' endpoint of the API."""
+
 from json import dumps
 from urllib.parse import unquote
 import logging
@@ -12,7 +14,9 @@ import constants
 
 
 class Tweet(object):
-    """Represents the '/tweets' endpoint of the API."""
+    """
+    Provides methods that are fired depending on HTTP method to endpoint.
+    """
 
     def __init__(self):
         self.auth = tweepy.OAuthHandler(
@@ -26,18 +30,18 @@ class Tweet(object):
         )
 
         self.api = tweepy.API(self.auth)
-        self.db = dataset.connect(constants.DB_URL)
-        self.tweet_topic_table = self.db[constants.TWEET_TOPIC_TABLE]
-        self.tweet_user_table = self.db[constants.TWEET_USER_TABLE]
+        self.database = dataset.connect(constants.DB_URL)
+        self.tweet_topic_table = self.database[constants.TWEET_TOPIC_TABLE]
+        self.tweet_user_table = self.database[constants.TWEET_USER_TABLE]
         self.stream_listener = StreamListener()
-        self.stream_listener.tweet_table = self.db[constants.TWEET_TABLE]
+        self.stream_listener.tweet_table = self.database[constants.TWEET_TABLE]
         self.stream = tweepy.Stream(
             auth=self.api.auth,
             listener=self.stream_listener
         )
         logging.critical('Ready!')
 
-    def on_get(self, req: falcon.Request, resp: falcon.Response) -> falcon.Response:
+    def on_get(self, req: falcon.Request, resp: falcon.Response):
         """
         When a GET request is received, parse the query parameters provided
         and begin streaming from Twitter.
