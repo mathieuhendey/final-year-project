@@ -26,7 +26,7 @@ class TestTweetPreprocessor(unittest.TestCase):
 
     def test_replace_letter_repetitions(self):
         test_tweet = 'aaaddddccc'
-        processed_tweets = self.test_preprocessor.replace_letter_repetitions(test_tweet)
+        processed_tweets = self.test_preprocessor.fix_character_repetitions(test_tweet)
         self.assertEqual('aaddcc', processed_tweets)
 
     def test_remove_hashtags(self):
