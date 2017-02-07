@@ -14,6 +14,7 @@ from re import sub
 from string import punctuation
 from typing import Iterable
 from typing import Union
+from math import floor
 
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
@@ -175,7 +176,7 @@ class Classifier(object):
     def __init__(self):
         self.labelled_tweets = []  # Pre-labelled tweets from a corpus
         self.training_set = []  # ~80% of the labelled tweets
-        self.test_set = []  # ~20% of the labelled tweets
+        self.testing_set = []  # ~20% of the labelled tweets
         self.word_features = []  # All feature words ordered by frequency
         self._classifier = None  # type: NaiveBayesClassifier
         self.initialise_tweet_sets()
@@ -243,8 +244,10 @@ class Classifier(object):
     def split_training_and_test_sets(self) -> None:
         """Split the labelled Tweet set into 80% training and 20% testing."""
 
-        # TODO: split sets
-        self.training_set = self.labelled_tweets
+        total_labelled_tweets = len(self.labelled_tweets)
+        training_slice = floor(total_labelled_tweets * 0.8)
+        self.training_set = self.labelled_tweets[:training_slice]
+        self.testing_set = self.labelled_tweets[training_slice:]
 
     @staticmethod
     def get_all_words_from_tweets(tweets: list) -> list:
