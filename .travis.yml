@@ -10,4 +10,4 @@ script:
   - docker-compose up -d
   - cd symfony && composer install --no-dev
   - docker exec -it php_fpm bash -lc "cd /var/www/symfony && php vendor/phpunit/phpunit/phpunit"
-  - docker exec -it python bash -lc "cd /twitteranalyser && python -m unittest discover tests"
+  - docker exec -it python bash -lc "cd /twitteranalyser && python -m pytest tests"

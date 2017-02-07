@@ -11,7 +11,7 @@ from typing import Union
 from tweepy import Status
 from tweepy import StreamListener as Listener
 
-import constants
+from twitteranalyser import constants
 
 
 class StreamListener(Listener):
