@@ -5,7 +5,10 @@ as 'positive' or 'negative'.
 from csv import reader
 from re import search
 from re import sub
+from pathlib import Path
+import pickle
 from string import punctuation
+from typing import Iterable
 from typing import Union
 
 from nltk import FreqDist
@@ -155,7 +158,7 @@ class TweetPreprocessor(object):
 class Classifier(object):
     """
     Extracts features from tweets and classifies them based on their
-    sentiment as positve, neutral or negative.
+    sentiment as positve or negative.
     """
 
     def __init__(self):
@@ -163,18 +166,52 @@ class Classifier(object):
         self.training_set = []  # ~80% of the labelled tweets
         self.test_set = []  # ~20% of the labelled tweets
         self.word_features = []  # All feature words ordered by frequency
-        self.classifier = None
-
-    # TODO: remove this, used only for testing
-    def train(self):
+        self._classifier = None  # type: NaiveBayesClassifier
         self.initialise_tweet_sets()
         self.initialise_word_features()
-        training = apply_features(self.extract_features, self.training_set)
-        self.classifier = NaiveBayesClassifier.train(training)
 
-    def initialise_tweet_sets(self):
-        """Read labelled data from CSV file."""
-        raw_labelled_tweets = reader(open('data/corpus.csv', encoding='utf-8', errors='ignore'), delimiter=',', quotechar='|')
+    @property
+    def classifier(self):
+        """
+        Classifier getter.
+
+        If there is no pickled classifier, train a new one and pickle it.
+        Otherwise, load the pickled classifier and set self._classifier.
+        :return:
+        """
+        if self._classifier is None:
+            if Path("data/classifier.p").is_file():
+                self.classifier = pickle.load(open('data/classifier.p', 'rb'))  # type: NaiveBayesClassifier
+            else:
+                self.classifier = self.train()
+        return self._classifier
+
+    @classifier.setter
+    def classifier(self, classifier: NaiveBayesClassifier) -> None:
+        """Classifier setter."""
+        self._classifier = classifier
+
+    def train(self) -> NaiveBayesClassifier:
+        """
+        Train the classifier.
+
+        This takes a very long time, so after training, pickle it and save it
+        to disk.
+        """
+        training_set = apply_features(self.extract_features_from_tweet, self.training_set)
+        classifier = NaiveBayesClassifier.train(training_set)
+        pickle.dump(classifier, open('data/classifier.p', 'wb'))
+        return classifier
+
+    def initialise_tweet_sets(self) -> None:
+        """
+        Read labelled data from CSV file.
+
+        A row from the CSV looks like the following:
+        |<sentiment>|,|<tweet_text>|
+        """
+        csv_file = open('data/corpus.csv', encoding='utf-8', errors='ignore')
+        raw_labelled_tweets = reader(csv_file, delimiter=',', quotechar='|')
         labelled_tweets = []
 
         for tweet in raw_labelled_tweets:
@@ -188,18 +225,18 @@ class Classifier(object):
 
         self.split_training_and_test_sets()
 
-    def initialise_word_features(self):
+    def initialise_word_features(self) -> None:
         """Initialise instance variable containing all words in vector"""
-        self.word_features = self.get_word_features(self.get_all_words(self.training_set))
+        self.word_features = self.get_word_features(self.get_all_words_from_tweets(self.training_set))
 
-    def split_training_and_test_sets(self):
+    def split_training_and_test_sets(self) -> None:
         """Split the labelled Tweet set into 80% training and 20% testing."""
 
         # TODO: split sets
         self.training_set = self.labelled_tweets
 
     @staticmethod
-    def get_all_words(tweets: list) -> list:
+    def get_all_words_from_tweets(tweets: list) -> list:
         """Get every word from the data in the training set."""
 
         all_words = []
@@ -208,25 +245,27 @@ class Classifier(object):
         return all_words
 
     @staticmethod
-    def get_word_features(word_list: list):
+    def get_word_features(word_list: list) -> Iterable:
         """Order feature words by frequency."""
 
         word_list = FreqDist(word_list)
         return word_list.keys()
 
-    def extract_features(self, tweet: list) -> dict:
+    def extract_features_from_tweet(self, tweet: Union[list, str]) -> dict:
         """
         Extract feature words from Tweet and put them into a dictionary that
         can be used by NLTK's classifiers.
         """
+        if isinstance(tweet, str):
+            tweet = tweet.split()
         tweet_words = set(tweet)
         features = {}
         for word in self.word_features:
             features['contains(%s)' % word] = (word in tweet_words)
         return features
 
-    def classify(self, tweet):
+    def classify(self, tweet: str):
         """
         Classify the given Tweet.
         """
-        return self.classifier.classify(self.extract_features(tweet.split()))
+        return self.classifier.classify(self.extract_features_from_tweet(tweet))
