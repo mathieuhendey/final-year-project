@@ -2,21 +2,22 @@
 # Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
 # Part of the AJ02 project supervised by Anna Jurek
 
-"""
-Related to processing events from the Tweepy stream.
-"""
-import logging
-import time
+"""Related to processing events from the Tweepy stream."""
 
-import tweepy
+from logging import critical as log
+from time import time
+from typing import Union
+
+from tweepy import Status
+from tweepy import StreamListener as Listener
 
 import constants
 
 
-class StreamListener(tweepy.StreamListener):
-    """
-    The listener which listens for events on the Tweet stream and provides a
-    method to process them.
+class StreamListener(Listener):
+    """Listens for events on the Tweepy stream.
+
+    Provides several methods to handle events, such as errors and statuses.
     """
 
     def __init__(self):
@@ -30,14 +31,13 @@ class StreamListener(tweepy.StreamListener):
         self.tweet_table = None
 
     @property
-    def max_exec_time(self):
+    def max_exec_time(self) -> float:
         """Getter for max_exec_time"""
         return self._max_exec_time
 
     @max_exec_time.setter
-    def max_exec_time(self, new_time: float):
-        """
-        Setter for max_exec_time.
+    def max_exec_time(self, new_time: float) -> None:
+        """Setter for max_exec_time.
 
         Limit query time to 10 minutes.
         """
@@ -47,14 +47,13 @@ class StreamListener(tweepy.StreamListener):
             self._max_exec_time = new_time
 
     @property
-    def max_tweets(self):
+    def max_tweets(self) -> int:
         """Getter for max_tweets"""
         return self._max_tweets
 
     @max_tweets.setter
-    def max_tweets(self, tweets_to_get: int):
-        """
-        Setter for max_exec_time.
+    def max_tweets(self, tweets_to_get: int) -> None:
+        """Setter for max_exec_time.
 
         Limit number of Tweets to fetch to 10,000 Tweets.
         """
@@ -63,22 +62,24 @@ class StreamListener(tweepy.StreamListener):
         else:
             self._max_tweets = tweets_to_get
 
-    def on_status(self, status):
-        """
-        Handler called every time a new status appears on the stream.
+    def on_status(self, status: Status) -> Union[bool, None]:
+        """Handler called every time a new status appears on the stream.
 
         Here, we get information about the Tweet and store it in the database.
 
         This is also possibly where the call to the analyser will go, although
         Twitter mandates a certain processing speed so analysis may have to be
         done by a cron job.
+
+        If False is returned, the stream is closed. If True is returned, the
+        stream remains open and the current Tweet is skipped.
         """
 
         # Check that we haven't met the specified constraints.
         # Returning false from the handler will close the stream.
         if (self.num_tweets > self.max_tweets or
-                time.time() > self.start + self.max_exec_time):
-            logging.critical('Stream closed due to filter constraints being met.')
+                time() > self.start + self.max_exec_time):
+            log('Stream closed due to filter constraints being met.')
             return False
 
         # If we're streaming a user, we only care abouut replies to that user.
@@ -88,29 +89,29 @@ class StreamListener(tweepy.StreamListener):
 
         # Create the dictionary that will be inserted into the database.
         status_dict = {
-            'author_screen_name': status.user.screen_name,
-            'author_id': status.user.id_str,
+            'author_screen_name': getattr(getattr(status, 'user', None), 'screen_name', None),
+            'author_id': getattr(getattr(status, 'user', None), 'id_str', None),
             'in_reply_to_user_id': getattr(status, 'in_reply_to_user_id_str', None),
             'in_reply_to_screen_name': getattr(status, 'in_reply_to_screen_name', None),
             'in_reply_to_status_id': getattr(status, 'in_reply_to_status_id_str', None),
-            'tweet_id': status.id_str,
-            'tweet_text': status.text,
+            'tweet_id': getattr(status, 'id_str', None),
+            'tweet_text': getattr(status, 'text', None),
             self.analysis_key_name: self.analysis_key_value,
         }
-
         self.tweet_table.insert(status_dict)
-
         self.num_tweets += 1
 
-    def on_error(self, status_code: int):
-        """
-        If we get an error back from Twitter, log it out.
+    def on_error(self, status_code: int) -> bool:
+        """If we get an error back from Twitter, log it out.
 
         420 means that we have been rate limited, but there are various other
         codes that Twitter can return.
 
         Rate limited is the only one we're likely to encounter.
+
+        Returning False from this method closes the stream.
         """
-        logging.critical(status_code)
+        log(status_code)
         if status_code == 420:
-            logging.critical('Rate limited!')
+            log('Rate limited, closing stream.')
+        return False

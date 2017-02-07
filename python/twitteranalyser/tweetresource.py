@@ -4,12 +4,12 @@
 
 """Represents the '/tweets' endpoint of the API."""
 
-import logging
 from json import dumps
+from logging import critical as log
 from time import time
 from urllib.parse import unquote
 
-import dataset
+from dataset import connect
 import falcon
 import tweepy
 
@@ -18,9 +18,7 @@ from twitteranalyserstreamlistener import StreamListener
 
 
 class Tweet(object):
-    """
-    Provides methods that are fired depending on HTTP method to endpoint.
-    """
+    """Provides methods that are fired depending on HTTP method."""
 
     def __init__(self):
         self.auth = tweepy.OAuthHandler(
@@ -34,7 +32,7 @@ class Tweet(object):
         )
 
         self.api = tweepy.API(self.auth)
-        self.database = dataset.connect(constants.DB_URL)
+        self.database = connect(constants.DB_URL)
         self.tweet_topic_table = self.database[constants.TWEET_TOPIC_TABLE]
         self.tweet_user_table = self.database[constants.TWEET_USER_TABLE]
         self.stream_listener = StreamListener()
@@ -43,22 +41,19 @@ class Tweet(object):
             auth=self.api.auth,
             listener=self.stream_listener
         )
-        logging.critical('Ready!')
+        log('Ready to handle requests.')
 
     def on_get(self, req: falcon.Request, resp: falcon.Response):
-        """
-        When a GET request is received, parse the query parameters provided
-        and begin streaming from Twitter.
+        """Handles GET requests.
 
-        :param req: The request from the client.
-        :param resp: The response to return to the client.
-
-        :return resp: The response to return to the client.
+        Uses query parameters from the request to initialise a Tweepy stream
+        asynchronously, so that returning the response to the client is not
+        blocked while the stream is running.Ø
         """
 
         # Twitter allows only one stream to be running at once.
         if not self.stream.running:
-            logging.critical('Starting stream...')
+            log('Starting stream.')
 
             # Get query parameters from request.
             filter_term = req.get_param(constants.REQUEST_TERM_PARAM)
@@ -138,7 +133,7 @@ class Tweet(object):
                 # the topic in the body. This is used by the client to find
                 # the Tweets associated with the topic once they've been
                 # stored in our database.
-                self.stream.filter(track=[filter_term], languages=["en"], async=True)
+                self.stream.filter(track=[filter_term], languages=['en'], async=True)
                 resp.body = dumps({'topic_id': analysis_topic_id})
                 resp.status = falcon.HTTP_OK
 
@@ -147,5 +142,5 @@ class Tweet(object):
         # letting the client know that their request conflicts with an ongoing
         # one.
         else:
-            logging.critical('Stream already running!')
+            log('Stream already running.')
             resp.status = falcon.HTTP_CONFLICT

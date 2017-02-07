@@ -6,15 +6,18 @@
 This module contains code related to extracting features and classifying Tweets
 as 'positive' or 'negative'.
 """
-import pickle
+
 from csv import reader
+from logging import critical as log
+from math import floor
 from pathlib import Path
+from pickle import dump
+from pickle import load
 from re import search
 from re import sub
 from string import punctuation
 from typing import Iterable
 from typing import Union
-from math import floor
 
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
@@ -24,37 +27,30 @@ from tweepy import Status
 
 
 class TweetPreprocessor(object):
-    """
-    This class reformats Tweets into a format that makes them easier to deal
-    with.
+    """Reformats Tweets.
 
     Specifically, it:
-        Lower cases the Tweet
-        Strips URLs
-        Replaces "#word" with "word"
-        Removes punctuation
-        Removes usernames
-        Cleans whitespace between words and trims at both sides of the Tweet
-        Removes stopwords
+        - Lower cases the Tweet
+        - Strips URLs
+        - Replaces "#word" with "word"
+        - Removes punctuation
+        - Removes usernames
+        - Cleans whitespace between words and trims at both sides of the Tweet
+        - Removes stopwords
     """
 
     def __init__(self):
         # Initialise these in __init__ so they're only instantiated once, with
         # this class, rather than every time a Tweet is to be classified.
-        self.stopwords = stopwords.words("english")
+        self.stopwords = stopwords.words('english')
 
     def preprocess_tweet(self, tweet: Union[Status, str]) -> str:
-        """
-        Convert tweet into a format that makes it easier to analyse.
+        """Convert a Tweet into a format that makes it easier to analyse."""
 
-        This involves removing extraneous words, cleaning up whitespace etc.
-
-        This is so that the words match the feature vector, which will
-        consist of lowercase words and their associated sentiment.
-        """
-
+        # If tweet is an instance of tweepy.Status, get the 'text' attribute
+        # from it.
         if not isinstance(tweet, str):
-            tweet = self.reformat_tweet(getattr(tweet, 'status'))
+            tweet = self.reformat_tweet(getattr(tweet, 'text'))
         else:
             tweet = self.reformat_tweet(tweet)
 
@@ -62,7 +58,7 @@ class TweetPreprocessor(object):
         processed_word_list = []
 
         for word in word_list:
-            word = self.replace_letter_repetitions(word)
+            word = self.fix_character_repetitions(word)
             starts_with_alpha = self.is_word_alpha(word)
             if word in self.stopwords or not starts_with_alpha:
                 continue
@@ -74,7 +70,8 @@ class TweetPreprocessor(object):
         return tweet
 
     def reformat_tweet(self, tweet: str) -> str:
-        """
+        """Put Tweet in an easier format to handle.
+
         Lower case all characters, strip URLs, strip @usernames, replace
         remove octothorpes from hashtags, clean up whitespace, remove
         punctuation.
@@ -90,86 +87,88 @@ class TweetPreprocessor(object):
         return tweet
 
     def remove_stopwords(self, tweet: str) -> str:
-        """
-        Remove stopwords (words that do not affect the sentiment of the tweet,
-        such as prepositions, articles etc.)
+        """Remove stopwords from a Tweet.
+
+        Stopwords are words that do not affect the sentiment of the Tweet,
+        such as prepositions, articles etc.
         """
 
         return ' '.join([word for word in tweet.split() if word not in self.stopwords])
 
     @staticmethod
     def remove_urls(tweet: str) -> str:
-        """
-        Remove URLs from the Tweet.
+        """Remove URLs from the Tweet.
+
+        We want to analyse Tweets, not linked articles.
         """
 
         return sub('((www\.[^\s]+)|(https?://[^\s]+))', '', tweet)
 
     @staticmethod
     def remove_usernames(tweet: str) -> str:
-        """
-        Remove words beginning with "@", as usernames have no sentiment value.
+        """Remove words beginning with "@".
+
+        Usernames have no sentiment value and we already have the Tweet's full
+        text, including @usernames, saved in the database.
         """
 
         return sub(r'(^|[^@\w])@(\w{1,15})\b', '', tweet)
 
     @staticmethod
     def remove_hash_tags(tweet: str) -> str:
-        """Replace '#word' with '#word'"""
+        """Replace '#word' with 'word'"""
 
         return sub(r'#([^\s]+)', r'\1', tweet)
 
     @staticmethod
     def remove_punctuation(tweet: str) -> str:
-        """
-        Remove all punctuation marks.
-        """
+        """Remove all punctuation marks."""
 
-        no_punc_translator = str.maketrans("", "", punctuation)
+        no_punc_translator = str.maketrans('', '', punctuation)
         return tweet.translate(no_punc_translator)
 
     @staticmethod
     def fix_whitespace(tweet: str) -> str:
-        """
-        Cleans whitespace between words and trims at both sides of the Tweet.
+        """Fix up any problems with whitespace in a Tweet.
+
+        Make sure there's only one space between words, and strip whitespace
+        from the start and end of the Tweet.
         """
 
         return sub('\s+', ' ', tweet).strip()
 
     @staticmethod
-    def replace_letter_repetitions(word: str) -> str:
-        """
-        Replace repitions of the same letter are replaced by two of that
-        letter. E.g., 'greeaaat' should become 'great.
+    def fix_character_repetitions(word: str) -> str:
+        """Fix up character repetitions.
+
+        Two or more identical characters directly after each other will be
+        replaced by just two of those characters.
+
+        For example, 'haaaappppppyyy' becomes 'happy'.
         """
 
         return sub(r'([a-z])\1+', r'\1\1', word)
 
     @staticmethod
     def is_word_alpha(word: str) -> bool:
-        """
-        Check that the passed word begins with an alphabetic character.
+        """Check that a word begins with an alphabetic character."""
 
-        Words that start with numbers are very unlikely to add any value to
-        the feature vector.
-        """
-
-        result = search(r"^[A-Za-z]*$", word)
+        result = search(r'^[A-Za-z]*$', word)
         if result is None:
             return False
         return True
 
 
 class Classifier(object):
-    """
+    """Classify Tweets as 'positive' or 'negative'.
+
     Extracts features from tweets and classifies them based on their
     sentiment as positve or negative.
     """
     # TODO: n-grams
     # TODO: mutliple classifiers which vote
     # TODO: shuffle 1.5m dataset
-    # TODO: split training/testing sets
-    # TODO: stemming/lemmarisation
+    # TODO: stemming/lemmatisation
     # TODO: test classifier speed
     # TODO: new endpoint for this
 
@@ -179,8 +178,9 @@ class Classifier(object):
         self.testing_set = []  # ~20% of the labelled tweets
         self.word_features = []  # All feature words ordered by frequency
         self._classifier = None  # type: NaiveBayesClassifier
-        self.initialise_tweet_sets()
-        self.initialise_word_features()
+        if self.classifier is None:
+            self.initialise_tweet_sets()
+            self.initialise_word_features()
 
     @property
     def classifier(self):
@@ -189,12 +189,16 @@ class Classifier(object):
 
         If there is no pickled classifier, train a new one and pickle it.
         Otherwise, load the pickled classifier and set self._classifier.
-        :return:
         """
         if self._classifier is None:
-            if Path("data/classifier.p").is_file():
-                self.classifier = pickle.load(open('data/classifier.p', 'rb'))  # type: NaiveBayesClassifier
+            if Path('data/classifier.p').is_file():
+                log('Loaded classifier from disk.')
+                self.classifier = load(open('data/classifier.p', 'rb'))  # type: NaiveBayesClassifier
             else:
+                log('No classifier found, training new one. This will take a long time.')
+                if not self.labelled_tweets:
+                    self.initialise_tweet_sets()
+                    self.initialise_word_features()
                 self.classifier = self.train()
         return self._classifier
 
@@ -212,7 +216,7 @@ class Classifier(object):
         """
         training_set = apply_features(self.extract_features_from_tweet, self.training_set)
         classifier = NaiveBayesClassifier.train(training_set)
-        pickle.dump(classifier, open('data/classifier.p', 'wb'))
+        dump(classifier, open('data/classifier.p', 'wb'))
         return classifier
 
     def initialise_tweet_sets(self) -> None:
