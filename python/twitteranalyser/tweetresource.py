@@ -1,16 +1,16 @@
 """Represents the '/tweets' endpoint of the API."""
 
-from json import dumps
-from urllib.parse import unquote
 import logging
+from json import dumps
 from time import time
+from urllib.parse import unquote
 
+import dataset
 import falcon
 import tweepy
-import dataset
 
-from twitteranalyserstreamlistener import StreamListener
 import constants
+from twitteranalyserstreamlistener import StreamListener
 
 
 class Tweet(object):

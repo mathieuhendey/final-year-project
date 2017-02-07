@@ -3,15 +3,17 @@ This module contains code related to extracting features and classifying Tweets
 as 'positive' or 'negative'.
 """
 from csv import reader
-from math import floor
-from string import punctuation
 from re import search
 from re import sub
+from string import punctuation
 from typing import Union
 
-from nltk.corpus import stopwords
 from nltk import FreqDist
+from nltk import NaiveBayesClassifier
+from nltk.classify import apply_features
+from nltk.corpus import stopwords
 from tweepy import Status
+
 
 class TweetPreprocessor(object):
     """
@@ -29,6 +31,8 @@ class TweetPreprocessor(object):
     """
 
     def __init__(self):
+        # Initialise these in __init__ so they're only instantiated once, with
+        # this class, rather than every time a Tweet is to be classified.
         self.stopwords = stopwords.words("english")
 
     def preprocess_tweet(self, tweet: Union[Status, str]) -> str:
@@ -127,11 +131,11 @@ class TweetPreprocessor(object):
     @staticmethod
     def replace_letter_repetitions(word: str) -> str:
         """
-        Replace repitions of the same letter are replaced by one of that
+        Replace repitions of the same letter are replaced by two of that
         letter. E.g., 'greeaaat' should become 'great.
         """
 
-        return sub(r'([a-z])\1+', r'\1', word)
+        return sub(r'([a-z])\1+', r'\1\1', word)
 
     @staticmethod
     def is_word_alpha(word: str) -> bool:
@@ -159,21 +163,29 @@ class Classifier(object):
         self.training_set = []  # ~80% of the labelled tweets
         self.test_set = []  # ~20% of the labelled tweets
         self.word_features = []  # All feature words ordered by frequency
+        self.classifier = None
 
     # TODO: remove this, used only for testing
     def train(self):
         self.initialise_tweet_sets()
         self.initialise_word_features()
+        training = apply_features(self.extract_features, self.training_set)
+        self.classifier = NaiveBayesClassifier.train(training)
 
     def initialise_tweet_sets(self):
         """Read labelled data from CSV file."""
-        raw_labelled_tweets = reader(open('data/full-corpus.csv'), delimiter=',')
+        raw_labelled_tweets = reader(open('data/corpus.csv', encoding='utf-8', errors='ignore'), delimiter=',', quotechar='|')
         labelled_tweets = []
+
         for tweet in raw_labelled_tweets:
-            sentiment = tweet[1]
-            vector = TweetPreprocessor().preprocess_tweet(tweet[4])
+            sentiment = tweet[0]
+            vector = TweetPreprocessor().preprocess_tweet(tweet[1])
             labelled_tweets.append((vector, sentiment))
-        self.labelled_tweets = labelled_tweets
+
+        for (words, sentiment) in labelled_tweets:
+            words_filtered = [e.lower() for e in words.split() if len(e) >= 3]
+            self.labelled_tweets.append((words_filtered, sentiment))
+
         self.split_training_and_test_sets()
 
     def initialise_word_features(self):
@@ -183,10 +195,8 @@ class Classifier(object):
     def split_training_and_test_sets(self):
         """Split the labelled Tweet set into 80% training and 20% testing."""
 
-        labelled_tweets_count = len(self.labelled_tweets)
-        training_entries_number = floor(labelled_tweets_count * 0.8)
-        self.training_set = self.labelled_tweets[:training_entries_number]
-        self.test_set = self.labelled_tweets[training_entries_number:]
+        # TODO: split sets
+        self.training_set = self.labelled_tweets
 
     @staticmethod
     def get_all_words(tweets: list) -> list:
@@ -194,7 +204,7 @@ class Classifier(object):
 
         all_words = []
         for (words, _) in tweets:
-            all_words.extend(words.split())
+            all_words.extend(words)
         return all_words
 
     @staticmethod
@@ -204,9 +214,19 @@ class Classifier(object):
         word_list = FreqDist(word_list)
         return word_list.keys()
 
-    def extract_features(self, tweet):
-        tweet_words = tweet.split()
+    def extract_features(self, tweet: list) -> dict:
+        """
+        Extract feature words from Tweet and put them into a dictionary that
+        can be used by NLTK's classifiers.
+        """
+        tweet_words = set(tweet)
         features = {}
         for word in self.word_features:
-            features['contains(%s' % word] = (word in tweet_words)
+            features['contains(%s)' % word] = (word in tweet_words)
         return features
+
+    def classify(self, tweet):
+        """
+        Classify the given Tweet.
+        """
+        return self.classifier.classify(self.extract_features(tweet.split()))

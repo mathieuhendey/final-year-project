@@ -14,6 +14,7 @@ class StreamListener(tweepy.StreamListener):
     The listener which listens for events on the Tweet stream and provides a
     method to process them.
     """
+
     def __init__(self):
         super(StreamListener, self).__init__()
         self._max_exec_time = 0
