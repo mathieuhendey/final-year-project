@@ -1,12 +1,16 @@
+# Author: Mathieu Hendey <mhendey01@qub.ac.uk>
+# Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+# Part of the AJ02 project supervised by Anna Jurek
+
 """
 This module contains code related to extracting features and classifying Tweets
 as 'positive' or 'negative'.
 """
+import pickle
 from csv import reader
+from pathlib import Path
 from re import search
 from re import sub
-from pathlib import Path
-import pickle
 from string import punctuation
 from typing import Iterable
 from typing import Union
@@ -160,6 +164,13 @@ class Classifier(object):
     Extracts features from tweets and classifies them based on their
     sentiment as positve or negative.
     """
+    # TODO: n-grams
+    # TODO: mutliple classifiers which vote
+    # TODO: shuffle 1.5m dataset
+    # TODO: split training/testing sets
+    # TODO: stemming/lemmarisation
+    # TODO: test classifier speed
+    # TODO: new endpoint for this
 
     def __init__(self):
         self.labelled_tweets = []  # Pre-labelled tweets from a corpus

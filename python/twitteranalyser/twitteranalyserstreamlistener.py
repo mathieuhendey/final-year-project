@@ -1,3 +1,7 @@
+# Author: Mathieu Hendey <mhendey01@qub.ac.uk>
+# Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+# Part of the AJ02 project supervised by Anna Jurek
+
 """
 Related to processing events from the Tweepy stream.
 """

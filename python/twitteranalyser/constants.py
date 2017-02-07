@@ -1,3 +1,7 @@
+# Author: Mathieu Hendey <mhendey01@qub.ac.uk>
+# Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
+# Part of the AJ02 project supervised by Anna Jurek
+
 TWITTER_APP_KEY = 'GpFmKlYeKJ2WoAuPydGqXDnZW'
 TWITTER_APP_SECRET = 'mLste69X6FOqNwcAw8b6tcI8m2avhnl8QYpjUXlsd5mncW6CGE'
 TWITTER_KEY = '69321956-eExmX9kaFmtutwXrrn5nfuu8p2n1bxZtXjhScUV82'
