@@ -7,8 +7,8 @@ This module contains code related to extracting features and classifying Tweets
 as 'positive' or 'negative'.
 """
 
+import logging
 from csv import reader
-from logging import critical as log
 from math import floor
 from pathlib import Path
 from pickle import dump
@@ -19,9 +19,11 @@ from string import punctuation
 from typing import Iterable
 from typing import Union
 
+from nltk import DecisionTreeClassifier
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
 from nltk.classify import apply_features
+from nltk.classify.api import ClassifierI
 from nltk.corpus import stopwords
 from tweepy import Status
 
@@ -163,39 +165,38 @@ class Classifier(object):
     """Classify Tweets as 'positive' or 'negative'.
 
     Extracts features from tweets and classifies them based on their
-    sentiment as positve or negative.
-    """
-    # TODO: n-grams
-    # TODO: mutliple classifiers which vote
-    # TODO: shuffle 1.5m dataset
-    # TODO: stemming/lemmatisation
-    # TODO: test classifier speed
-    # TODO: new endpoint for this
+    sentiment as positive or negative.
 
-    def __init__(self):
+    The default classifier is Naive Bayes.
+    """
+
+    NAIVE_BAYES = 'naive_bayes'
+    DECISION_TREE = 'decision_tree'
+
+    def __init__(self, classifier_name=NAIVE_BAYES):
         self.labelled_tweets = []  # Pre-labelled tweets from a corpus
         self.training_set = []  # ~80% of the labelled tweets
         self.testing_set = []  # ~20% of the labelled tweets
         self.word_features = []  # All feature words ordered by frequency
-        self._classifier = None  # type: NaiveBayesClassifier
+        self.classifier_name = classifier_name
+        self._classifier = None
         if self.classifier is None:
             self.initialise_tweet_sets()
             self.initialise_word_features()
 
     @property
     def classifier(self):
-        """
-        Classifier getter.
+        """Classifier getter.
 
         If there is no pickled classifier, train a new one and pickle it.
         Otherwise, load the pickled classifier and set self._classifier.
         """
         if self._classifier is None:
-            if Path('data/classifier.p').is_file():
-                log('Loaded classifier from disk.')
-                self.classifier = load(open('data/classifier.p', 'rb'))  # type: NaiveBayesClassifier
+            if Path('data/%s.p' % self.classifier_name).is_file():
+                logging.info('Loaded classifier from disk.')
+                self.classifier = load(open('data/%s.p' % self.classifier_name, 'rb'))
             else:
-                log('No classifier found, training new one. This will take a long time.')
+                logging.info('No classifier found, training new one. This will take a long time.')
                 if not self.labelled_tweets:
                     self.initialise_tweet_sets()
                     self.initialise_word_features()
@@ -203,25 +204,28 @@ class Classifier(object):
         return self._classifier
 
     @classifier.setter
-    def classifier(self, classifier: NaiveBayesClassifier) -> None:
+    def classifier(self, classifier: ClassifierI) -> None:
         """Classifier setter."""
         self._classifier = classifier
 
-    def train(self) -> NaiveBayesClassifier:
-        """
-        Train the classifier.
+    def train(self) -> ClassifierI:
+        """Train the classifier.
 
         This takes a very long time, so after training, pickle it and save it
         to disk.
         """
         training_set = apply_features(self.extract_features_from_tweet, self.training_set)
-        classifier = NaiveBayesClassifier.train(training_set)
-        dump(classifier, open('data/classifier.p', 'wb'))
+        if self.classifier_name == self.NAIVE_BAYES:
+            classifier = NaiveBayesClassifier.train(training_set)
+        elif self.classifier_name == self.DECISION_TREE:
+            classifier = DecisionTreeClassifier.train(training_set)
+        else:
+            raise ValueError("Couldn't create classifier")
+        dump(classifier, open('data/%s.p' % self.classifier_name, 'wb'))
         return classifier
 
     def initialise_tweet_sets(self) -> None:
-        """
-        Read labelled data from CSV file.
+        """Read labelled data from CSV file.
 
         A row from the CSV looks like the following:
         |<sentiment>|,|<tweet_text>|
@@ -283,7 +287,5 @@ class Classifier(object):
         return features
 
     def classify(self, tweet: str):
-        """
-        Classify the given Tweet.
-        """
+        """Classify the given Tweet."""
         return self.classifier.classify(self.extract_features_from_tweet(tweet))
