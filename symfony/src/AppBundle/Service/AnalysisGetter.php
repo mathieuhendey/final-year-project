@@ -45,6 +45,7 @@ class AnalysisGetter
 
     /**
      * @param Request $request
+     *
      * @return AnalysisObject if analysis was successfully started, false if not
      */
     public function startAnalysis(Request $request): AnalysisObject
@@ -57,7 +58,7 @@ class AnalysisGetter
         $url = $this->assembleUrl($filterType, $filterTerm, $execTime, $execNumber);
         $response = $this->curl->makeGetRequest($url);
 
-        if ($response === false) {
+        if (isNull($response)) {
             return new AnalysisObject(false, 0, true);
         }
         if (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $response)) {
@@ -70,30 +71,30 @@ class AnalysisGetter
     }
 
     /**
-     * @param string $filterType
-     * @param string $filterTerm
-     * @param string $execTime
-     * @param string $execNumber
+     * @param string      $filterType
+     * @param string      $filterTerm
+     * @param string|null $execTime
+     * @param string|null $execNumber
      *
      * @return string
      */
     private function assembleUrl(
         string $filterType,
         string $filterTerm,
-        string $execTime,
-        string $execNumber
-    ): string {
+        ? string $execTime,
+        ? string $execNumber
+    ) : string {
         if ($filterType == self::TYPE_PARAM_USER_VALUE) {
             $filterTerm = str_replace('@', '', $filterTerm);
         } elseif ($filterType == self::TYPE_PARAM_TOPIC_VALUE) {
             $filterTerm = rawurlencode($filterTerm);
         }
 
-        if (is_null($execTime)) {
+        if (!$execTime) {
             $execTime = self::DEFAULT_EXEC_TIME;
         }
 
-        if (is_null($execNumber)) {
+        if (!$execNumber) {
             $execNumber = self::DEFAULT_EXEC_NUMBER;
         }
 
@@ -101,16 +102,17 @@ class AnalysisGetter
             .self::TYPE_PARAM.'='.$filterType.'&'
             .self::TERM_PARAM.'='.$filterTerm.'&'
             .self::EXEC_TIME_PARAM.'='.$execTime.'&'
-            .self::EXEC_NUMBER_PARAM .'='.$execNumber;
+            .self::EXEC_NUMBER_PARAM.'='.$execNumber;
 
         return $url;
     }
 
     /**
-     * @param string $filterTerm The filter term to be streamed.
-     * @return string The type of the filter term, user or topic.
+     * @param string $filterTerm The filter term to be streamed
+     *
+     * @return string The type of the filter term, user or topic
      */
-    private function getFilterType(string $filterTerm): string
+    private function getFilterType(string $filterTerm) : string
     {
         if ($filterTerm[0] == '@') {
             return self::TYPE_PARAM_USER_VALUE;

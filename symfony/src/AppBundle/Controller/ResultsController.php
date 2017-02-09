@@ -38,9 +38,11 @@ class ResultsController extends Controller
     {
         if ($type == AnalysisGetter::TYPE_PARAM_USER_VALUE) {
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->findOneBy(['term' => $term]);
+
             return ['tweets' => $user->getTweets(), 'term' => $user->getScreenName()];
         } elseif ($type == AnalysisGetter::TYPE_PARAM_TOPIC_VALUE) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->findOneBy(['term' => $term]);
+
             return ['tweets' => $topic->getTweets(), 'term' => $topic->getTerm()];
         }
 
@@ -55,6 +57,7 @@ class ResultsController extends Controller
     public function getNewDataAction()
     {
         $tweets = $this->getDoctrine()->getRepository(Tweet::class)->findAll();
+
         return $this->renderView('default/tweet_list.html.twig', ['tweets' => $tweets]);
     }
 }

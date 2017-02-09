@@ -26,7 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HomePageController extends Controller
 {
-
     /**
      * @Route("/", name="homepage")
      * @Template("default/index.html.twig")
@@ -42,6 +41,7 @@ class HomePageController extends Controller
      * @Route("/analyse", name="analyse")
      *
      * @param Request $request
+     *
      * @return RedirectResponse
      */
     public function beginAnalysisAction(Request $request)
@@ -53,12 +53,14 @@ class HomePageController extends Controller
             // TODO: Handle this case
         } elseif ($result->isTopic()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
+
             return $this->redirectToRoute(
                 'results',
                 ['type' => AnalysisGetter::TYPE_PARAM_TOPIC_VALUE, 'term' => $topic->getTerm()]
             );
         } else {
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
+
             return $this->redirectToRoute(
                 'results',
                 ['type' => AnalysisGetter::TYPE_PARAM_USER_VALUE, 'term' => $user->getTerm()]

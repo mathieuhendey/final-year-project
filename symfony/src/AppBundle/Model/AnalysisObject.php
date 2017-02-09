@@ -12,8 +12,6 @@ namespace AppBundle\Model;
 
 /**
  * Represents the response from the Python API.
- *
- * @package AppBundle\Model
  */
 class AnalysisObject
 {
@@ -36,7 +34,7 @@ class AnalysisObject
      * AnalysisObject constructor.
      *
      * @param bool $topic
-     * @param int $id
+     * @param int  $id
      * @param bool $rateLimited
      */
     public function __construct(bool $topic, int $id, $rateLimited = false)

@@ -12,22 +12,20 @@ namespace AppBundle\Service;
 
 /**
  * Simple wrapper around curl to make unit testing easier.
- *
- * @package AppBundle\Service
  */
 class CurlWrapper
 {
-
     /**
      * @param string $path
-     * @return mixed The body or false on error
+     *
+     * @return mixed|null The body or false on error
      */
     public function makeGetRequest(string $path)
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => $path
+            CURLOPT_URL => $path,
         ));
 
         $response = curl_exec($curl);
