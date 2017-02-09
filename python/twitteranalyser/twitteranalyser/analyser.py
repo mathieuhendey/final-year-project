@@ -13,6 +13,7 @@ from math import floor
 from pathlib import Path
 from pickle import dump
 from pickle import load
+from pickle import HIGHEST_PROTOCOL
 from re import search
 from re import sub
 from string import punctuation
@@ -180,9 +181,10 @@ class Classifier(object):
         self.word_features = []  # All feature words ordered by frequency
         self.classifier_name = classifier_name
         self._classifier = None
+        self.initialise_tweet_sets()
+        self.initialise_word_features()
         if self.classifier is None:
-            self.initialise_tweet_sets()
-            self.initialise_word_features()
+            self.train()
 
     @property
     def classifier(self):
@@ -196,7 +198,7 @@ class Classifier(object):
                 logging.info('Loaded classifier from disk.')
                 self.classifier = load(open('data/%s.p' % self.classifier_name, 'rb'))
             else:
-                logging.info('No classifier found, training new one. This will take a long time.')
+                logging.warning('No classifier found, training new one. This will take a long time.')
                 if not self.labelled_tweets:
                     self.initialise_tweet_sets()
                     self.initialise_word_features()
@@ -221,7 +223,7 @@ class Classifier(object):
             classifier = DecisionTreeClassifier.train(training_set)
         else:
             raise ValueError("Couldn't create classifier")
-        dump(classifier, open('data/%s.p' % self.classifier_name, 'wb'))
+        dump(classifier, open('data/%s.p' % self.classifier_name, 'wb'), HIGHEST_PROTOCOL)
         return classifier
 
     def initialise_tweet_sets(self) -> None:
@@ -240,22 +242,24 @@ class Classifier(object):
             labelled_tweets.append((vector, sentiment))
 
         for (words, sentiment) in labelled_tweets:
-            words_filtered = [e.lower() for e in words.split() if len(e) >= 3]
+            words_filtered = [w for w in words.split()]
             self.labelled_tweets.append((words_filtered, sentiment))
 
-        self.split_training_and_test_sets()
+        feature_sets = [(self.extract_features_from_tweet(t), s) for (t, s) in self.labelled_tweets]
+
+        self.split_training_and_test_sets(feature_sets)
 
     def initialise_word_features(self) -> None:
         """Initialise instance variable containing all words in vector"""
-        self.word_features = self.get_word_features(self.get_all_words_from_tweets(self.training_set))
+        self.word_features = self.get_word_features(self.get_all_words_from_tweets(self.labelled_tweets))
 
-    def split_training_and_test_sets(self) -> None:
+    def split_training_and_test_sets(self, feature_sets) -> None:
         """Split the labelled Tweet set into 80% training and 20% testing."""
 
-        total_labelled_tweets = len(self.labelled_tweets)
+        total_labelled_tweets = len(feature_sets)
         training_slice = floor(total_labelled_tweets * 0.8)
-        self.training_set = self.labelled_tweets[:training_slice]
-        self.testing_set = self.labelled_tweets[training_slice:]
+        self.training_set = feature_sets[:training_slice]
+        self.testing_set = feature_sets[training_slice:]
 
     @staticmethod
     def get_all_words_from_tweets(tweets: list) -> list:
@@ -273,13 +277,11 @@ class Classifier(object):
         word_list = FreqDist(word_list)
         return word_list.keys()
 
-    def extract_features_from_tweet(self, tweet: Union[list, str]) -> dict:
+    def extract_features_from_tweet(self, tweet: list) -> dict:
         """
         Extract feature words from Tweet and put them into a dictionary that
         can be used by NLTK's classifiers.
         """
-        if isinstance(tweet, str):
-            tweet = tweet.split()
         tweet_words = set(tweet)
         features = {}
         for word in self.word_features:
@@ -288,4 +290,16 @@ class Classifier(object):
 
     def classify(self, tweet: str):
         """Classify the given Tweet."""
-        return self.classifier.classify(self.extract_features_from_tweet(tweet))
+        tweet = TweetPreprocessor().preprocess_tweet(tweet)
+        distribution = self.classifier.prob_classify(self.extract_features_from_tweet(tweet.split()))
+        for label in distribution.samples():
+            print("%s: %f" % (label, distribution.prob(label)))
+        # return self.classifier.classify(self.extract_features_from_tweet(tweet.split()))
+
+
+# def main():
+#     c = Classifier()
+#     c.train()
+#
+# if __name__ == "__main__":
+#     main()
