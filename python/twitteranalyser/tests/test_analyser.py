@@ -21,7 +21,7 @@ class TestTweetPreprocessor(object):
 
     def test_remove_usernames(self):
         test_tweet = "test @mathieu_hendey"
-        assert 'test' == self.preprocessor.remove_usernames(test_tweet)
+        assert 'test USER' == self.preprocessor.remove_usernames(test_tweet)
 
     def test_replace_letter_repetitions(self):
         test_tweet = 'aaaddddccc'
