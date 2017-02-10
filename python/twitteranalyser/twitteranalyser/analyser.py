@@ -117,7 +117,7 @@ class TweetPreprocessor(object):
         text, including @usernames, saved in the database.
         """
 
-        return sub(r'(^|[^@\w])@(\w{1,15})\b', 'USER', tweet)
+        return sub(r'(^|[^@\w])@(\w{1,15})\b', ' USER', tweet)
 
     @staticmethod
     def remove_hash_tags(tweet: str) -> str:
