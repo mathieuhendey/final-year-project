@@ -12,7 +12,7 @@ we could simply add another endpoint like '/analyse'.
 
 import falcon
 
-from tweetresource import Tweet
+from twitteranalyser.tweetresource import Tweet
 
 
 ENDPOINT = application = falcon.API()

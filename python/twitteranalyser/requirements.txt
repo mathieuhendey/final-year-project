@@ -4,3 +4,4 @@ gunicorn
 PyMySQL
 dataset
 nltk
+pytest

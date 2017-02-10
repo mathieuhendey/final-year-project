@@ -5,48 +5,44 @@
 """
 Test module for the analyser module.
 """
-import unittest
 
-import analyser
+import pytest
+
+from twitteranalyser import analyser
 
 
-class TestTweetPreprocessor(unittest.TestCase):
+class TestTweetPreprocessor(object):
 
-    def setUp(self):
-        self.test_preprocessor = analyser.TweetPreprocessor
+    preprocessor = analyser.TweetPreprocessor()
 
     def test_remove_urls(self):
         test_tweet = "http://foo.bar test"
-
-        self.assertEqual('test', self.test_preprocessor.remove_urls(test_tweet).strip())
+        assert 'test' == self.preprocessor.remove_urls(test_tweet).strip()
 
     def test_remove_usernames(self):
         test_tweet = "test @mathieu_hendey"
-        self.assertEqual('test', self.test_preprocessor.remove_usernames(test_tweet))
+        assert 'test' == self.preprocessor.remove_usernames(test_tweet)
 
     def test_replace_letter_repetitions(self):
         test_tweet = 'aaaddddccc'
-        processed_tweets = self.test_preprocessor.fix_character_repetitions(test_tweet)
-        self.assertEqual('aaddcc', processed_tweets)
+        processed_tweets = self.preprocessor.fix_character_repetitions(test_tweet)
+        assert 'aaddcc' == processed_tweets
 
     def test_remove_hashtags(self):
         test_tweet = '#test'
-        self.assertEqual('test', self.test_preprocessor.remove_hash_tags(test_tweet))
+        assert 'test' == self.preprocessor.remove_hash_tags(test_tweet)
 
     def test_remove_punctuation(self):
         test_tweet = 'test!?!'
-        self.assertEqual('test', self.test_preprocessor.remove_punctuation(test_tweet))
+        assert 'test' == self.preprocessor.remove_punctuation(test_tweet)
 
     def test_fix_whitespace(self):
         test_tweet = '   test  this is   a   test   '
-        self.assertEqual('test this is a test', self.test_preprocessor.fix_whitespace(test_tweet))
+        assert 'test this is a test' == self.preprocessor.fix_whitespace(test_tweet)
 
-    def test_alphabetic(self):
-        bad_tweet = '12asd'
-        good_tweet = 'Test'
+    @pytest.fixture(params=[['12asd', False], ['Test', True]])
+    def alphabetic_fixture(self, request):
+        yield request.param
 
-        bad_result = self.test_preprocessor.is_word_alpha(bad_tweet)
-        good_result = self.test_preprocessor.is_word_alpha(good_tweet)
-
-        self.assertFalse(bad_result)
-        self.assertTrue(good_result)
+    def test_alphabetic(self, alphabetic_fixture):
+        assert self.preprocessor.is_word_alpha(alphabetic_fixture[0]) is alphabetic_fixture[1]

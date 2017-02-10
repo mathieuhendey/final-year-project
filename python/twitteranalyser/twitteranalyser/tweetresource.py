@@ -9,12 +9,12 @@ from logging import critical as log
 from time import time
 from urllib.parse import unquote
 
-from dataset import connect
 import falcon
 import tweepy
+from dataset import connect
 
-import constants
-from twitteranalyserstreamlistener import StreamListener
+from twitteranalyser import constants
+from twitteranalyser.twitteranalyserstreamlistener import StreamListener
 
 
 class Tweet(object):
