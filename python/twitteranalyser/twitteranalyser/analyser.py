@@ -19,6 +19,7 @@ from re import sub
 from string import punctuation
 from typing import Iterable
 from typing import Union
+from random import shuffle
 
 from nltk import DecisionTreeClassifier
 from nltk import FreqDist
@@ -86,6 +87,7 @@ class TweetPreprocessor(object):
         tweet = self.remove_hash_tags(tweet)
         tweet = self.remove_punctuation(tweet)
         tweet = self.fix_whitespace(tweet)
+        tweet = self.remove_stopwords(tweet)
 
         return tweet
 
@@ -115,7 +117,7 @@ class TweetPreprocessor(object):
         text, including @usernames, saved in the database.
         """
 
-        return sub(r'(^|[^@\w])@(\w{1,15})\b', '', tweet)
+        return sub(r'(^|[^@\w])@(\w{1,15})\b', 'USER', tweet)
 
     @staticmethod
     def remove_hash_tags(tweet: str) -> str:
@@ -237,6 +239,8 @@ class Classifier(object):
         labelled_tweets = []
 
         for tweet in raw_labelled_tweets:
+            if len(list(tweet[0])) <= 5:
+                continue
             sentiment = tweet[0]
             vector = TweetPreprocessor().preprocess_tweet(tweet[1])
             labelled_tweets.append((vector, sentiment))
@@ -245,6 +249,7 @@ class Classifier(object):
             words_filtered = [w for w in words.split()]
             self.labelled_tweets.append((words_filtered, sentiment))
 
+        shuffle(self.labelled_tweets)
         feature_sets = [(self.extract_features_from_tweet(t), s) for (t, s) in self.labelled_tweets]
 
         self.split_training_and_test_sets(feature_sets)
@@ -294,12 +299,3 @@ class Classifier(object):
         distribution = self.classifier.prob_classify(self.extract_features_from_tweet(tweet.split()))
         for label in distribution.samples():
             print("%s: %f" % (label, distribution.prob(label)))
-        # return self.classifier.classify(self.extract_features_from_tweet(tweet.split()))
-
-
-# def main():
-#     c = Classifier()
-#     c.train()
-#
-# if __name__ == "__main__":
-#     main()
