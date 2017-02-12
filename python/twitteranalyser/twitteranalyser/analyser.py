@@ -9,17 +9,15 @@ as 'positive' or 'negative'.
 
 import logging
 from csv import reader
-from math import floor
 from pathlib import Path
+from pickle import HIGHEST_PROTOCOL
 from pickle import dump
 from pickle import load
-from pickle import HIGHEST_PROTOCOL
 from re import search
 from re import sub
 from string import punctuation
 from typing import Iterable
 from typing import Union
-from random import shuffle
 
 from nltk import DecisionTreeClassifier
 from nltk import FreqDist
@@ -87,7 +85,7 @@ class TweetPreprocessor(object):
         tweet = self.remove_hash_tags(tweet)
         tweet = self.remove_punctuation(tweet)
         tweet = self.fix_whitespace(tweet)
-        tweet = self.remove_stopwords(tweet)
+        # tweet = self.remove_stopwords(tweet)
 
         return tweet
 
@@ -117,7 +115,7 @@ class TweetPreprocessor(object):
         text, including @usernames, saved in the database.
         """
 
-        return sub(r'(^|[^@\w])@(\w{1,15})\b', ' USER', tweet)
+        return sub(r'(^|[^@\w])@(\w{1,15})\b', '', tweet)
 
     @staticmethod
     def remove_hash_tags(tweet: str) -> str:
@@ -147,12 +145,12 @@ class TweetPreprocessor(object):
         """Fix up character repetitions.
 
         Two or more identical characters directly after each other will be
-        replaced by just two of those characters.
+        replaced by just one of those characters.
 
-        For example, 'haaaappppppyyy' becomes 'happy'.
+        For example, 'haaaappppppyyy' becomes 'hapy'.
         """
 
-        return sub(r'([a-z])\1+', r'\1\1', word)
+        return sub(r'([a-z])\1+', r'\1', word)
 
     @staticmethod
     def is_word_alpha(word: str) -> bool:
@@ -175,6 +173,9 @@ class Classifier(object):
 
     NAIVE_BAYES = 'naive_bayes'
     DECISION_TREE = 'decision_tree'
+
+    TRAINING_FILE_NAME = 'corpus.csv'
+    TESTING_FILE_NAME = 'test.csv'
 
     def __init__(self, classifier_name=NAIVE_BAYES):
         self.labelled_tweets = []  # Pre-labelled tweets from a corpus
@@ -219,6 +220,8 @@ class Classifier(object):
         to disk.
         """
         training_set = apply_features(self.extract_features_from_tweet, self.training_set)
+        testing_set = apply_features(self.extract_features_from_tweet, self.testing_set)
+        self.testing_set = testing_set
         if self.classifier_name == self.NAIVE_BAYES:
             classifier = NaiveBayesClassifier.train(training_set)
         elif self.classifier_name == self.DECISION_TREE:
@@ -228,43 +231,41 @@ class Classifier(object):
         dump(classifier, open('data/%s.p' % self.classifier_name, 'wb'), HIGHEST_PROTOCOL)
         return classifier
 
+    @staticmethod
+    def get_labelled_data_from_file(filename):
+        csv_file = open('data/%s' % filename, encoding='utf-8', errors='ignore')
+        raw_labelled_tweets = reader(csv_file, delimiter=',', quotechar='|')
+        labelled_tweets_unsplit = []
+        labelled_data = []
+
+        for tweet in raw_labelled_tweets:
+            sentiment = tweet[0]
+            if sentiment == '0':
+                sentiment = 'negative'
+            else:
+                sentiment = 'positive'
+            vector = TweetPreprocessor().preprocess_tweet(tweet[1])
+            labelled_tweets_unsplit.append((vector, sentiment))
+
+        for (words, sentiment) in labelled_tweets_unsplit:
+            words_filtered = [w for w in words.split()]
+            labelled_data.append((words_filtered, sentiment))
+
+        return labelled_data
+
     def initialise_tweet_sets(self) -> None:
         """Read labelled data from CSV file.
 
         A row from the CSV looks like the following:
         |<sentiment>|,|<tweet_text>|
         """
-        csv_file = open('data/corpus.csv', encoding='utf-8', errors='ignore')
-        raw_labelled_tweets = reader(csv_file, delimiter=',', quotechar='|')
-        labelled_tweets = []
-
-        for tweet in raw_labelled_tweets:
-            if len(list(tweet[0])) <= 5:
-                continue
-            sentiment = tweet[0]
-            vector = TweetPreprocessor().preprocess_tweet(tweet[1])
-            labelled_tweets.append((vector, sentiment))
-
-        for (words, sentiment) in labelled_tweets:
-            words_filtered = [w for w in words.split()]
-            self.labelled_tweets.append((words_filtered, sentiment))
-
-        shuffle(self.labelled_tweets)
-        feature_sets = [(self.extract_features_from_tweet(t), s) for (t, s) in self.labelled_tweets]
-
-        self.split_training_and_test_sets(feature_sets)
+        self.training_set = self.get_labelled_data_from_file(self.TRAINING_FILE_NAME)
+        self.testing_set = self.get_labelled_data_from_file(self.TESTING_FILE_NAME)
+        self.labelled_tweets = self.training_set + self.testing_set
 
     def initialise_word_features(self) -> None:
         """Initialise instance variable containing all words in vector"""
         self.word_features = self.get_word_features(self.get_all_words_from_tweets(self.labelled_tweets))
-
-    def split_training_and_test_sets(self, feature_sets) -> None:
-        """Split the labelled Tweet set into 80% training and 20% testing."""
-
-        total_labelled_tweets = len(feature_sets)
-        training_slice = floor(total_labelled_tweets * 0.8)
-        self.training_set = feature_sets[:training_slice]
-        self.testing_set = feature_sets[training_slice:]
 
     @staticmethod
     def get_all_words_from_tweets(tweets: list) -> list:

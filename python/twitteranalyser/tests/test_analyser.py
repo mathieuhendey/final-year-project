@@ -21,12 +21,12 @@ class TestTweetPreprocessor(object):
 
     def test_remove_usernames(self):
         test_tweet = "test @mathieu_hendey"
-        assert 'test USER' == self.preprocessor.remove_usernames(test_tweet)
+        assert 'test' == self.preprocessor.remove_usernames(test_tweet)
 
     def test_replace_letter_repetitions(self):
         test_tweet = 'aaaddddccc'
         processed_tweets = self.preprocessor.fix_character_repetitions(test_tweet)
-        assert 'aaddcc' == processed_tweets
+        assert 'adc' == processed_tweets
 
     def test_remove_hashtags(self):
         test_tweet = '#test'
