@@ -11,7 +11,6 @@ volumes:
 
 services:
     db:
-        container_name: database
         image: mysql
         ports:
             - 3305:3306
@@ -25,38 +24,31 @@ services:
             MYSQL_DATABASE: twitter_analyser
             MYSQL_USER: symfony
             MYSQL_PASSWORD: password
-    php:
-        container_name: php_fpm
-        build: ./php-fpm
+            
+    frontend:
+        build: ./frontend
         volumes:
             - ./symfony:/var/www/symfony
             - ./symfony_logs:/var/www/symfony/app/logs
             - ./symfony_cache:/var/www/symfony/app/cache
         depends_on:
             - db
-        links:
-          - db:database
-          - python:python
 
     nginx:
-        container_name: nginx
         build: ./nginx
         ports:
             - 80:80
         volumes_from:
-            - php:ro
+            - frontend:ro
         volumes:
             - nginx_logs:/var/log/nginx
 
-    python:
-      container_name: python
+    api:
       environment:
           - PYTHONUNBUFFERED=0
-      build: ./python
+      build: ./api
       restart: always
       expose:
         - "80"
       depends_on:
         - db
-      links:
-        - db:database
