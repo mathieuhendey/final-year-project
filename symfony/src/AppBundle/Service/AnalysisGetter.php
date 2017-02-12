@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AnalysisGetter
 {
-    const API_URL = 'http://python/tweets';
+    const API_URL = 'http://api/tweets';
     const TYPE_PARAM = 'type';
     const TERM_PARAM = 'term';
     const EXEC_TIME_PARAM = 'exec_time';
