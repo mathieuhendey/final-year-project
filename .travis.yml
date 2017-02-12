@@ -9,5 +9,5 @@ script:
   - docker-compose up -d db
   - docker-compose up -d
   - cd symfony && composer install --no-dev
-  - docker exec -it php_fpm bash -lc "cd /var/www/symfony && php vendor/phpunit/phpunit/phpunit"
-  - docker exec -it python bash -lc "cd /twitteranalyser && python -m pytest tests"
+  - docker exec -it finalyearproject_frontend_1 bash -lc "cd /var/www/symfony && php vendor/phpunit/phpunit/phpunit"
+  - docker exec -it finalyearproject_api_1 bash -lc "cd /twitteranalyser && python -m pytest tests"
