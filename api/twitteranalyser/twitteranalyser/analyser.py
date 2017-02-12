@@ -61,8 +61,7 @@ class TweetPreprocessor(object):
 
         for word in word_list:
             word = self.fix_character_repetitions(word)
-            starts_with_alpha = self.is_word_alpha(word)
-            if word in self.stopwords or not starts_with_alpha:
+            if not self.is_word_alpha(word):
                 continue
             else:
                 processed_word_list.append(word)
@@ -85,7 +84,7 @@ class TweetPreprocessor(object):
         tweet = self.remove_hash_tags(tweet)
         tweet = self.remove_punctuation(tweet)
         tweet = self.fix_whitespace(tweet)
-        # tweet = self.remove_stopwords(tweet)
+        tweet = self.remove_stopwords(tweet)
 
         return tweet
 
