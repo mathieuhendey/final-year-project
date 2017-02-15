@@ -8,6 +8,6 @@ before_script:
 script:
   - docker-compose up -d db
   - docker-compose up -d
-  - cd symfony && composer install --no-dev
+  - cd frontend/twitteranalyser && composer install --no-dev
   - docker exec -it finalyearproject_frontend_1 bash -lc "cd /var/www/twitteranalyser && php vendor/phpunit/phpunit/phpunit"
   - docker exec -it finalyearproject_api_1 bash -lc "cd /twitteranalyser && python -m pytest tests"
