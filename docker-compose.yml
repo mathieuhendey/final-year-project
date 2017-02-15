@@ -1,12 +1,8 @@
 version: '2'
 
 volumes:
-    symfony_logs:
-        driver: local
-    symfony_cache:
-        driver: local
+    frontend_logs:
     nginx_logs:
-        driver: local
     db_data:
 
 services:
@@ -24,13 +20,12 @@ services:
             MYSQL_DATABASE: twitter_analyser
             MYSQL_USER: symfony
             MYSQL_PASSWORD: password
-            
+
     frontend:
         build: ./frontend
         volumes:
-            - ./symfony:/var/www/symfony
-            - ./symfony_logs:/var/www/symfony/app/logs
-            - ./symfony_cache:/var/www/symfony/app/cache
+            - ./frontend/twitteranalyser:/var/www/twitteranalyser
+            - ./frontend_logs:/var/www/twitteranalyser/app/logs
         depends_on:
             - db
 
@@ -41,12 +36,14 @@ services:
         volumes_from:
             - frontend:ro
         volumes:
-            - nginx_logs:/var/log/nginx
+            - ./nginx_logs:/var/log/nginx
 
     api:
       environment:
           - PYTHONUNBUFFERED=0
       build: ./api
+      volumes:
+          - ./api/twitteranalyser:/twitteranalyser
       restart: always
       expose:
         - "80"

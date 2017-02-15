@@ -15,10 +15,10 @@ RUN echo "deb http://packages.dotdeb.org jessie all" >> /etc/apt/sources.list.d/
 
 RUN apt-get update && apt-get install -y php7.0-dev php7.0-fpm php7.0-cli php7.0-mcrypt php7.0-mysql php7.0-apcu php7.0-gd php7.0-imagick php7.0-curl php7.0-intl php7.0-xml php7.0-zip git
 
-ADD symfony.ini /etc/php7.0/fpm/conf.d/
-ADD symfony.ini /etc/php7.0/cli/conf.d/
+ADD timezone.ini /etc/php7.0/fpm/conf.d/
+ADD timezone.ini /etc/php7.0/cli/conf.d/
 
-ADD symfony.pool.conf /etc/php7.0/fpm/pool.d/
+ADD twitteranalyser.pool.conf /etc/php7.0/fpm/pool.d/
 
 RUN sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i "/;access.log = .*/c\access.log = /proc/self/fd/2" /etc/php/7.0/fpm/pool.d/www.conf \
