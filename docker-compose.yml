@@ -24,13 +24,13 @@ services:
             MYSQL_DATABASE: twitter_analyser
             MYSQL_USER: symfony
             MYSQL_PASSWORD: password
-            
+
     frontend:
         build: ./frontend
         volumes:
-            - ./symfony:/var/www/symfony
-            - ./symfony_logs:/var/www/symfony/app/logs
-            - ./symfony_cache:/var/www/symfony/app/cache
+            - ./frontend/twitteranalyser:/var/www/twitteranalyser
+            # - ./symfony_logs:/var/www/symfony/app/logs
+            # - ./symfony_cache:/var/www/symfony/app/cache
         depends_on:
             - db
 
@@ -47,6 +47,8 @@ services:
       environment:
           - PYTHONUNBUFFERED=0
       build: ./api
+      volumes:
+          - ./api/twitteranalyser:/twitteranalyser
       restart: always
       expose:
         - "80"

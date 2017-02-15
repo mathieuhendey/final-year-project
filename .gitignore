@@ -1,6 +1,6 @@
-/logs
-/symfony/vendor
-/symfony/var/cache
+logs
+vendor
+cache
 .idea
 *.pyc
 python/twitter-test/__pycache__

@@ -7,6 +7,5 @@ WORKDIR /twitteranalyser
 RUN pip install -r requirements.txt
 RUN python -m nltk.downloader stopwords
 
-COPY ./twitteranalyser /twitteranalyser
 
 CMD gunicorn -b 0.0.0.0:80 twitteranalyser.analyser_endpoint
