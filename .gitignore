@@ -8,3 +8,5 @@ db_data/
 .php_cs.cache
 .DS_Store
 .cache
+nginx_logs
+frontend_logs
