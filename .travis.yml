@@ -2,11 +2,19 @@ sudo: false
 services:
   - docker
 
+env:
+  DOCKER_COMPOSE_VERSION: 1.11.1
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
 before_script:
   - phpenv config-rm xdebug.ini
 
 script:
-  - docker-compose up -d db
   - docker-compose up -d
   - cd frontend/twitteranalyser && composer install --no-dev
   - docker exec -it finalyearproject_frontend_1 bash -lc "cd /var/www/twitteranalyser && php vendor/phpunit/phpunit/phpunit"
