@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 volumes:
     frontend_logs:
@@ -7,14 +7,12 @@ volumes:
 
 services:
     db:
-        image: mysql
+        build: ./mysql
         ports:
             - 3305:3306
-        expose:
-            - "3306"
         volumes:
-            - ./db_data:/var/lib/mysql
-            - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+            - ./mysql/db_data:/var/lib/mysql
+            - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: twitter_analyser
@@ -25,9 +23,10 @@ services:
         build: ./frontend
         volumes:
             - ./frontend/twitteranalyser:/var/www/twitteranalyser
-            - ./frontend_logs:/var/www/twitteranalyser/app/logs
+            - ./frontend/frontend_logs:/var/www/twitteranalyser/app/logs
         depends_on:
-            - db
+            db:
+              condition: service_healthy
 
     nginx:
         build: ./nginx
@@ -36,7 +35,7 @@ services:
         volumes_from:
             - frontend:ro
         volumes:
-            - ./nginx_logs:/var/log/nginx
+            - ./nginx/nginx_logs:/var/log/nginx
 
     api:
       environment:
@@ -44,8 +43,6 @@ services:
       build: ./api
       volumes:
           - ./api/twitteranalyser:/twitteranalyser
-      restart: always
-      expose:
-        - "80"
       depends_on:
-        - db
+        db:
+          condition: service_healthy

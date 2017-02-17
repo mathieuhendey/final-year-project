@@ -6,7 +6,6 @@ before_script:
   - phpenv config-rm xdebug.ini
 
 script:
-  - docker-compose up -d db
   - docker-compose up -d
   - cd frontend/twitteranalyser && composer install --no-dev
   - docker exec -it finalyearproject_frontend_1 bash -lc "cd /var/www/twitteranalyser && php vendor/phpunit/phpunit/phpunit"
