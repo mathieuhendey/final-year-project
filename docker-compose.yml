@@ -45,7 +45,6 @@ services:
       - "9000"
     volumes:
       - ./frontend/twitteranalyser:/var/www/twitteranalyser
-      - ./frontend/frontend_logs:/var/www/twitteranalyser/app/logs
     depends_on:
       db:
         condition: service_healthy

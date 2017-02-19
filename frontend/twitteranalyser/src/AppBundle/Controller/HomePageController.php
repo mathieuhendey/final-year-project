@@ -12,6 +12,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Entity\AnalysisUser;
+use AppBundle\Model\AnalysisObject;
 use AppBundle\Service\AnalysisGetter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -47,6 +48,10 @@ class HomePageController extends Controller
     public function beginAnalysisAction(Request $request)
     {
         $analysisGetter = $this->get('app.analysis_getter');
+
+        /**
+         * @var AnalysisObject $result
+         */
         $result = $analysisGetter->startAnalysis($request);
 
         if ($result === false) {
@@ -54,14 +59,14 @@ class HomePageController extends Controller
         } elseif ($result->isTopic()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
             return $this->redirectToRoute(
-                'results',
-                ['type' => AnalysisGetter::TYPE_PARAM_TOPIC_VALUE, 'term' => $topic->getTerm()]
+                'topic_results',
+                ['term' => $topic->getTerm()]
             );
         } else {
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
             return $this->redirectToRoute(
-                'results',
-                ['type' => AnalysisGetter::TYPE_PARAM_USER_VALUE, 'term' => $user->getTerm()]
+                'user_results',
+                ['term' => $user->getTerm()]
             );
         }
     }
