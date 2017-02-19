@@ -18,4 +18,4 @@ script:
   - docker-compose up -d
   - cd frontend/twitteranalyser && composer install --no-dev
   - docker exec -it finalyearproject_frontend_1 bash -lc "cd /var/www/twitteranalyser && php vendor/phpunit/phpunit/phpunit"
-  - docker exec -it finalyearproject_api_1 bash -lc "cd /twitteranalyser && python -m pytest tests"
+  - docker exec -it finalyearproject_classifier_1 bash -lc "cd /twitteranalyser && python -m pytest tests"

@@ -1,48 +1,86 @@
 version: '2.1'
 
 volumes:
-    frontend_logs:
-    nginx_logs:
-    db_data:
+  frontend_logs:
+  nginx_logs:
+  db_data:
 
 services:
-    db:
-        build: ./mysql
-        ports:
-            - 3305:3306
-        volumes:
-            - ./mysql/db_data:/var/lib/mysql
-            - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: twitter_analyser
-            MYSQL_USER: symfony
-            MYSQL_PASSWORD: password
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443"
+    volumes_from:
+      - frontend:ro
+    volumes:
+      - ./nginx/nginx_logs:/var/log/nginx
 
-    frontend:
-        build: ./frontend
-        volumes:
-            - ./frontend/twitteranalyser:/var/www/twitteranalyser
-            - ./frontend/frontend_logs:/var/www/twitteranalyser/app/logs
-        depends_on:
-            db:
-              condition: service_healthy
+  rabbit:
+    build: ./rabbit
+    hostname: "rabbit"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
-    nginx:
-        build: ./nginx
-        ports:
-            - 80:80
-        volumes_from:
-            - frontend:ro
-        volumes:
-            - ./nginx/nginx_logs:/var/log/nginx
+  db:
+    build: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: twitter_analyser
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: password
+    ports:
+      - "3305:3306"
+    volumes:
+      - ./mysql/db_data:/var/lib/mysql
+      - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
 
-    api:
-      environment:
-          - PYTHONUNBUFFERED=0
-      build: ./api
-      volumes:
-          - ./api/twitteranalyser:/twitteranalyser
-      depends_on:
-        db:
-          condition: service_healthy
+  frontend:
+    build: ./frontend
+    ports:
+      - "9000"
+    volumes:
+      - ./frontend/twitteranalyser:/var/www/twitteranalyser
+      - ./frontend/frontend_logs:/var/www/twitteranalyser/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build: ./api
+    ports:
+      - "80"
+    environment:
+      PYTHONUNBUFFERED: 0
+      RABBIT_HOST: rabbit
+      RABBIT_USER: rabbit
+      RABBIT_PASS: rabbit
+      RABBIT_PORT: 5672
+      RABBIT_QUEUE: classifier_queue
+    volumes:
+      - ./api/twitteranalyser:/twitteranalyser
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+
+  classifier:
+    build: ./classifier
+    environment:
+      RABBIT_HOST: rabbit
+      RABBIT_USER: rabbit
+      RABBIT_PASS: rabbit
+      RABBIT_PORT: 5672
+      RABBIT_QUEUE: classifier_queue
+    volumes:
+      - ./classifier/twitteranalyser:/twitteranalyser
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy

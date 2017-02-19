@@ -3,7 +3,7 @@ vendor
 cache
 .idea
 *.pyc
-python/twitter-test/__pycache__
+__pycache__
 db_data/
 .php_cs.cache
 .DS_Store

@@ -3,5 +3,5 @@ falcon
 gunicorn
 PyMySQL
 dataset
-nltk
 pytest
+pika
