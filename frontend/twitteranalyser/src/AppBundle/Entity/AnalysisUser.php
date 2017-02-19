@@ -37,11 +37,16 @@ class AnalysisUser
     protected $term;
 
     /**
-     * @var Tweet[]
+     * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Tweet", mappedBy="analysisUserId")
      */
     protected $tweets;
+
+    /**
+     * @var string
+     */
+    protected $type;
 
     public function __construct()
     {
@@ -65,11 +70,11 @@ class AnalysisUser
     }
 
     /**
-     * @return Tweet[]
+     * @return ArrayCollection
      */
-    public function getTweets(): array
+    public function getTweets()
     {
-        return $this->tweets->toArray();
+        return $this->tweets;
     }
 
     /**
@@ -78,5 +83,13 @@ class AnalysisUser
     public function getScreenName(): string
     {
         return '@'.$this->getTerm();
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return 'user';
     }
 }

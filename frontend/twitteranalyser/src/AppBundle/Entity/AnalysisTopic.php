@@ -38,11 +38,16 @@ class AnalysisTopic
     protected $term;
 
     /**
-     * @var Tweet[]
+     * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Tweet", mappedBy="analysisTopicId")
      */
     protected $tweets;
+
+    /**
+     * @var string
+     */
+    protected $type;
 
     public function __construct()
     {
@@ -66,10 +71,18 @@ class AnalysisTopic
     }
 
     /**
-     * @return Tweet[]
+     * @return ArrayCollection
      */
-    public function getTweets(): array
+    public function getTweets()
     {
-        return $this->tweets->toArray();
+        return $this->tweets;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return 'topic';
     }
 }

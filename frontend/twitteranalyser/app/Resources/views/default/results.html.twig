@@ -1,22 +1,15 @@
 {% extends 'base.html.twig' %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/results.js') }}"></script>
+    <script>
+        var url = "{{ url('refreshTweetList') }}"
+    </script>
+{% endblock %}
+
 {% block body %}
-    <div id="tweet_list">
+    <div id="tweet_list" data-term-type="{{ term.getType }}" data-term-id="{{ term.id }}">
         {% include 'default/tweet_list.html.twig' %}
     </div>
-
-    {#<script>#}
-        {#$.ajax({#}
-            {#url: '{{ path("refresh") }}',#}
-            {#type: 'get',#}
-            {#data: null,#}
-            {#async: false,#}
-            {#dataType: 'html',#}
-            {#success: function(data, textStatus, jqXHR){#}
-                {#$("#tweet_list").html(data);#}
-            {#},#}
-            {#error: function(jqXHR, textStatus, errorThrown){},#}
-            {#complete: function( jqXHR, textStatus ){}#}
-        {#});#}
-    {#</script>#}
 {% endblock %}

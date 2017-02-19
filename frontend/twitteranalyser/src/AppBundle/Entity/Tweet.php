@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * A Tweet.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TweetRepository")
  * @ORM\Table(name="tweet")
  */
 class Tweet
@@ -97,6 +97,13 @@ class Tweet
      * @ORM\Column(name="tweet_text", type="string")
      */
     protected $text;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sentiment", type="string")
+     */
+    protected $sentiment;
 
     public function __construct()
     {
@@ -181,5 +188,21 @@ class Tweet
     public function getText(): string
     {
         return $this->text;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSentiment(): string
+    {
+        return $this->sentiment;
+    }
+
+    /**
+     * @param string $sentiment
+     */
+    public function setSentiment(string $sentiment)
+    {
+        $this->sentiment = $sentiment;
     }
 }
