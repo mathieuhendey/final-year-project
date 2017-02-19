@@ -6,12 +6,15 @@
 
 from json import dumps
 from logging import critical as log
+from os import environ
 from time import time
 from urllib.parse import unquote
 
 import falcon
+import pika
 import tweepy
 from dataset import connect
+from pika.channel import Channel
 
 from twitteranalyser import constants
 from twitteranalyser.twitteranalyserstreamlistener import StreamListener
@@ -71,6 +74,9 @@ class Tweet(object):
             # Set stream constraints.
             self.stream_listener.max_exec_time = filter_exec_time
             self.stream_listener.max_tweets = filter_number
+
+            # Pass Rabbit channel.
+            self.stream_listener.channel = self.get_rabbit_channel()
 
             # If the query is for a user...
             if filter_type == constants.FILTER_TYPE_USER:
@@ -144,3 +150,14 @@ class Tweet(object):
         else:
             log('Stream already running.')
             resp.status = falcon.HTTP_CONFLICT
+
+    @staticmethod
+    def get_rabbit_channel() -> Channel:
+        creds = pika.PlainCredentials(username=environ.get('RABBIT_USER', 'rabbit'),
+                                      password=environ.get('RABBIT_PASS', 'rabbit'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=environ.get('RABBIT_HOST', 'rabbit'),
+                                                                       port=int(environ.get('RABBIT_PORT', 5672)),
+                                                                       credentials=creds))
+        channel = connection.channel()
+        channel.queue_declare(environ.get('RABBIT_QUEUE', 'classifier_queue'))
+        return channel

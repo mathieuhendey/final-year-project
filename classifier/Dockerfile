@@ -1,9 +1,10 @@
-FROM python:3.6.0
+FROM python:latest
 
-LABEL maintainer "Mathieu Hendey"
+MAINTAINER Mathieu Hendey
 
 COPY ./twitteranalyser/requirements.txt /twitteranalyser/requirements.txt
 WORKDIR /twitteranalyser
+
 RUN pip install -r requirements.txt
 
-CMD gunicorn --reload -b 0.0.0.0:80 twitteranalyser.analyser_endpoint
+CMD python3 -m twitteranalyser.app

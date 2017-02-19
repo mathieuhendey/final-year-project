@@ -1,0 +1,5 @@
+pika
+PyMySQL
+dataset
+nltk
+pytest

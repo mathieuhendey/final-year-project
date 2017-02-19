@@ -17,15 +17,12 @@ from re import search
 from re import sub
 from string import punctuation
 from typing import Iterable
-from typing import Union
 
 from nltk import DecisionTreeClassifier
 from nltk import FreqDist
 from nltk import NaiveBayesClassifier
 from nltk.classify import apply_features
 from nltk.classify.api import ClassifierI
-from nltk.corpus import stopwords
-from tweepy import Status
 
 
 class TweetPreprocessor(object):
@@ -38,19 +35,11 @@ class TweetPreprocessor(object):
         - Removes punctuation
         - Removes usernames
         - Cleans whitespace between words and trims at both sides of the Tweet
-        - Removes stopwords
     """
 
-    def __init__(self):
-        # Initialise these in __init__ so they're only instantiated once, with
-        # this class, rather than every time a Tweet is to be classified.
-        self.stopwords = stopwords.words('english')
-
-    def preprocess_tweet(self, tweet: Union[Status, str]) -> str:
+    def preprocess_tweet(self, tweet) -> str:
         """Convert a Tweet into a format that makes it easier to analyse."""
 
-        # If tweet is an instance of tweepy.Status, get the 'text' attribute
-        # from it.
         if not isinstance(tweet, str):
             tweet = self.reformat_tweet(getattr(tweet, 'text'))
         else:
@@ -84,18 +73,8 @@ class TweetPreprocessor(object):
         tweet = self.remove_hash_tags(tweet)
         tweet = self.remove_punctuation(tweet)
         tweet = self.fix_whitespace(tweet)
-        tweet = self.remove_stopwords(tweet)
 
         return tweet
-
-    def remove_stopwords(self, tweet: str) -> str:
-        """Remove stopwords from a Tweet.
-
-        Stopwords are words that do not affect the sentiment of the Tweet,
-        such as prepositions, articles etc.
-        """
-
-        return ' '.join([word for word in tweet.split() if word not in self.stopwords])
 
     @staticmethod
     def remove_urls(tweet: str) -> str:
@@ -196,9 +175,9 @@ class Classifier(object):
         Otherwise, load the pickled classifier and set self._classifier.
         """
         if self._classifier is None:
-            if Path('data/%s.p' % self.classifier_name).is_file():
+            if Path('twitteranalyser/data/%s.p' % self.classifier_name).is_file():
                 logging.info('Loaded classifier from disk.')
-                self.classifier = load(open('data/%s.p' % self.classifier_name, 'rb'))
+                self.classifier = load(open('twitteranalyser/data/%s.p' % self.classifier_name, 'rb'))
             else:
                 logging.warning('No classifier found, training new one. This will take a long time.')
                 if not self.labelled_tweets:
@@ -227,12 +206,12 @@ class Classifier(object):
             classifier = DecisionTreeClassifier.train(training_set)
         else:
             raise ValueError("Couldn't create classifier")
-        dump(classifier, open('data/%s.p' % self.classifier_name, 'wb'), HIGHEST_PROTOCOL)
+        dump(classifier, open('twitteranalyser/data/%s.p' % self.classifier_name, 'wb'), HIGHEST_PROTOCOL)
         return classifier
 
     @staticmethod
     def get_labelled_data_from_file(filename):
-        csv_file = open('data/%s' % filename, encoding='utf-8', errors='ignore')
+        csv_file = open('twitteranalyser/data/%s' % filename, encoding='utf-8', errors='ignore')
         raw_labelled_tweets = reader(csv_file, delimiter=',', quotechar='|')
         labelled_tweets_unsplit = []
         labelled_data = []
@@ -296,6 +275,4 @@ class Classifier(object):
     def classify(self, tweet: str):
         """Classify the given Tweet."""
         tweet = TweetPreprocessor().preprocess_tweet(tweet)
-        distribution = self.classifier.prob_classify(self.extract_features_from_tweet(tweet.split()))
-        for label in distribution.samples():
-            print("%s: %f" % (label, distribution.prob(label)))
+        return self.classifier.classify(self.extract_features_from_tweet(tweet.split()))

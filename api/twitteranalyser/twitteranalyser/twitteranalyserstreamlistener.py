@@ -4,10 +4,13 @@
 
 """Related to processing events from the Tweepy stream."""
 
+from json import dumps
 from logging import critical as log
+from os import environ
 from time import time
 from typing import Union
 
+from pika.channel import Channel
 from tweepy import Status
 from tweepy import StreamListener as Listener
 
@@ -29,6 +32,7 @@ class StreamListener(Listener):
         self.analysis_key_name = None
         self.analysis_key_value = None
         self.tweet_table = None
+        self.channel = None  # type: Channel
 
     @property
     def max_exec_time(self) -> float:
@@ -82,7 +86,11 @@ class StreamListener(Listener):
             log('Stream closed due to filter constraints being met.')
             return False
 
-        # If we're streaming a user, we only care abouut replies to that user.
+        # We don't care about retweets.
+        if getattr(status, 'retweeted_status', False) or 'RT @' in getattr(status, 'text', None):
+            return True
+
+        # If we're streaming a user, we only care about replies to that user.
         if self.analysis_key_name == constants.TWEET_USER_TABLE_KEY_NAME:
             if getattr(status, 'in_reply_to_user_id_str', None) is None:
                 return True
@@ -98,8 +106,13 @@ class StreamListener(Listener):
             'tweet_text': getattr(status, 'text', None),
             self.analysis_key_name: self.analysis_key_value,
         }
-        self.tweet_table.insert(status_dict)
-        self.num_tweets += 1
+        table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
+        if table_id:
+            status_dict['table_id'] = table_id
+            self.channel.basic_publish(exchange='',
+                                       routing_key=environ.get('RABBIT_QUEUE', 'classifier_queue'),
+                                       body=dumps(status_dict))
+            self.num_tweets += 1
 
     def on_error(self, status_code: int) -> bool:
         """If we get an error back from Twitter, log it out.
