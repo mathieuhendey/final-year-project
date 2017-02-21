@@ -10,3 +10,4 @@ db_data/
 .cache
 nginx_logs
 frontend_logs
+jquery.min.js
