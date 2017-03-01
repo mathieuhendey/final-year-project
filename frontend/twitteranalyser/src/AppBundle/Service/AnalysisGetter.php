@@ -23,6 +23,8 @@ class AnalysisGetter
 
     const USER_RESPONSE_BODY_KEY = 'user_id';
     const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
+    const RATE_LIMITED_KEY = 'rate_limited';
+    const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
 
     const TYPE_PARAM_TOPIC_VALUE = 'topic';
     const TYPE_PARAM_USER_VALUE = 'user';
@@ -57,16 +59,15 @@ class AnalysisGetter
         $url = $this->assembleUrl($filterType, $filterTerm, $execTime, $execNumber);
         $response = $this->curl->makeGetRequest($url);
 
-        if ($response === false) {
-            return new AnalysisObject(false, 0, true);
-        }
-        if (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $response)) {
-            return new AnalysisObject(true, $response[self::TOPIC_RESPONSE_BODY_KEY]);
+        if (array_key_exists(self::RATE_LIMITED_KEY, $response)) {
+            return AnalysisObject::fromRateLimitedResponse($response[self::TIME_LEFT_ON_STREAM_KEY]);
+        } elseif (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $response)) {
+            return AnalysisObject::fromTopicResponse($response[self::TOPIC_RESPONSE_BODY_KEY]);
         } elseif (array_key_exists(self::USER_RESPONSE_BODY_KEY, $response)) {
-            return new AnalysisObject(false, $response[self::USER_RESPONSE_BODY_KEY]);
+            return AnalysisObject::fromUserResponse($response[self::USER_RESPONSE_BODY_KEY]);
         }
 
-        return new AnalysisObject(false, 0, true);
+        return null;
     }
 
     /**
@@ -83,10 +84,10 @@ class AnalysisGetter
         string $execTime,
         string $execNumber
     ): string {
-        if ($filterType == self::TYPE_PARAM_USER_VALUE) {
-            $filterTerm = str_replace('@', '', $filterTerm);
-        } elseif ($filterType == self::TYPE_PARAM_TOPIC_VALUE) {
+        if ($filterType == self::TYPE_PARAM_TOPIC_VALUE) {
             $filterTerm = rawurlencode($filterTerm);
+        } else {
+            $filterTerm = str_replace('@', '', $filterTerm);
         }
 
         if (is_null($execTime)) {

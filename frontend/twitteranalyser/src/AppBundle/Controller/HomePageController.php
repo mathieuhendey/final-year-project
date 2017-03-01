@@ -47,6 +47,9 @@ class HomePageController extends Controller
      */
     public function beginAnalysisAction(Request $request)
     {
+        /**
+         * @var AnalysisGetter $analysisGetter
+         */
         $analysisGetter = $this->get('app.analysis_getter');
 
         /**
@@ -54,8 +57,8 @@ class HomePageController extends Controller
          */
         $result = $analysisGetter->startAnalysis($request);
 
-        if ($result === false) {
-            // TODO: Handle this case
+        if ($result->isRateLimited()) {
+            throw $this->createAccessDeniedException("Rate limited for ". $result->getTimeLeftOnStream() . " seconds!");
         } elseif ($result->isTopic()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
             return $this->redirectToRoute(
@@ -66,7 +69,7 @@ class HomePageController extends Controller
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
             return $this->redirectToRoute(
                 'user_results',
-                ['term' => $user->getTerm()]
+                ['term' => $user->getScreenName()]
             );
         }
     }

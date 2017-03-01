@@ -84,9 +84,16 @@ class Tweet(object):
                 # performed. If it has, get the ID of the already existing
                 # query, if not, insert a new row into the analysis_user
                 # table and get its ID.
-                analysis_user = self.tweet_user_table.find_one(term=filter_term)
+                user = self.api.get_user(screen_name=filter_term)
+                if user is None:
+                    resp.status = falcon.HTTP_NOT_FOUND
+                analysis_user = self.tweet_user_table.find_one(twitter_id=user.id_str)
                 if analysis_user is None:
-                    analysis_user_id = self.tweet_user_table.insert({'term': filter_term})
+                    data = {
+                        'author_screen_name': user.screen_name,
+                        'twitter_id': user.id
+                    }
+                    analysis_user_id = self.tweet_user_table.insert(data)
                 else:
                     analysis_user_id = analysis_user['id']
 
@@ -96,23 +103,9 @@ class Tweet(object):
                 self.stream_listener.analysis_key_name = constants.TWEET_USER_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_user_id
 
-                # Twitter requires that you get a user by their ID, not by
-                # their screen name. Therefore we need an extra call to
-                # convert the screen name into an ID.
-                user = self.api.get_user(filter_term)
-
-                # Check if the requested user actually exists. If not, return
-                # 404 not found. If it is a valid user, begin streaming
-                # asynchronously and immediately return a 200 OK to the
-                # client, with the ID of the user in the body. This is used by
-                # the client to find the Tweets associated with the user once
-                # they've been stored in our database.
-                if user is not None:
-                    self.stream.filter(follow=[user.id_str], async=True)
-                    resp.body = dumps({'user_id': analysis_user_id})
-                    resp.status = falcon.HTTP_OK
-                else:
-                    resp.status = falcon.HTTP_NOT_FOUND
+                self.stream.filter(follow=[user.id_str], async=True)
+                resp.body = dumps({'user_id': analysis_user_id})
+                resp.status = falcon.HTTP_OK
 
             # If the query is for a topic...
             elif filter_type == constants.FILTER_TYPE_TOPIC:
@@ -123,7 +116,14 @@ class Tweet(object):
                 # table and get its ID.
                 analysis_topic = self.tweet_topic_table.find_one(term=filter_term)
                 if analysis_topic is None:
-                    analysis_topic_id = self.tweet_topic_table.insert({'term': filter_term})
+                    is_hashtag = False
+                    if filter_term[0] == '#':
+                        is_hashtag = True
+                    data = {
+                        'term': filter_term[:1],
+                        'is_hashtag': is_hashtag
+                    }
+                    analysis_topic_id = self.tweet_topic_table.insert(data)
                 else:
                     analysis_topic_id = analysis_topic['id']
 
@@ -133,12 +133,6 @@ class Tweet(object):
                 self.stream_listener.analysis_key_name = constants.TWEET_TOPIC_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_topic_id
 
-                # Begin streaming. We only care about Tweets in English so we
-                # specify that we only want to receive Tweets in English. Once
-                # the stream has been started, return 200 OK with the ID of
-                # the topic in the body. This is used by the client to find
-                # the Tweets associated with the topic once they've been
-                # stored in our database.
                 self.stream.filter(track=[filter_term], languages=['en'], async=True)
                 resp.body = dumps({'topic_id': analysis_topic_id})
                 resp.status = falcon.HTTP_OK
@@ -148,7 +142,8 @@ class Tweet(object):
         # letting the client know that their request conflicts with an ongoing
         # one.
         else:
-            log('Stream already running.')
+            log(self.stream_listener.max_exec_time)
+            resp.body = dumps({'time_left_on_stream': int(self.stream_listener.time_left_on_stream), 'rate_limited': True})
             resp.status = falcon.HTTP_CONFLICT
 
     @staticmethod

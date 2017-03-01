@@ -33,6 +33,11 @@ class StreamListener(Listener):
         self.analysis_key_value = None
         self.tweet_table = None
         self.channel = None  # type: Channel
+        self._time_left_on_stream = 0
+
+    @property
+    def time_left_on_stream(self) -> float:
+        return self.max_exec_time - (time() - self.start)
 
     @property
     def max_exec_time(self) -> float:
@@ -66,6 +71,11 @@ class StreamListener(Listener):
         else:
             self._max_tweets = tweets_to_get
 
+    def keep_alive(self):
+        if time() >= self.start + self.max_exec_time:
+            log('Stream closed due to filter constraints being met.')
+            return False
+
     def on_status(self, status: Status) -> Union[bool, None]:
         """Handler called every time a new status appears on the stream.
 
@@ -81,8 +91,7 @@ class StreamListener(Listener):
 
         # Check that we haven't met the specified constraints.
         # Returning false from the handler will close the stream.
-        if (self.num_tweets > self.max_tweets or
-                time() > self.start + self.max_exec_time):
+        if time() >= self.start + self.max_exec_time:
             log('Stream closed due to filter constraints being met.')
             return False
 

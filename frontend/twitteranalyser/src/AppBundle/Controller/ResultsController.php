@@ -69,7 +69,7 @@ class ResultsController extends Controller
          * @var TweetRepository $tweetRepository
          */
         $tweetRepository = $this->getDoctrine()->getRepository(Tweet::class);
-        $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->findOneBy(['term' => $term]);
+        $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->findOneBy(['screenName' => $term]);
         $positiveTweets = $tweetRepository->getNumberOfTweetsForUserIdWithSentiment($user->getId(), 'positive');
         $negativeTweets = $tweetRepository->getNumberOfTweetsForUserIdWithSentiment($user->getId(), 'negative');
 
