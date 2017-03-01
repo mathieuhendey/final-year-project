@@ -30,11 +30,18 @@ class AnalysisUser
     protected $id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="twitter_id", type="integer", nullable=false)
+     */
+    protected $twitterId;
+
+    /**
      * @var string
      *
-     * @ORM\Column(name="term", type="string", nullable=false)
+     * @ORM\Column(name="author_screen_name", type="string", nullable=false)
      */
-    protected $term;
+    protected $screenName;
 
     /**
      * @var ArrayCollection
@@ -64,9 +71,9 @@ class AnalysisUser
     /**
      * @return string
      */
-    public function getTerm(): string
+    public function getTwitterId(): string
     {
-        return $this->term;
+        return $this->twitterId;
     }
 
     /**
@@ -82,7 +89,7 @@ class AnalysisUser
      */
     public function getScreenName(): string
     {
-        return '@'.$this->getTerm();
+        return $this->screenName;
     }
 
     /**

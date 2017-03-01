@@ -33,17 +33,55 @@ class AnalysisObject
     private $id;
 
     /**
+     * @var int
+     */
+    private $timeLeftOnStream;
+
+    /**
      * AnalysisObject constructor.
      *
      * @param bool $topic
      * @param int $id
      * @param bool $rateLimited
+     * @param int $timeLeftOnStream
      */
-    public function __construct(bool $topic, int $id, $rateLimited = false)
-    {
+    private function __construct(
+        bool $topic = false,
+        int $id = null,
+        bool $rateLimited = false,
+        int $timeLeftOnStream = null
+    ) {
         $this->topic = $topic;
         $this->id = $id;
         $this->rateLimited = $rateLimited;
+        $this->timeLeftOnStream = $timeLeftOnStream;
+    }
+
+    /**
+     * @param int $timeLeftOnStream
+     * @return AnalysisObject
+     */
+    public static function fromRateLimitedResponse(int $timeLeftOnStream): self
+    {
+        return new self(false, 0, true, $timeLeftOnStream);
+    }
+
+    /**
+     * @param int $id
+     * @return AnalysisObject
+     */
+    public static function fromTopicResponse(int $id): self
+    {
+        return new self(true, $id, false, null);
+    }
+
+    /**
+     * @param int $id
+     * @return AnalysisObject
+     */
+    public static function fromUserResponse(int $id): self
+    {
+        return new self(false, $id, false, null);
     }
 
     /**
@@ -68,5 +106,21 @@ class AnalysisObject
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRateLimited(): bool
+    {
+        return $this->rateLimited;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeLeftOnStream(): int
+    {
+        return $this->timeLeftOnStream;
     }
 }

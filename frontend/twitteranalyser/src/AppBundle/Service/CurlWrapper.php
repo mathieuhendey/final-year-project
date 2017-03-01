@@ -32,10 +32,8 @@ class CurlWrapper
 
         $response = curl_exec($curl);
 
-        if (curl_getinfo($curl, CURLINFO_HTTP_CODE) == '409') {
-            return false;
-        }
         $body = json_decode($response, true);
+
 
         curl_close($curl);
 
