@@ -27,7 +27,8 @@
         "symfony/phpunit-bridge": "^3.0",
         "components/jquery": "^3.1",
         "nnnick/chartjs": "^2.5",
-        "twbs/bootstrap": "4.0.0-alpha.6"
+        "twbs/bootstrap": "4.0.0-alpha.6",
+        "friendsofphp/php-cs-fixer": "^2.1"
     },
     "scripts": {
         "symfony-scripts": [

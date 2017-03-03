@@ -1,0 +1,16 @@
+<?php
+
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+
+$finder = Finder::create()
+    ->exclude('somedir')
+    ->in(__DIR__)
+;
+
+return Config::create()
+    ->setRules(array(
+        '@Symfony' => true,
+        'phpdoc_var_without_name' => false,
+    ))
+    ->setFinder($finder);

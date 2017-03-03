@@ -11,18 +11,19 @@
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A topic, as opposed to a user.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\AnalysisTopicRepository")
  * @ORM\Table(name="analysis_topic")
  */
-class AnalysisTopic
+class AnalysisTopic implements AnalysisEntityInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
@@ -71,9 +72,9 @@ class AnalysisTopic
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getTweets()
+    public function getTweets(): Collection
     {
         return $this->tweets;
     }

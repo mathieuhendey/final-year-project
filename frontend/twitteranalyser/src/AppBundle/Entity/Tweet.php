@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Tweet
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -42,6 +42,7 @@ class Tweet
 
     /**
      * This will be null if the Tweet was collected during streaming of a user.
+     *
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="AnalysisUser", inversedBy="tweets")
