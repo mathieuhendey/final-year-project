@@ -4,8 +4,6 @@
 
 """Represents the '/tweets' endpoint of the API."""
 
-from json import dumps
-from logging import critical as log
 from os import environ
 from time import time
 from urllib.parse import unquote
@@ -14,7 +12,10 @@ import falcon
 import pika
 import tweepy
 from dataset import connect
+from json import dumps
+from logging import critical as log
 from pika.channel import Channel
+from sqlalchemy.exc import IntegrityError
 
 from twitteranalyser import constants
 from twitteranalyser.twitteranalyserstreamlistener import StreamListener
@@ -85,6 +86,7 @@ class Tweet(object):
                 # query, if not, insert a new row into the analysis_user
                 # table and get its ID.
                 user = self.api.get_user(screen_name=filter_term)
+                analysis_user_id = 0
                 if user is None:
                     resp.status = falcon.HTTP_NOT_FOUND
                 analysis_user = self.tweet_user_table.find_one(twitter_id=user.id_str)
@@ -93,7 +95,10 @@ class Tweet(object):
                         'author_screen_name': user.screen_name,
                         'twitter_id': user.id
                     }
-                    analysis_user_id = self.tweet_user_table.insert(data)
+                    try:
+                        analysis_user_id = self.tweet_user_table.insert(data)
+                    except IntegrityError:
+                        log('Already saved')
                 else:
                     analysis_user_id = analysis_user['id']
 
@@ -115,15 +120,20 @@ class Tweet(object):
                 # query, if not, insert a new row into the analysis_topic
                 # table and get its ID.
                 analysis_topic = self.tweet_topic_table.find_one(term=filter_term)
+                analysis_topic_id = 0
                 if analysis_topic is None:
                     is_hashtag = False
                     if filter_term[0] == '#':
                         is_hashtag = True
+                        filter_term = filter_term[1:]
                     data = {
-                        'term': filter_term[:1],
+                        'term': filter_term,
                         'is_hashtag': is_hashtag
                     }
-                    analysis_topic_id = self.tweet_topic_table.insert(data)
+                    try:
+                        analysis_topic_id = self.tweet_topic_table.insert(data)
+                    except IntegrityError:
+                        log('Already saved')
                 else:
                     analysis_topic_id = analysis_topic['id']
 

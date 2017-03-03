@@ -10,18 +10,19 @@
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A Twitter user that someone has told the analyser to follow.
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\AnalysisUserRepository")
  * @ORM\Table(name="analysis_user")
  */
-class AnalysisUser
+class AnalysisUser implements AnalysisEntityInterface
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
@@ -30,7 +31,7 @@ class AnalysisUser
     protected $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="twitter_id", type="integer", nullable=false)
      */
@@ -77,9 +78,9 @@ class AnalysisUser
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getTweets()
+    public function getTweets(): Collection
     {
         return $this->tweets;
     }

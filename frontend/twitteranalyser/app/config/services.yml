@@ -1,6 +1,24 @@
 services:
-  app.curl_wrapper:
-    class: AppBundle\Service\CurlWrapper
-  app.analysis_getter:
-    class: AppBundle\Service\AnalysisGetter
-    arguments: ['@app.curl_wrapper', '@logger']
+    app.curl_wrapper:
+        class: AppBundle\Service\CurlWrapper
+    app.analysis_getter:
+        class: AppBundle\Service\AnalysisGetter
+        arguments: ['@app.curl_wrapper', '@logger']
+    app.tweet_repository:
+        class: AppBundle\Repository\TweetRepository
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments:
+            - AppBundle\Entity\Tweet
+    app.analysis_user_repository:
+        class: AppBundle\Repository\AnalysisUserRepository
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments:
+            - AppBundle\Entity\AnalysisUser
+    app.analysis_topic_repository:
+        class: AppBundle\Repository\AnalysisTopicRepository
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments:
+            - AppBundle\Entity\AnalysisTopic
+    app.results_analyser:
+        class: AppBundle\Service\ResultsAnalyser
+        arguments: ['@app.tweet_repository', '@app.analysis_user_repository', '@app.analysis_topic_repository']

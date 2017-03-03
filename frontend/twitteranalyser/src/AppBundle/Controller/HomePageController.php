@@ -12,11 +12,10 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Entity\AnalysisUser;
-use AppBundle\Model\AnalysisObject;
-use AppBundle\Service\AnalysisGetter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,7 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HomePageController extends Controller
 {
-
     /**
      * @Route("/", name="homepage")
      * @Template("default/index.html.twig")
@@ -43,30 +41,28 @@ class HomePageController extends Controller
      * @Route("/analyse", name="analyse")
      *
      * @param Request $request
+     *
      * @return RedirectResponse
+     *
+     * @throws AccessDeniedException
      */
-    public function beginAnalysisAction(Request $request)
+    public function beginAnalysisAction(Request $request): RedirectResponse
     {
-        /**
-         * @var AnalysisGetter $analysisGetter
-         */
         $analysisGetter = $this->get('app.analysis_getter');
-
-        /**
-         * @var AnalysisObject $result
-         */
         $result = $analysisGetter->startAnalysis($request);
 
         if ($result->isRateLimited()) {
-            throw $this->createAccessDeniedException("Rate limited for ". $result->getTimeLeftOnStream() . " seconds!");
+            throw $this->createAccessDeniedException('Rate limited for '.$result->getTimeLeftOnStream().' seconds!');
         } elseif ($result->isTopic()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
+
             return $this->redirectToRoute(
                 'topic_results',
                 ['term' => $topic->getTerm()]
             );
         } else {
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
+
             return $this->redirectToRoute(
                 'user_results',
                 ['term' => $user->getScreenName()]

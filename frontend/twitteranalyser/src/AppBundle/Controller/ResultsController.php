@@ -10,17 +10,11 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\AnalysisTopic;
-use AppBundle\Entity\AnalysisUser;
-use AppBundle\Entity\Tweet;
-use AppBundle\Repository\TweetRepository;
-use AppBundle\Service\AnalysisGetter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles the page showing the results of the analysis of a term.
@@ -37,21 +31,16 @@ class ResultsController extends Controller
      *
      * @return array
      */
-    public function topicResultsAction($term)
+    public function topicResultsAction(string $term)
     {
-        /**
-         * @var TweetRepository $tweetRepository
-         */
-        $tweetRepository = $this->getDoctrine()->getRepository(Tweet::class);
-        $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->findOneBy(['term' => $term]);
-        $positiveTweets = $tweetRepository->getNumberOfTweetsForTopicIdWithSentiment($topic->getId(), 'positive');
-        $negativeTweets = $tweetRepository->getNumberOfTweetsForTopicIdWithSentiment($topic->getId(), 'negative');
+        $resultsAnalyser = $this->get('app.results_analyser');
+        $results = $resultsAnalyser->getResultsForTopic($term);
 
         return [
-            'tweets' => $topic->getTweets(),
-            'term' => $topic,
-            'positiveTweets' => $positiveTweets,
-            'negativeTweets' => $negativeTweets,
+            'tweets' => $results->getTweets(),
+            'term' => $results->getTerm(),
+            'positiveTweets' => $results->getPositiveTweets(),
+            'negativeTweets' => $results->getNegativeTweets(),
         ];
     }
 
@@ -63,21 +52,16 @@ class ResultsController extends Controller
      *
      * @return array
      */
-    public function userResultsAction($term)
+    public function userResultsAction(string $term)
     {
-        /**
-         * @var TweetRepository $tweetRepository
-         */
-        $tweetRepository = $this->getDoctrine()->getRepository(Tweet::class);
-        $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->findOneBy(['screenName' => $term]);
-        $positiveTweets = $tweetRepository->getNumberOfTweetsForUserIdWithSentiment($user->getId(), 'positive');
-        $negativeTweets = $tweetRepository->getNumberOfTweetsForUserIdWithSentiment($user->getId(), 'negative');
+        $resultsAnalyser = $this->get('app.results_analyser');
+        $results = $resultsAnalyser->getResultsForUser($term);
 
         return [
-            'tweets' => $user->getTweets(),
-            'term' => $user,
-            'positiveTweets' => $positiveTweets,
-            'negativeTweets' => $negativeTweets,
+            'tweets' => $results->getTweets(),
+            'term' => $results->getTerm(),
+            'positiveTweets' => $results->getPositiveTweets(),
+            'negativeTweets' => $results->getNegativeTweets(),
         ];
     }
 
@@ -85,58 +69,37 @@ class ResultsController extends Controller
      * @Route("/refreshTweetList", name="refreshTweetList")
      *
      * @param Request $request
+     *
      * @return JsonResponse
      */
     public function getNewTweetsAction(Request $request): JsonResponse
     {
-        /**
-         * @var TweetRepository $tweetRepository
-         */
-        $tweetRepository = $this->getDoctrine()->getRepository(Tweet::class);
+        $resultsAnalyser = $this->get('app.results_analyser');
 
         if ($request->get('term_type') == 'topic') {
-            $term = $this
-                ->getDoctrine()
-                ->getRepository(AnalysisTopic::class)
-                ->find($request->get('term_id'));
-            $tweets = $tweetRepository->findAllTweetsForTopicIdWithTweetIdGreaterThan(
-                $request->get('term_id'), $request->get('latest_tweet_in_list')
-            );
-            $positiveTweets = $tweetRepository
-                ->getNumberOfTweetsForTopicIdWithSentiment($request->get('term_id'), 'positive');
-            $negativeTweets = $tweetRepository
-                ->getNumberOfTweetsForTopicIdWithSentiment($request->get('term_id'), 'negative');
+            $results = $resultsAnalyser
+                ->getNewTweetsForTopic($request->get('term_id'), $request->get('latest_tweet_in_list'));
         } else {
-            $term = $this
-                ->getDoctrine()
-                ->getRepository(AnalysisUser::class)
-                ->find($request->get('term_id'));
-            $tweets = $tweetRepository->findAllTweetsForUserIdWithTweetIdGreaterThan(
-                $request->get('term_id'), $request->get('latest_tweet_in_list')
-            );
-            $positiveTweets = $tweetRepository
-                ->getNumberOfTweetsForUserIdWithSentiment($request->get('term_id'), 'positive');
-            $negativeTweets = $tweetRepository
-                ->getNumberOfTweetsForUserIdWithSentiment($request->get('term_id'), 'negative');
+            $results = $resultsAnalyser
+                ->getNewTweetsForUser($request->get('term_id'), $request->get('latest_tweet_in_list'));
         }
 
         $newTweetsRendered = $this->renderView(
             'default/tweet_list.html.twig',
                 [
-                    'tweets' => $tweets,
-                    'term' => $term,
-                    'positiveTweets' => $positiveTweets,
-                    'negativeTweets' => $negativeTweets,
+                    'tweets' => $results->getTweets(),
+                    'term' => $results->getTerm(),
+                    'positiveTweets' => $results->getPositiveTweets(),
+                    'negativeTweets' => $results->getNegativeTweets(),
                 ]
         );
 
-        $response = new JsonResponse();
         $data = [
             'view' => $newTweetsRendered,
-            'positiveTweets' => $positiveTweets,
-            'negativeTweets' => $negativeTweets,
+            'positiveTweets' => $results->getPositiveTweets(),
+            'negativeTweets' => $results->getNegativeTweets(),
         ];
-        $response->setData($data);
+        $response = new JsonResponse($data);
 
         return $response;
     }

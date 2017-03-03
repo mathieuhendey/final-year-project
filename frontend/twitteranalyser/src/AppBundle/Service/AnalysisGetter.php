@@ -47,6 +47,7 @@ class AnalysisGetter
 
     /**
      * @param Request $request
+     *
      * @return AnalysisObject if analysis was successfully started, false if not
      */
     public function startAnalysis(Request $request): AnalysisObject
@@ -102,14 +103,15 @@ class AnalysisGetter
             .self::TYPE_PARAM.'='.$filterType.'&'
             .self::TERM_PARAM.'='.$filterTerm.'&'
             .self::EXEC_TIME_PARAM.'='.$execTime.'&'
-            .self::EXEC_NUMBER_PARAM .'='.$execNumber;
+            .self::EXEC_NUMBER_PARAM.'='.$execNumber;
 
         return $url;
     }
 
     /**
-     * @param string $filterTerm The filter term to be streamed.
-     * @return string The type of the filter term, user or topic.
+     * @param string $filterTerm the filter term to be streamed
+     *
+     * @return string the type of the filter term, user or topic
      */
     private function getFilterType(string $filterTerm): string
     {
