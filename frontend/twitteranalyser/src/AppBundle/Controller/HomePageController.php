@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
  * Handles the home page of the application.
@@ -34,7 +35,7 @@ class HomePageController extends Controller
      */
     public function indexAction(): array
     {
-        return ['test' => 'todo'];
+        return [];
     }
 
     /**
@@ -52,7 +53,7 @@ class HomePageController extends Controller
         $result = $analysisGetter->startAnalysis($request);
 
         if ($result->isRateLimited()) {
-            throw $this->createAccessDeniedException('Rate limited for '.$result->getTimeLeftOnStream().' seconds!');
+            throw new TooManyRequestsHttpException($result->getTimeLeftOnStream(), 'Rate limited for '.$result->getTimeLeftOnStream().' seconds!');
         } elseif ($result->isTopic()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
 

@@ -45,3 +45,6 @@
 
 #Docs
 /docs/
+
+#Coverage
+/coverage/

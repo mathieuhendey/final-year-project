@@ -12,8 +12,6 @@ namespace AppBundle\Model;
 
 /**
  * Represents the response from the Python API.
- *
- * @package AppBundle\Model
  */
 class AnalysisObject
 {
@@ -41,9 +39,9 @@ class AnalysisObject
      * AnalysisObject constructor.
      *
      * @param bool $topic
-     * @param int $id
+     * @param int  $id
      * @param bool $rateLimited
-     * @param int $timeLeftOnStream
+     * @param int  $timeLeftOnStream
      */
     private function __construct(
         bool $topic = false,
@@ -59,6 +57,7 @@ class AnalysisObject
 
     /**
      * @param int $timeLeftOnStream
+     *
      * @return AnalysisObject
      */
     public static function fromRateLimitedResponse(int $timeLeftOnStream): self
@@ -68,6 +67,7 @@ class AnalysisObject
 
     /**
      * @param int $id
+     *
      * @return AnalysisObject
      */
     public static function fromTopicResponse(int $id): self
@@ -77,6 +77,7 @@ class AnalysisObject
 
     /**
      * @param int $id
+     *
      * @return AnalysisObject
      */
     public static function fromUserResponse(int $id): self

@@ -1,9 +1,9 @@
 services:
-    app.curl_wrapper:
-        class: AppBundle\Service\CurlWrapper
+    guzzle.client:
+        class: GuzzleHttp\Client
     app.analysis_getter:
         class: AppBundle\Service\AnalysisGetter
-        arguments: ['@app.curl_wrapper', '@logger']
+        arguments: ['@guzzle.client']
     app.tweet_repository:
         class: AppBundle\Repository\TweetRepository
         factory: ['@doctrine.orm.default_entity_manager', getRepository]
