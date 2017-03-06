@@ -66,8 +66,8 @@ class StreamListener(Listener):
 
         Limit number of Tweets to fetch to 10,000 Tweets.
         """
-        if tweets_to_get is None or tweets_to_get > 10000:
-            self._max_tweets = 10000
+        if tweets_to_get is None or tweets_to_get > 50000:
+            self._max_tweets = 50000
         else:
             self._max_tweets = tweets_to_get
 
