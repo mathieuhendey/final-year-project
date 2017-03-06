@@ -1,6 +1,11 @@
-<div class="card" id="tweet" data-id="{{ tweet.id }}">
-    <div class="card-block text-nowrap">
-        <h3>{{ tweet.authorScreenName }}</h3>
-        <p>{{ tweet.text }}</p>
+<div class="list-group-item flex-column align-items-start col-5" id="tweet" data-id="{{ tweet.id }}">
+    <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">
+            @{{ tweet.authorScreenName }}
+        </h5>
+        <small>Add relative date</small>
     </div>
+    <p class="mb-1">
+        {{ tweet.text }}
+    </p>
 </div>

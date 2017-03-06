@@ -153,7 +153,10 @@ class Tweet(object):
         # one.
         else:
             log(self.stream_listener.max_exec_time)
-            resp.body = dumps({'time_left_on_stream': int(self.stream_listener.time_left_on_stream), 'rate_limited': True})
+            resp.body = dumps({
+                'time_left_on_stream': int(self.stream_listener.time_left_on_stream),
+                'rate_limited': True
+            })
             resp.status = falcon.HTTP_CONFLICT
 
     @staticmethod
