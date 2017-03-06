@@ -1,11 +1,3 @@
-<div id="tweet_list"
-     data-term-type="{{ term.getType }}"
-     data-term-id="{{ term.id }}"
-     data-positive-tweets="{{ positiveTweets }}"
-     data-negative-tweets="{{ negativeTweets }}"
-     style="margin-top: 40px;"
->
-    {% for tweet in tweets %}
-        {% include 'default/tweet.html.twig' %}
-    {% endfor %}
-</div>
+ {% for tweet in tweets %}
+     {% include 'default/tweet.html.twig' %}
+ {% endfor %}

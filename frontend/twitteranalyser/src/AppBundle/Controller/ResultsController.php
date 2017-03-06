@@ -88,9 +88,6 @@ class ResultsController extends Controller
             'default/tweet_list.html.twig',
                 [
                     'tweets' => $results->getTweets(),
-                    'term' => $results->getTerm(),
-                    'positiveTweets' => $results->getPositiveTweets(),
-                    'negativeTweets' => $results->getNegativeTweets(),
                 ]
         );
 

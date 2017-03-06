@@ -37,8 +37,8 @@ class ResultsAnalyser
     /**
      * ResultsAnalyser constructor.
      *
-     * @param TweetRepository $tweetRepository
-     * @param AnalysisUserRepository $analysisUserRepository
+     * @param TweetRepository         $tweetRepository
+     * @param AnalysisUserRepository  $analysisUserRepository
      * @param AnalysisTopicRepository $analysisTopicRepository
      */
     public function __construct(

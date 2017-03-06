@@ -12,7 +12,6 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Entity\AnalysisUser;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityRepository;
 
@@ -21,6 +20,7 @@ class TweetRepository extends EntityRepository
     /**
      * @param int $topicId
      * @param int $tweetId
+     *
      * @return \Doctrine\Common\Collections\ArrayCollection|\Doctrine\Common\Collections\Collection
      */
     public function findAllTweetsForTopicIdWithTweetIdGreaterThan(int $topicId, int $tweetId)
@@ -32,8 +32,8 @@ class TweetRepository extends EntityRepository
         $topicTweets = $topic->getTweets();
 
         $criteria = Criteria::create()
-            ->where(Criteria::expr()->gt("id", $tweetId))
-            ->andWhere(Criteria::expr()->neq("sentiment", null));
+            ->where(Criteria::expr()->gt('id', $tweetId))
+            ->andWhere(Criteria::expr()->neq('sentiment', null));
 
         return $topicTweets->matching($criteria);
     }
@@ -41,6 +41,7 @@ class TweetRepository extends EntityRepository
     /**
      * @param int $userId
      * @param int $tweetId
+     *
      * @return \Doctrine\Common\Collections\ArrayCollection|\Doctrine\Common\Collections\Collection
      */
     public function findAllTweetsForUserIdWithTweetIdGreaterThan(int $userId, int $tweetId)
@@ -52,15 +53,16 @@ class TweetRepository extends EntityRepository
         $userTweets = $user->getTweets();
 
         $criteria = Criteria::create()
-            ->where(Criteria::expr()->gt("id", $tweetId))
-            ->andWhere(Criteria::expr()->neq("sentiment", null));
+            ->where(Criteria::expr()->gt('id', $tweetId))
+            ->andWhere(Criteria::expr()->neq('sentiment', null));
 
         return $userTweets->matching($criteria);
     }
 
     /**
-     * @param int $userId
+     * @param int    $userId
      * @param string $sentiment
+     *
      * @return int
      */
     public function getNumberOfTweetsForUserIdWithSentiment(int $userId, string $sentiment): int
@@ -78,8 +80,9 @@ class TweetRepository extends EntityRepository
     }
 
     /**
-     * @param int $topicId
+     * @param int    $topicId
      * @param string $sentiment
+     *
      * @return int
      */
     public function getNumberOfTweetsForTopicIdWithSentiment(int $topicId, string $sentiment): int

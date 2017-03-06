@@ -12,5 +12,7 @@ nginx_logs
 frontend_logs
 jquery.min.js
 Chart.min.js
+collapse.js
+util.js
 frontend/twitteranalyser/web/css/*
 !frontend/twitteranalyser/web/css/.gitkeep 

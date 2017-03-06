@@ -4,7 +4,7 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
 $finder = Finder::create()
-    ->exclude('somedir')
+    ->notName('AppBundle.php')
     ->in(__DIR__)
 ;
 

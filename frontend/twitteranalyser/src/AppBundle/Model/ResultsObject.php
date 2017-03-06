@@ -6,8 +6,8 @@
  *
  * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
  */
-namespace AppBundle\Model;
 
+namespace AppBundle\Model;
 
 use AppBundle\Entity\AnalysisEntityInterface;
 use Doctrine\Common\Collections\Collection;
@@ -36,10 +36,11 @@ class ResultsObject
 
     /**
      * ResultsObject constructor.
-     * @param Collection $tweets
+     *
+     * @param Collection              $tweets
      * @param AnalysisEntityInterface $term
-     * @param int $negativeTweets
-     * @param int $positiveTweets
+     * @param int                     $negativeTweets
+     * @param int                     $positiveTweets
      */
     public function __construct(
         Collection $tweets,

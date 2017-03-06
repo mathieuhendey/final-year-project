@@ -13,5 +13,12 @@
         <canvas id="myChart"></canvas>
     </div>
 
-    {% include 'default/tweet_list.html.twig' %}
+    <div id="tweet_list"
+         data-term-type="{{ term.getType }}"
+         data-term-id="{{ term.id }}"
+         data-positive-tweets="{{ positiveTweets }}"
+         data-negative-tweets="{{ negativeTweets }}"
+         style="margin-top: 40px;">
+        {% include 'default/tweet_list.html.twig' %}
+    </div>
 {% endblock %}

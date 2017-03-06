@@ -1,16 +1,57 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <form action="{{ path('analyse') }}" method="get">
-        <label for="term">Term:</label>
-        <input id="term" name='term' type="text">
+    <div class="container" style="margin-top: 30px">
+        <form action="{{ path('analyse') }}" method="get">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <div class="input-group">
+                        <input id="term"
+                               name='term'
+                               type="search"
+                               class="form-control"
+                               placeholder="Search for an @user, a #hashtag, or a set of words"
+                               title="Search">
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary" type="submit" value="Analyse"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                    <a data-toggle="collapse" href="#advanced" aria-expanded="false" aria-controls="advanced">
+                        Advanced <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
 
-        <label for="exec_time">Execution time:</label>
-        <input id="exec_time" name='exec_time' type="text">
-
-        <label for="exec_number">Number of tweets:</label>
-        <input id="exec_number" name='exec_number' type="text">
-
-        <input type="submit" value="Analyse">
-    </form>
+            <div class="collapse" id="advanced" style="margin-top: 30px">
+                <label for="exec_time" class="offset-3">Execution time</label>
+                    <div class="form-group row">
+                        <div class="input-group col-6 offset-3">
+                            <input id="exec_time"
+                                   class="form-control"
+                                   name='exec_time'
+                                   type="number"
+                                   min="30"
+                                   max="600"
+                                   aria-describedby="basic-addon1"
+                                   placeholder="The time that analysis should run for"
+                                   value="30">
+                            <span class="input-group-addon" id="basic-addon1">seconds</span>
+                        </div>
+                    </div>
+                    <label for="exec_number" class="offset-3">Number of Tweets</label>
+                    <div class="form-group row">
+                        <div class="input-group col-6 offset-3">
+                            <input id="exec_number"
+                                   class="form-control"
+                                   name='exec_number'
+                                   type="number"
+                                   value="10000"
+                                   max="50000"
+                                   placeholder="The number of Tweets to fetch">
+                            <span class="input-group-addon" id="basic-addon1">Tweets</span>
+                        </div>
+                    </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}

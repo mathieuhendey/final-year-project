@@ -9,10 +9,8 @@
 
 namespace AppBundle\Repository;
 
-
 use Doctrine\ORM\EntityRepository;
 
 class AnalysisUserRepository extends EntityRepository
 {
-
 }
