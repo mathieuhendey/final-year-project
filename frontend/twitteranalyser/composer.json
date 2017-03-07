@@ -29,7 +29,8 @@
         "nnnick/chartjs": "^2.5",
         "twbs/bootstrap": "4.0.0-alpha.6",
         "friendsofphp/php-cs-fixer": "^2.1",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "twig/extensions": "^1.4"
     },
     "scripts": {
         "symfony-scripts": [

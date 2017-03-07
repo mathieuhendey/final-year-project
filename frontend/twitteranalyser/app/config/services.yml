@@ -1,4 +1,8 @@
 services:
+    twig.extension.date:
+        class: Twig_Extensions_Extension_Date
+        tags:
+            - {name: twig.extension}
     guzzle.client:
         class: GuzzleHttp\Client
     app.analysis_getter:
