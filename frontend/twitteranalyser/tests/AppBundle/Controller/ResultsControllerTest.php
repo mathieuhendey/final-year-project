@@ -23,7 +23,7 @@ class ResultsControllerTest extends WebTestCase
         $client = static::createClient();
         $tweet = $this->getMockBuilder(Tweet::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText'])
+            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
             ->getMock();
         $tweet->expects($this->once())
             ->method('getId')
@@ -34,6 +34,9 @@ class ResultsControllerTest extends WebTestCase
         $tweet->expects($this->once())
             ->method('getText')
             ->willReturn('test text');
+        $tweet->expects($this->once())
+            ->method('getCreatedOn')
+            ->willReturn(new \DateTime());
 
         $tweets = new ArrayCollection([$tweet]);
         $term = $this->getMockBuilder(AnalysisEntityInterface::class)
@@ -61,7 +64,7 @@ class ResultsControllerTest extends WebTestCase
         $client = static::createClient();
         $tweet = $this->getMockBuilder(Tweet::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText'])
+            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
             ->getMock();
         $tweet->expects($this->once())
             ->method('getId')
@@ -72,6 +75,9 @@ class ResultsControllerTest extends WebTestCase
         $tweet->expects($this->once())
             ->method('getText')
             ->willReturn('test text');
+        $tweet->expects($this->once())
+            ->method('getCreatedOn')
+            ->willReturn(new \DateTime());
 
         $tweets = new ArrayCollection([$tweet]);
         $term = $this->getMockBuilder(AnalysisEntityInterface::class)
@@ -99,7 +105,7 @@ class ResultsControllerTest extends WebTestCase
         $client = static::createClient();
         $tweet = $this->getMockBuilder(Tweet::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText'])
+            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
             ->getMock();
         $tweet->expects($this->once())
             ->method('getId')
@@ -110,6 +116,9 @@ class ResultsControllerTest extends WebTestCase
         $tweet->expects($this->once())
             ->method('getText')
             ->willReturn('test text');
+        $tweet->expects($this->once())
+            ->method('getCreatedOn')
+            ->willReturn(new \DateTime());
 
         $tweets = new ArrayCollection([$tweet]);
         $term = $this->getMockBuilder(AnalysisEntityInterface::class)
@@ -141,7 +150,7 @@ class ResultsControllerTest extends WebTestCase
         $client = static::createClient();
         $tweet = $this->getMockBuilder(Tweet::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText'])
+            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
             ->getMock();
         $tweet->expects($this->once())
             ->method('getId')
@@ -152,6 +161,9 @@ class ResultsControllerTest extends WebTestCase
         $tweet->expects($this->once())
             ->method('getText')
             ->willReturn('test text');
+        $tweet->expects($this->once())
+            ->method('getCreatedOn')
+            ->willReturn(new \DateTime());
 
         $tweets = new ArrayCollection([$tweet]);
         $term = $this->getMockBuilder(AnalysisEntityInterface::class)
