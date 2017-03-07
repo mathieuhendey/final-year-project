@@ -14,13 +14,23 @@ use AppBundle\Entity\Tweet;
 use AppBundle\Model\ResultsObject;
 use AppBundle\Service\ResultsAnalyser;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ResultsControllerTest extends WebTestCase
 {
-    public function testTopicResults()
+    /**
+     * @var ResultsObject
+     */
+    private $resultsObject;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    protected function setUp()
     {
-        $client = static::createClient();
         $tweet = $this->getMockBuilder(Tweet::class)
             ->disableOriginalConstructor()
             ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
@@ -39,154 +49,87 @@ class ResultsControllerTest extends WebTestCase
             ->willReturn(new \DateTime());
 
         $tweets = new ArrayCollection([$tweet]);
+
+        /**
+         * @var AnalysisEntityInterface|\PHPUnit_Framework_MockObject_MockObject $term
+         */
         $term = $this->getMockBuilder(AnalysisEntityInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $resultsObject = new ResultsObject($tweets, $term, 100, 100);
+        $this->resultsObject = new ResultsObject($tweets, $term, 100, 100);
+        $this->client = static::createClient();
+    }
 
+    public function testTopicResults()
+    {
         $mockResultsAnalyser = $this->getMockBuilder(ResultsAnalyser::class)
             ->disableOriginalConstructor()
             ->setMethods(['getResultsForTopic'])
             ->getMock();
         $mockResultsAnalyser->expects($this->once())->method('getResultsForTopic')
-            ->willReturn($resultsObject);
+            ->willReturn($this->resultsObject);
 
-        $client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
 
-        $crawler = $client->request('GET', '/topic/test');
+        $this->client->request('GET', '/topic/test');
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 
     public function testUserResults()
     {
-        $client = static::createClient();
-        $tweet = $this->getMockBuilder(Tweet::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
-            ->getMock();
-        $tweet->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
-        $tweet->expects($this->once())
-            ->method('getAuthorScreenName')
-            ->willReturn('test');
-        $tweet->expects($this->once())
-            ->method('getText')
-            ->willReturn('test text');
-        $tweet->expects($this->once())
-            ->method('getCreatedOn')
-            ->willReturn(new \DateTime());
-
-        $tweets = new ArrayCollection([$tweet]);
-        $term = $this->getMockBuilder(AnalysisEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $resultsObject = new ResultsObject($tweets, $term, 100, 100);
-
         $mockResultsAnalyser = $this->getMockBuilder(ResultsAnalyser::class)
             ->disableOriginalConstructor()
             ->setMethods(['getResultsForUser'])
             ->getMock();
         $mockResultsAnalyser->expects($this->once())->method('getResultsForUser')
-            ->willReturn($resultsObject);
+            ->willReturn($this->resultsObject);
 
-        $client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
 
-        $crawler = $client->request('GET', '/user/test');
+        $this->client->request('GET', '/user/test');
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 
     public function testGetNewTweetsForTopic()
     {
-        $client = static::createClient();
-        $tweet = $this->getMockBuilder(Tweet::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
-            ->getMock();
-        $tweet->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
-        $tweet->expects($this->once())
-            ->method('getAuthorScreenName')
-            ->willReturn('test');
-        $tweet->expects($this->once())
-            ->method('getText')
-            ->willReturn('test text');
-        $tweet->expects($this->once())
-            ->method('getCreatedOn')
-            ->willReturn(new \DateTime());
-
-        $tweets = new ArrayCollection([$tweet]);
-        $term = $this->getMockBuilder(AnalysisEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $resultsObject = new ResultsObject($tweets, $term, 100, 100);
-
         $mockResultsAnalyser = $this->getMockBuilder(ResultsAnalyser::class)
             ->disableOriginalConstructor()
             ->setMethods(['getNewTweetsForTopic'])
             ->getMock();
         $mockResultsAnalyser->expects($this->once())->method('getNewTweetsForTopic')
-            ->willReturn($resultsObject);
+            ->willReturn($this->resultsObject);
 
-        $client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
 
-        $crawler = $client->request('GET', '/refreshTweetList', [
+        $this->client->request('GET', '/refreshTweetList', [
             'term_type' => 'topic',
             'term_id' => 1,
             'latest_tweet_in_list' => 1,
         ]);
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 
     public function testGetNewTweetsForUser()
     {
-        $client = static::createClient();
-        $tweet = $this->getMockBuilder(Tweet::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getAuthorScreenName', 'getText', 'getCreatedOn'])
-            ->getMock();
-        $tweet->expects($this->once())
-            ->method('getId')
-            ->willReturn(1);
-        $tweet->expects($this->once())
-            ->method('getAuthorScreenName')
-            ->willReturn('test');
-        $tweet->expects($this->once())
-            ->method('getText')
-            ->willReturn('test text');
-        $tweet->expects($this->once())
-            ->method('getCreatedOn')
-            ->willReturn(new \DateTime());
-
-        $tweets = new ArrayCollection([$tweet]);
-        $term = $this->getMockBuilder(AnalysisEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $resultsObject = new ResultsObject($tweets, $term, 100, 100);
-
         $mockResultsAnalyser = $this->getMockBuilder(ResultsAnalyser::class)
             ->disableOriginalConstructor()
             ->setMethods(['getNewTweetsForUser'])
             ->getMock();
         $mockResultsAnalyser->expects($this->once())->method('getNewTweetsForUser')
-            ->willReturn($resultsObject);
+            ->willReturn($this->resultsObject);
 
-        $client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
 
-        $crawler = $client->request('GET', '/refreshTweetList', [
+        $this->client->request('GET', '/refreshTweetList', [
             'term_type' => 'user',
             'term_id' => 1,
             'latest_tweet_in_list' => 1,
         ]);
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 }

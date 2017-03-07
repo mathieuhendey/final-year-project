@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
 {
-    const RATE_LIMITED = 'rate_limited';
-    const TOPIC = 'topic';
-    const USER = 'user';
-    const BROKEN = 'broken';
+    private const RATE_LIMITED = 'rate_limited';
+    private const TOPIC = 'topic';
+    private const USER = 'user';
+    private const BROKEN = 'broken';
 
     /**
      * @param string $term
