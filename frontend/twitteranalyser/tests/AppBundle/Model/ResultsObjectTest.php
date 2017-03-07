@@ -7,9 +7,10 @@
  * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
  */
 
-namespace AppBundle\Model;
+namespace Tests\AppBundle\Model;
 
 use AppBundle\Entity\AnalysisEntityInterface;
+use AppBundle\Model\ResultsObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
