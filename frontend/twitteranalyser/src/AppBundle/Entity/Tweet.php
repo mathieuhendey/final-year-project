@@ -106,6 +106,13 @@ class Tweet
      */
     protected $sentiment;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_on", type="datetime")
+     */
+    protected $createdOn;
+
     public function __construct()
     {
         $this->analysisTopicId = null;
@@ -205,5 +212,13 @@ class Tweet
     public function setSentiment(string $sentiment)
     {
         $this->sentiment = $sentiment;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedOn(): \DateTime
+    {
+        return $this->createdOn;
     }
 }

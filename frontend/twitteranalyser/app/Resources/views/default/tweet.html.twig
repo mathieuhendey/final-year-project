@@ -3,7 +3,7 @@
         <h5 class="mb-1">
             @{{ tweet.authorScreenName }}
         </h5>
-        <small>Add relative date</small>
+        <small>{{ tweet.createdOn|time_diff }}</small>
     </div>
     <p class="mb-1">
         {{ tweet.text }}

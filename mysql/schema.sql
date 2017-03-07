@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS tweet
     tweet_id VARCHAR(300) UNIQUE NOT NULL,
     tweet_text VARCHAR(300),
     sentiment VARCHAR(10),
+    created_on DATETIME,
     FOREIGN KEY (analysis_topic_id)
       REFERENCES analysis_topic(id),
     FOREIGN KEY (analysis_user_id)

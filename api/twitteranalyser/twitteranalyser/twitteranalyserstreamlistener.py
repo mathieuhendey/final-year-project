@@ -7,12 +7,11 @@
 from json import dumps
 from logging import critical as log
 from os import environ
-from time import time
-from typing import Union
-
 from pika.channel import Channel
+from time import time
 from tweepy import Status
 from tweepy import StreamListener as Listener
+from typing import Union
 
 from twitteranalyser import constants
 
@@ -88,7 +87,6 @@ class StreamListener(Listener):
         If False is returned, the stream is closed. If True is returned, the
         stream remains open and the current Tweet is skipped.
         """
-
         # Check that we haven't met the specified constraints.
         # Returning false from the handler will close the stream.
         if time() >= self.start + self.max_exec_time:
@@ -114,13 +112,18 @@ class StreamListener(Listener):
             'tweet_id': getattr(status, 'id_str', None),
             'tweet_text': getattr(status, 'text', None),
             self.analysis_key_name: self.analysis_key_value,
+            'created_on': status.created_at,
+
         }
         table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
         if table_id:
             status_dict['table_id'] = table_id
             self.channel.basic_publish(exchange='',
                                        routing_key=environ.get('RABBIT_QUEUE', 'classifier_queue'),
-                                       body=dumps(status_dict))
+                                       body=dumps({
+                                           'tweet_text': status_dict['tweet_text'],
+                                           'table_id': status_dict['table_id']
+                                       }))
             self.num_tweets += 1
 
     def on_error(self, status_code: int) -> bool:
