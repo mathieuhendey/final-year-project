@@ -16,3 +16,4 @@ collapse.js
 util.js
 frontend/twitteranalyser/web/css/*
 !frontend/twitteranalyser/web/css/.gitkeep 
+api/twitteranalyser/twitteranalyser/.env
