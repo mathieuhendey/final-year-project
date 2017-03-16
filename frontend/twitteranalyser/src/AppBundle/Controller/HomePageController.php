@@ -65,11 +65,18 @@ class HomePageController extends Controller
 
         if ($result->isRateLimited()) {
             throw new TooManyRequestsHttpException($result->getTimeLeftOnStream(), 'Rate limited for '.$result->getTimeLeftOnStream().' seconds!');
-        } elseif ($result->isTopic()) {
+        } elseif ($result->isTopic() && !$result->isHashtag()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
 
             return $this->redirectToRoute(
                 'topic_results',
+                ['term' => $topic->getTerm()]
+            );
+        } elseif ($result->isHashtag()) {
+            $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
+
+            return $this->redirectToRoute(
+                'hashtag_results',
                 ['term' => $topic->getTerm()]
             );
         } else {

@@ -39,6 +39,13 @@ class AnalysisTopic implements AnalysisEntityInterface
     protected $term;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_hashtag", type="boolean", nullable=false)
+     */
+    protected $hashtag;
+
+    /**
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Tweet", mappedBy="analysisTopicId")
@@ -77,6 +84,14 @@ class AnalysisTopic implements AnalysisEntityInterface
     public function getTweets(): Collection
     {
         return $this->tweets;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHashtag(): bool
+    {
+        return $this->hashtag;
     }
 
     /**

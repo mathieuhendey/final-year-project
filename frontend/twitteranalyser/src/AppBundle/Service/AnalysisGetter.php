@@ -24,6 +24,7 @@ class AnalysisGetter
 
     const USER_RESPONSE_BODY_KEY = 'user_id';
     const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
+    const HASHTAG_RESPONSE_BODY_KEY = 'is_hashtag';
     const RATE_LIMITED_KEY = 'rate_limited';
     const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
 
@@ -69,7 +70,11 @@ class AnalysisGetter
         if (array_key_exists(self::RATE_LIMITED_KEY, $responseBody)) {
             return AnalysisObject::fromRateLimitedResponse($responseBody[self::TIME_LEFT_ON_STREAM_KEY]);
         } elseif (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $responseBody)) {
-            return AnalysisObject::fromTopicResponse($responseBody[self::TOPIC_RESPONSE_BODY_KEY]);
+            if ($responseBody[self::HASHTAG_RESPONSE_BODY_KEY] === true) {
+                return AnalysisObject::fromHashtagResponse($responseBody[self::TOPIC_RESPONSE_BODY_KEY]);
+            } else {
+                return AnalysisObject::fromTopicResponse($responseBody[self::TOPIC_RESPONSE_BODY_KEY]);
+            }
         } elseif (array_key_exists(self::USER_RESPONSE_BODY_KEY, $responseBody)) {
             return AnalysisObject::fromUserResponse($responseBody[self::USER_RESPONSE_BODY_KEY]);
         }

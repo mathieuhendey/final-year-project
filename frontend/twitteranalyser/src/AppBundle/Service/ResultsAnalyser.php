@@ -82,7 +82,28 @@ class ResultsAnalyser
         /**
          * @var AnalysisTopic $topic
          */
-        $topic = $this->analysisTopicRepository->findOneBy(['term' => $topic]);
+        $topic = $this->analysisTopicRepository->findOneBy(['term' => $topic, 'hashtag' => 0]);
+        $positiveTweets = $this
+            ->tweetRepository
+            ->getNumberOfTweetsForTopicIdWithSentiment($topic->getId(), 'positive');
+        $negativeTweets = $this
+            ->tweetRepository
+            ->getNumberOfTweetsForTopicIdWithSentiment($topic->getId(), 'negative');
+
+        return new ResultsObject($topic->getTweets(), $topic, $positiveTweets, $negativeTweets);
+    }
+
+    /**
+     * @param string $topic
+     *
+     * @return ResultsObject
+     */
+    public function getResultsForHashtag(string $topic): ResultsObject
+    {
+        /**
+         * @var AnalysisTopic $topic
+         */
+        $topic = $this->analysisTopicRepository->findOneBy(['term' => $topic, 'hashtag' => 1]);
         $positiveTweets = $this
             ->tweetRepository
             ->getNumberOfTweetsForTopicIdWithSentiment($topic->getId(), 'positive');

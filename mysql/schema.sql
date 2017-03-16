@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS analysis_topic
 (
     id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    term VARCHAR(300) NOT NULL UNIQUE,
-    is_hashtag BOOLEAN NOT NULL
+    term VARCHAR(300) NOT NULL,
+    is_hashtag BOOLEAN NOT NULL,
+    UNIQUE KEY term_is_hashtag (term, is_hashtag)
 ) CHARACTER SET utf8mb4;
 
 CREATE TABLE IF NOT EXISTS analysis_user

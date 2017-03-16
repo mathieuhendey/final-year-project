@@ -23,6 +23,11 @@ class AnalysisObject
     /**
      * @var bool
      */
+    private $hashtag;
+
+    /**
+     * @var bool
+     */
     private $rateLimited;
 
     /**
@@ -42,17 +47,20 @@ class AnalysisObject
      * @param int  $id
      * @param bool $rateLimited
      * @param int  $timeLeftOnStream
+     * @param bool $hashtag
      */
     private function __construct(
         bool $topic = false,
         int $id = null,
         bool $rateLimited = false,
-        int $timeLeftOnStream = null
+        int $timeLeftOnStream = null,
+        bool $hashtag = false
     ) {
         $this->topic = $topic;
         $this->id = $id;
         $this->rateLimited = $rateLimited;
         $this->timeLeftOnStream = $timeLeftOnStream;
+        $this->hashtag = $hashtag;
     }
 
     /**
@@ -73,6 +81,16 @@ class AnalysisObject
     public static function fromTopicResponse(int $id): self
     {
         return new self(true, $id, false, null);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return AnalysisObject
+     */
+    public static function fromHashtagResponse(int $id): self
+    {
+        return new self(true, $id, false, null, true);
     }
 
     /**
@@ -123,5 +141,13 @@ class AnalysisObject
     public function getTimeLeftOnStream(): int
     {
         return $this->timeLeftOnStream;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHashtag(): bool
+    {
+        return $this->hashtag;
     }
 }

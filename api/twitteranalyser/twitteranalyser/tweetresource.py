@@ -121,10 +121,15 @@ class Tweet(object):
                 # performed. If it has, get the ID of the already existing
                 # query, if not, insert a new row into the analysis_topic
                 # table and get its ID.
-                analysis_topic = self.tweet_topic_table.find_one(term=filter_term)
                 analysis_topic_id = 0
+                is_hashtag = False
+                if filter_term[0] == '#':
+                    is_hashtag = True
+                    analysis_topic = self.tweet_topic_table.find_one(term=filter_term[1:], is_hashtag=1)
+                else:
+                    analysis_topic = self.tweet_topic_table.find_one(term=filter_term, is_hashtag=0)
+
                 if analysis_topic is None:
-                    is_hashtag = False
                     if filter_term[0] == '#':
                         is_hashtag = True
                         filter_term = filter_term[1:]
@@ -150,7 +155,7 @@ class Tweet(object):
                 self.stream_listener.analysis_key_value = analysis_topic_id
 
                 self.stream.filter(track=[filter_term], languages=['en'], async=True)
-                resp.body = dumps({'topic_id': analysis_topic_id})
+                resp.body = dumps({'topic_id': analysis_topic_id, 'is_hashtag': is_hashtag})
                 resp.status = falcon.HTTP_OK
 
         # Only one stream can be running at once, so if another request comes
