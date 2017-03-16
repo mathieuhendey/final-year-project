@@ -21,6 +21,7 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
     private const TOPIC = 'topic';
     private const USER = 'user';
     private const BROKEN = 'broken';
+    private const HASHTAG = 'hashtag';
 
     /**
      * @param string $term
@@ -29,9 +30,9 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
      * @param string $responseBody
      * @param string $type
      *
-     * @dataProvider analysisProviderRateLimited
+     * @dataProvider analysisProvider
      */
-    public function testStartAnalysisRateLimited(string $term, string $execTime, string $execNumber, string $responseBody, string $type)
+    public function testStartAnalysis(string $term, string $execTime, string $execNumber, string $responseBody, string $type)
     {
         $mockRequestReturnMap = [
             [AnalysisGetter::TERM_PARAM, null, $term],
@@ -86,11 +87,12 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function analysisProviderRateLimited()
+    public function analysisProvider()
     {
         return [
             'rate_limited' => ['test', '60', '100', '{"rate_limited": true, "time_left_on_stream": 100}', self::RATE_LIMITED],
-            'topic' => ['test', '60', '100', '{"topic_id": 1}', self::TOPIC],
+            'topic' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": 0}', self::TOPIC],
+            'hashtag' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": 0}', self::HASHTAG],
             'user' => ['@test', '60', '100', '{"user_id": 1}', self::USER],
             'broken' => ['@test', '60', '100', '{"broken": 1}', self::BROKEN],
         ];

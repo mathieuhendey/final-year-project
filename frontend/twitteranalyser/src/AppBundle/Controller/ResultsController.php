@@ -45,6 +45,27 @@ class ResultsController extends Controller
     }
 
     /**
+     * @Route("/hashtag/{term}", name="hashtag_results")
+     * @Template("default/results.html.twig")
+     *
+     * @param string $term
+     *
+     * @return array
+     */
+    public function hashtagResultsAction(string $term)
+    {
+        $resultsAnalyser = $this->get('app.results_analyser');
+        $results = $resultsAnalyser->getResultsForHashtag($term);
+
+        return [
+            'tweets' => $results->getTweets(),
+            'term' => $results->getTerm(),
+            'positiveTweets' => $results->getPositiveTweets(),
+            'negativeTweets' => $results->getNegativeTweets(),
+        ];
+    }
+
+    /**
      * @Route("/user/{term}", name="user_results")
      * @Template("default/results.html.twig")
      *
