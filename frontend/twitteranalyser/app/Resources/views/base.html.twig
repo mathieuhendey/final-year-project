@@ -8,7 +8,14 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+        <div class="container" style="margin-top: 30px">
+            {% for flash_message in app.session.flashBag.get('error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ flash_message }}
+                </div>
+            {% endfor %}
+            {% block body %}{% endblock %}
+        </div>
         {% block javascripts %}
             <script src="{{ asset('js/jquery.min.js') }}"></script>
             <script src="{{ asset('js/Chart.min.js') }}"></script>

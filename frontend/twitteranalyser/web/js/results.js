@@ -20,15 +20,15 @@ var myChart = new Chart(ctx, {
     data: {
         labels: ['Positive', 'Negative'],
         datasets: [{
-            label: 'Positive and negative Tweets',
+            label: 'Tweet sentiment',
             data: [positiveTweets, negativeTweets],
             backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)'
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 99, 132, 0.2)'
             ],
             borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)'
+                'rgba(54, 162, 235, 1)',
+                'rgba(255,99,132,1)'
             ],
             borderWidth: 1
         }]
