@@ -79,6 +79,8 @@ class Tweet(object):
             # Pass Rabbit channel.
             self.stream_listener.channel = self.get_rabbit_channel()
 
+            self.stream_listener.streaming_hashtag = False
+
             # If the query is for a user...
             if filter_type == constants.FILTER_TYPE_USER:
                 # Check if analysis on the requested user has already been
@@ -87,10 +89,10 @@ class Tweet(object):
                 # table and get its ID.
                 user = self.api.get_user(screen_name=filter_term)
                 analysis_user_id = 0
-                if user is None:
+                if not user:
                     resp.status = falcon.HTTP_NOT_FOUND
                 analysis_user = self.tweet_user_table.find_one(twitter_id=user.id_str)
-                if analysis_user is None:
+                if not analysis_user:
                     data = {
                         'author_screen_name': user.screen_name,
                         'twitter_id': user.id
@@ -126,10 +128,14 @@ class Tweet(object):
                     if filter_term[0] == '#':
                         is_hashtag = True
                         filter_term = filter_term[1:]
+                        self.stream_listener.streaming_hashtag = True
+                        self.stream_listener.search_term = filter_term
+
                     data = {
                         'term': filter_term,
                         'is_hashtag': is_hashtag
                     }
+
                     try:
                         analysis_topic_id = self.tweet_topic_table.insert(data)
                     except IntegrityError:

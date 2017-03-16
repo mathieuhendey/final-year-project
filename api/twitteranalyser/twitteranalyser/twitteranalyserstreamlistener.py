@@ -33,6 +33,8 @@ class StreamListener(Listener):
         self.tweet_table = None
         self.channel = None  # type: Channel
         self._time_left_on_stream = 0
+        self.streaming_hashtag = False
+        self.search_term = ''
 
     @property
     def time_left_on_stream(self) -> float:
@@ -102,6 +104,13 @@ class StreamListener(Listener):
             if getattr(status, 'in_reply_to_user_id_str', None) is None:
                 return True
 
+        if self.streaming_hashtag:
+            hashtags = []
+            for hashtag in getattr(status, 'entities', [])['hashtags']:
+                hashtags.append(hashtag['text'])
+            if self.search_term not in hashtags:
+                return True
+
         # Create the dictionary that will be inserted into the database.
         status_dict = {
             'author_screen_name': getattr(getattr(status, 'user', None), 'screen_name', None),
@@ -112,8 +121,7 @@ class StreamListener(Listener):
             'tweet_id': getattr(status, 'id_str', None),
             'tweet_text': getattr(status, 'text', None),
             self.analysis_key_name: self.analysis_key_value,
-            'created_on': status.created_at,
-
+            'created_on': getattr(status, 'created_at', None),
         }
         table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
         if table_id:

@@ -15,7 +15,6 @@ use AppBundle\Entity\AnalysisUser;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -45,7 +44,7 @@ class HomePageController extends Controller
      *
      * @return RedirectResponse
      *
-     * @throws AccessDeniedException
+     * @throws TooManyRequestsHttpException
      */
     public function beginAnalysisAction(Request $request): RedirectResponse
     {
