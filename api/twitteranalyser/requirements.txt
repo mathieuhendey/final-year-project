@@ -5,3 +5,4 @@ PyMySQL
 dataset
 pytest
 pika
+python-dotenv

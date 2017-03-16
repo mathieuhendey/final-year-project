@@ -2,10 +2,17 @@
 # Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
 # Part of the AJ02 project supervised by Anna Jurek
 
-TWITTER_APP_KEY = 'GpFmKlYeKJ2WoAuPydGqXDnZW'
-TWITTER_APP_SECRET = 'mLste69X6FOqNwcAw8b6tcI8m2avhnl8QYpjUXlsd5mncW6CGE'
-TWITTER_KEY = '69321956-eExmX9kaFmtutwXrrn5nfuu8p2n1bxZtXjhScUV82'
-TWITTER_SECRET = 'a832WpLH7ERGpAqhtt6K4Nj07hI83LDXaOZZxp7QhjMaM'
+from os.path import join, dirname
+from os import environ
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+TWITTER_APP_KEY = environ.get("TWITTER_APP_KEY")
+TWITTER_APP_SECRET = environ.get("TWITTER_APP_SECRET")
+TWITTER_KEY = environ.get("TWITTER_KEY")
+TWITTER_SECRET = environ.get("TWITTER_SECRET")
 
 DB_URL = 'mysql+pymysql://root:root@db/twitter_analyser?charset=utf8mb4'
 TWEET_TOPIC_TABLE = 'analysis_topic'
