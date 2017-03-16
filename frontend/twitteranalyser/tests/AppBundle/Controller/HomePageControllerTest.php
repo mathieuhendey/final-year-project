@@ -16,6 +16,7 @@ use AppBundle\Model\AnalysisObject;
 use AppBundle\Repository\AnalysisTopicRepository;
 use AppBundle\Repository\AnalysisUserRepository;
 use AppBundle\Service\AnalysisGetter;
+use AppBundle\Service\AnalysisTermValidator;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -42,6 +43,13 @@ class HomePageControllerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->setMethods(['startAnalysis'])
             ->getMock();
+
+        $mockAnalysisTermValidator = $this->getMockBuilder(AnalysisTermValidator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['validate'])
+            ->getMock();
+        $mockAnalysisTermValidator->expects($this->once())->method('validate')
+            ->willReturn([]);
 
         $mockTopic = $this->getMockBuilder(AnalysisTopic::class)
             ->disableOriginalConstructor()
@@ -73,9 +81,10 @@ class HomePageControllerTest extends WebTestCase
             ->willReturn($analysisResult);
 
         $client->getContainer()->set('app.analysis_getter', $mockAnalysisGetter);
+        $client->getContainer()->set('app.analysis_term_validator', $mockAnalysisTermValidator);
         $client->getContainer()->set('doctrine', $mockDoctrine);
 
-        $crawler = $client->request('GET', '/analyse');
+        $crawler = $client->request('GET', '/analyse', ['term' => 'test']);
 
         $this->assertTrue($client->getResponse()->isRedirection());
     }
@@ -87,6 +96,13 @@ class HomePageControllerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->setMethods(['startAnalysis'])
             ->getMock();
+
+        $mockAnalysisTermValidator = $this->getMockBuilder(AnalysisTermValidator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['validate'])
+            ->getMock();
+        $mockAnalysisTermValidator->expects($this->once())->method('validate')
+            ->willReturn([]);
 
         $mockUser = $this->getMockBuilder(AnalysisUser::class)
             ->disableOriginalConstructor()
@@ -118,9 +134,10 @@ class HomePageControllerTest extends WebTestCase
             ->willReturn($analysisResult);
 
         $client->getContainer()->set('app.analysis_getter', $mockAnalysisGetter);
+        $client->getContainer()->set('app.analysis_term_validator', $mockAnalysisTermValidator);
         $client->getContainer()->set('doctrine', $mockDoctrine);
 
-        $crawler = $client->request('GET', '/analyse');
+        $crawler = $client->request('GET', '/analyse', ['term' => 'test']);
 
         $this->assertTrue($client->getResponse()->isRedirection());
     }
@@ -136,9 +153,17 @@ class HomePageControllerTest extends WebTestCase
         $mockAnalysisGetter->expects($this->once())->method('startAnalysis')
             ->willReturn($analysisResult);
 
-        $client->getContainer()->set('app.analysis_getter', $mockAnalysisGetter);
+        $mockAnalysisTermValidator = $this->getMockBuilder(AnalysisTermValidator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['validate'])
+            ->getMock();
+        $mockAnalysisTermValidator->expects($this->once())->method('validate')
+            ->willReturn([]);
 
-        $crawler = $client->request('GET', '/analyse');
+        $client->getContainer()->set('app.analysis_getter', $mockAnalysisGetter);
+        $client->getContainer()->set('app.analysis_term_validator', $mockAnalysisTermValidator);
+
+        $crawler = $client->request('GET', '/analyse', ['term' => 'test']);
 
         $this->assertTrue($client->getResponse()->isClientError());
     }

@@ -49,6 +49,18 @@ class HomePageController extends Controller
     public function beginAnalysisAction(Request $request): RedirectResponse
     {
         $analysisGetter = $this->get('app.analysis_getter');
+        $analysisTermValidator = $this->get('app.analysis_term_validator');
+
+        $validationErrors = $analysisTermValidator->validate($request->get('term') ?? '');
+
+        if (!empty($validationErrors)) {
+            foreach ($validationErrors as $validationError) {
+                $this->addFlash('error', $validationError);
+            }
+
+            return $this->redirectToRoute('homepage');
+        }
+
         $result = $analysisGetter->startAnalysis($request);
 
         if ($result->isRateLimited()) {
