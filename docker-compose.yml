@@ -31,7 +31,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: twitter_analyser
-      MYSQL_USER: symfony
+      MYSQL_USER: twitter_analyser
       MYSQL_PASSWORD: password
     ports:
       - "3305:3306"

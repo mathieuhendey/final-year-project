@@ -84,10 +84,6 @@ class AnalysisGetter
      */
     private function getFilterType(string $filterTerm): string
     {
-        if ($filterTerm[0] == '@') {
-            return self::TYPE_PARAM_USER_VALUE;
-        } else {
-            return self::TYPE_PARAM_TOPIC_VALUE;
-        }
+        return $filterTerm[0] == '@' ? self::TYPE_PARAM_USER_VALUE : self::TYPE_PARAM_TOPIC_VALUE;
     }
 }
