@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h2>{{ headerText }}</h2>
+    <p class="lead">
+        {{ leadText|raw }}
+    </p>
+    {% for item in items %}
+        <div class="card" style="margin-bottom: 40px;">
+            <div class="card-header">
+                <div class="progress">
+                    {% if item.numberOfTweets == 0 %}
+                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    {% else %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.getNormalisedNumberOfPositiveTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfPositiveTweets }}" aria-valuemin="0" aria-valuemax="100">Positive Tweets: {{ item.getNumberOfPositiveTweets }}</div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ item.getNormalisedNumberOfNegativeTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfNegativeTweets }}" aria-valuemin="0" aria-valuemax="100">Negative Tweets: {{ item.getNumberOfNegativeTweets }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-block">
+                <p class="card-text">{{ item.getPrettyTerm }}</p>
+            </div>
+            <div class="card-footer">
+                <div class="pull-left">
+                    <small class="text-muted">Last updated <strong>3 mins</strong> ago, analysed <strong>{{ item.numberOfTweets }} Tweet{% if item.numberOfTweets != 1 %}s{% endif %}</strong> in total</small>
+                </div>
+                <div class="pull-right">
+                    <a href="#" class="btn btn-outline-info btn-sm">Go to analysis page</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

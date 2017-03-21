@@ -61,7 +61,7 @@ class ResultsAnalyser
         /**
          * @var AnalysisUser $user
          */
-        $user = $this->analysisUserRepository->findOneBy(['screen_name' => $screenName]);
+        $user = $this->analysisUserRepository->findOneBy(['screenName' => $screenName]);
         $positiveTweets = $this
             ->tweetRepository
             ->getNumberOfTweetsForUserIdWithSentiment($user->getId(), 'positive');

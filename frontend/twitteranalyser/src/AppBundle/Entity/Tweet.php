@@ -203,7 +203,7 @@ class Tweet
      */
     public function getSentiment(): string
     {
-        return $this->sentiment;
+        return $this->sentiment ?? 'nope';
     }
 
     /**
