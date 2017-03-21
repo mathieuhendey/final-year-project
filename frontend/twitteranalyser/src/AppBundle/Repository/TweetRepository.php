@@ -98,4 +98,28 @@ class TweetRepository extends EntityRepository
 
         return $topicTweets->matching($criteria)->count();
     }
+
+    /**
+     * @return int
+     */
+    public function getTotalNumberOfTweetsForTopics(): int
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('COUNT(t.id)');
+        $qb->where('t.analysisTopicId IS NOT NULL');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalNumberOfTweetsForUsers(): int
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('COUNT(t.id)');
+        $qb->where('t.analysisUserId IS NOT NULL');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 }

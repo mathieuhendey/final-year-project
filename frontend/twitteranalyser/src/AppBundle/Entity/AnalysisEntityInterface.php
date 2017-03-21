@@ -18,4 +18,20 @@ interface AnalysisEntityInterface
     public function getTweets(): Collection;
 
     public function getType(): string;
+
+    public function getPrettyTerm(): string;
+
+    public function getNumberOfTweets(): int;
+
+    public function getNumberOfPositiveTweets(): int;
+
+    public function getNumberOfNegativeTweets(): int;
+
+    public function getNormalisedNumberOfPositiveTweets(): int;
+
+    public function getNormalisedNumberOfNegativeTweets(): int;
+
+    public function getCreatedOn(): \DateTime;
+
+    public function getUpdatedOn(): \DateTime;
 }
