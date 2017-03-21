@@ -22,10 +22,14 @@
             </div>
             <div class="card-footer">
                 <div class="pull-left">
-                    <small class="text-muted">Last updated <strong>3 mins</strong> ago, analysed <strong>{{ item.numberOfTweets }} Tweet{% if item.numberOfTweets != 1 %}s{% endif %}</strong> in total</small>
+                    <small class="text-muted">First analysed <strong>{{ item.createdOn|time_diff }}</strong>, last updated <strong>{{ item.updatedOn|time_diff }}</strong>, analysed <strong>{{ item.numberOfTweets }} Tweet{% if item.numberOfTweets != 1 %}s{% endif %}</strong> in total</small>
                 </div>
                 <div class="pull-right">
-                    <a href="#" class="btn btn-outline-info btn-sm">Go to analysis page</a>
+                    <a
+                        href="{% if item.type == 'user' %}{{ path('user_results', {'term': item.screenName}) }}{% elseif item.type == 'topic' %}{{ path('topic_results', {'term': item.term}) }}{% else %}{{ path('hashtag_results', {'term': item.term }) }}{% endif %}"
+                        class="btn btn-outline-info btn-sm">
+                            Go to analysis page
+                    </a>
                 </div>
             </div>
         </div>

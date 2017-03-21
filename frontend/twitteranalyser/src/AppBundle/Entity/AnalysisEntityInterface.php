@@ -13,6 +13,10 @@ use Doctrine\Common\Collections\Collection;
 
 interface AnalysisEntityInterface
 {
+    const TOPIC_TYPE = 'topic';
+    const USER_TYPE = 'user';
+    const HASHTAG_TYPE = 'hashtag';
+
     public function getId(): int;
 
     public function getTweets(): Collection;

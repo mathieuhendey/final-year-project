@@ -114,7 +114,7 @@ class AnalysisTopic implements AnalysisEntityInterface
      */
     public function getType(): string
     {
-        return 'topic';
+        return $this->isHashtag() ? self::HASHTAG_TYPE : self::TOPIC_TYPE;
     }
 
     /**

@@ -97,7 +97,7 @@ class ResultsController extends Controller
     {
         $resultsAnalyser = $this->get('app.results_analyser');
 
-        if ($request->get('term_type') == 'topic') {
+        if ($request->get('term_type') == 'topic' || $request->get('term_type') == 'hashtag') {
             $results = $resultsAnalyser
                 ->getNewTweetsForTopic($request->get('term_id'), $request->get('latest_tweet_in_list'));
         } else {
