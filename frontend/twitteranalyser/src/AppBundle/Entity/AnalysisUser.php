@@ -113,7 +113,7 @@ class AnalysisUser implements AnalysisEntityInterface
      */
     public function getType(): string
     {
-        return 'user';
+        return self::USER_TYPE;
     }
 
     /**
