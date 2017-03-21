@@ -3,14 +3,18 @@ CREATE TABLE IF NOT EXISTS analysis_topic
     id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     term VARCHAR(300) NOT NULL,
     is_hashtag BOOLEAN NOT NULL,
-    UNIQUE KEY term_is_hashtag (term, is_hashtag)
+    UNIQUE KEY term_is_hashtag (term, is_hashtag),
+    created_on TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_on TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE now()
 ) CHARACTER SET utf8mb4;
 
 CREATE TABLE IF NOT EXISTS analysis_user
 (
     id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     twitter_id BIGINT NOT NULL UNIQUE,
-    author_screen_name VARCHAR(300) NOT NULL UNIQUE
+    author_screen_name VARCHAR(300) NOT NULL UNIQUE,
+    created_on TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_on TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE now()
 ) CHARACTER SET utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tweet
