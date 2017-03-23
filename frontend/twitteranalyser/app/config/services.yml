@@ -28,3 +28,6 @@ services:
     arguments: ['@app.tweet_repository', '@app.analysis_user_repository', '@app.analysis_topic_repository']
   app.analysis_term_validator:
     class: AppBundle\Service\AnalysisTermValidator
+  app.current_analyses_checker:
+    class: AppBundle\Service\CurrentAnalysesChecker
+    arguments: ['@guzzle.client']

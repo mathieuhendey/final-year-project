@@ -27,20 +27,27 @@ class ResultsController extends Controller
      * @Route("/topic/{term}", name="topic_results")
      * @Template("default/results.html.twig")
      *
-     * @param string $term
+     * @param Request $request
+     * @param string  $term
      *
      * @return array
      */
-    public function topicResultsAction(string $term)
+    public function topicResultsAction(Request $request, string $term)
     {
+        $currentAnalysesChecker = $this->get('app.current_analyses_checker');
+
+        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForTopic($term);
+        $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
 
         return [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
+            'reanalysisAvailable' => $reanalysisAvailable,
+            'currentlyAnalysing' => $currentlyAnalysing,
         ];
     }
 
@@ -48,20 +55,27 @@ class ResultsController extends Controller
      * @Route("/hashtag/{term}", name="hashtag_results")
      * @Template("default/results.html.twig")
      *
-     * @param string $term
+     * @param Request $request
+     * @param string  $term
      *
      * @return array
      */
-    public function hashtagResultsAction(string $term)
+    public function hashtagResultsAction(Request $request, string $term)
     {
+        $currentAnalysesChecker = $this->get('app.current_analyses_checker');
+
+        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForHashtag($term);
+        $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
 
         return [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
+            'reanalysisAvailable' => $reanalysisAvailable,
+            'currentlyAnalysing' => $currentlyAnalysing,
         ];
     }
 
@@ -69,20 +83,27 @@ class ResultsController extends Controller
      * @Route("/user/{term}", name="user_results")
      * @Template("default/results.html.twig")
      *
-     * @param string $term
+     * @param Request $request
+     * @param string  $term
      *
      * @return array
      */
-    public function userResultsAction(string $term)
+    public function userResultsAction(Request $request, string $term)
     {
+        $currentAnalysesChecker = $this->get('app.current_analyses_checker');
+
+        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForUser($term);
+        $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
 
         return [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
+            'reanalysisAvailable' => $reanalysisAvailable,
+            'currentlyAnalysing' => $currentlyAnalysing,
         ];
     }
 
