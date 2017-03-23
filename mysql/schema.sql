@@ -17,6 +17,20 @@ CREATE TABLE IF NOT EXISTS analysis_user
     updated_on TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE now()
 ) CHARACTER SET utf8mb4;
 
+CREATE TABLE IF NOT EXISTS current_analyses
+(
+    id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    analysis_topic_id BIGINT,
+    analysis_user_id BIGINT,
+    is_hashtag BOOLEAN NOT NULL,
+    FOREIGN KEY (analysis_topic_id)
+      REFERENCES analysis_topic(id),
+    FOREIGN KEY (analysis_user_id)
+      REFERENCES analysis_user(id)
+) CHARACTER SET utf8mb4;
+
+DELETE FROM current_analyses;
+
 CREATE TABLE IF NOT EXISTS tweet
 (
     id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
