@@ -30,11 +30,17 @@ class HomePageController extends Controller
      * @Route("/", name="homepage")
      * @Template("default/index.html.twig")
      *
+     * @param Request $request
+     *
      * @return array
      */
-    public function indexAction(): array
+    public function indexAction(Request $request): array
     {
-        return [];
+        $searchTerm = $request->get('search_term', '');
+
+        return [
+            'searchTerm' => $searchTerm,
+        ];
     }
 
     /**
@@ -51,7 +57,7 @@ class HomePageController extends Controller
         $analysisGetter = $this->get('app.analysis_getter');
         $analysisTermValidator = $this->get('app.analysis_term_validator');
 
-        $validationErrors = $analysisTermValidator->validate($request->get('term') ?? '');
+        $validationErrors = $analysisTermValidator->validate($request->get('term', ''));
 
         if (!empty($validationErrors)) {
             foreach ($validationErrors as $validationError) {
@@ -70,21 +76,30 @@ class HomePageController extends Controller
 
             return $this->redirectToRoute(
                 'topic_results',
-                ['term' => $topic->getTerm()]
+                    [
+                        'term' => $topic->getTerm(),
+                        'reanalysis_available' => $result->isReanalysisAvailable(),
+                    ]
             );
         } elseif ($result->isHashtag()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());
 
             return $this->redirectToRoute(
                 'hashtag_results',
-                ['term' => $topic->getTerm()]
+                [
+                    'term' => $topic->getTerm(),
+                    'reanalysis_available' => $result->isReanalysisAvailable(),
+                ]
             );
         } else {
             $user = $this->getDoctrine()->getRepository(AnalysisUser::class)->find($result->getId());
 
             return $this->redirectToRoute(
                 'user_results',
-                ['term' => $user->getScreenName()]
+                [
+                    'term' => $user->getScreenName(),
+                    'reanalysis_available' => $result->isReanalysisAvailable(),
+                ]
             );
         }
     }

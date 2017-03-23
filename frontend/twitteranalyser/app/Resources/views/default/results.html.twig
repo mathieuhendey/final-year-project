@@ -9,6 +9,16 @@
 {% endblock %}
 
 {% block body %}
+    {% if reanalysisAvailable and not currentlyAnalysing %}
+        <div class="alert alert-info" role="alert">
+            This {{ term.type }} has already been analysed. Would you like to <a href="{{ path('homepage', {'search_term': term.prettyTerm}) }}" class="alert-link">update</a> it?
+        </div>
+    {% endif %}
+    {% if currentlyAnalysing %}
+        <div class="alert alert-success" role="alert">
+            This {{ term.type }} is currently being analysed!
+        </div>
+    {% endif %}
     <div id="chart" style="position: relative; height: 75vh">
         <canvas id="myChart"></canvas>
     </div>
