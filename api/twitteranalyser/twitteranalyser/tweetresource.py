@@ -11,7 +11,7 @@ from urllib.parse import unquote
 import falcon
 import pika
 import tweepy
-from dataset import connect
+from dataset import connect, Database
 from json import dumps
 from logging import critical as log
 from pika.channel import Channel
@@ -39,8 +39,10 @@ class Tweet(object):
         self.database = connect(constants.DB_URL)
         self.tweet_topic_table = self.database[constants.TWEET_TOPIC_TABLE]
         self.tweet_user_table = self.database[constants.TWEET_USER_TABLE]
+        self.current_analyses_table = self.database[constants.CURRENT_ANALYSES_TABLE]
         self.stream_listener = StreamListener()
         self.stream_listener.tweet_table = self.database[constants.TWEET_TABLE]
+        self.stream_listener.current_analyses_table = self.current_analyses_table
         self.stream = tweepy.Stream(
             auth=self.api.auth,
             listener=self.stream_listener
@@ -52,18 +54,25 @@ class Tweet(object):
 
         Uses query parameters from the request to initialise a Tweepy stream
         asynchronously, so that returning the response to the client is not
-        blocked while the stream is running.Ø
+        blocked while the stream is running.
         """
 
+        if req.get_param_as_bool(constants.CURRENT_ANALYSIS_PARAM):
+            analysis_type = 'topic' \
+                if self.stream_listener.analysis_key_name == constants.TWEET_TOPIC_TABLE_KEY_NAME \
+                else 'user'
+            resp.body = {'current_analysis_type': analysis_type,
+                         'current_analysis_id': self.stream_listener.analysis_key_value}
+            resp.status = falcon.HTTP_200
+            return
         # Twitter allows only one stream to be running at once.
         if not self.stream.running:
-            log('Starting stream.')
-
             # Get query parameters from request.
             filter_term = req.get_param(constants.REQUEST_TERM_PARAM)
             filter_type = req.get_param(constants.REQUEST_TYPE_PARAM)
             filter_exec_time = req.get_param_as_int(constants.REQUEST_EXEC_TIME_PARAM)
             filter_number = req.get_param_as_int(constants.REQUEST_EXEC_NUMBER_PARAM)
+            should_reanalyse = req.get_param_as_bool(constants.REQUEST_SHOULD_REANALYSE_PARAM)
 
             # Convert %20s into actual spaces (' ').
             filter_term = unquote(filter_term)
@@ -89,6 +98,7 @@ class Tweet(object):
                 # table and get its ID.
                 user = self.api.get_user(screen_name=filter_term)
                 analysis_user_id = 0
+                already_analysed = False
                 if not user:
                     resp.status = falcon.HTTP_NOT_FOUND
                 analysis_user = self.tweet_user_table.find_one(twitter_id=user.id_str)
@@ -103,6 +113,7 @@ class Tweet(object):
                         log('Already saved')
                 else:
                     analysis_user_id = analysis_user['id']
+                    already_analysed = True
 
                 # Set the type of query we are performing and the id of the
                 # query so the listener knows which field should be populated
@@ -110,9 +121,33 @@ class Tweet(object):
                 self.stream_listener.analysis_key_name = constants.TWEET_USER_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_user_id
 
-                self.stream.filter(follow=[user.id_str], async=True)
-                resp.body = dumps({'user_id': analysis_user_id})
-                resp.status = falcon.HTTP_OK
+                if already_analysed:
+                    if should_reanalyse:
+                        log('Starting stream.')
+                        data = {
+                            'analysis_user_id': analysis_user_id
+                        }
+                        current_analysis_id = self.current_analyses_table.insert(data)
+                        self.stream_listener.current_analysis_id = current_analysis_id
+                        self.stream.filter(follow=[user.id_str], async=True)
+                        resp.body = dumps({'user_id': analysis_user_id,
+                                           'already_analysed': already_analysed, 'currently_analysing': True})
+                        resp.status = falcon.HTTP_OK
+                    else:
+                        resp.body = dumps({'user_id': analysis_user_id,
+                                           'already_analysed': already_analysed, 'currently_analysing': False})
+                        resp.status = falcon.HTTP_OK
+                else:
+                    log('Starting stream.')
+                    data = {
+                        'analysis_topic_id': analysis_user_id
+                    }
+                    current_analysis_id = self.current_analyses_table.insert(data)
+                    self.stream_listener.current_analysis_id = current_analysis_id
+                    self.stream.filter(follow=[user.id_str], async=True)
+                    resp.body = dumps({'user_id': analysis_user_id,
+                                       'already_analysed': False, 'currently_analysing': True})
+                    resp.status = falcon.HTTP_OK
 
             # If the query is for a topic...
             elif filter_type == constants.FILTER_TYPE_TOPIC:
@@ -122,6 +157,7 @@ class Tweet(object):
                 # query, if not, insert a new row into the analysis_topic
                 # table and get its ID.
                 analysis_topic_id = 0
+                already_analysed = False
                 is_hashtag = False
                 if filter_term[0] == '#':
                     is_hashtag = True
@@ -147,6 +183,7 @@ class Tweet(object):
                         log('Already saved')
                 else:
                     analysis_topic_id = analysis_topic['id']
+                    already_analysed = True
 
                 # Set the type of query we are performing and the id of the
                 # query so the listener knows which field should be populated
@@ -154,9 +191,35 @@ class Tweet(object):
                 self.stream_listener.analysis_key_name = constants.TWEET_TOPIC_TABLE_KEY_NAME
                 self.stream_listener.analysis_key_value = analysis_topic_id
 
-                self.stream.filter(track=[filter_term], languages=['en'], async=True)
-                resp.body = dumps({'topic_id': analysis_topic_id, 'is_hashtag': is_hashtag})
-                resp.status = falcon.HTTP_OK
+                if already_analysed:
+                    if should_reanalyse:
+                        log('Starting stream.')
+                        data = {
+                            'analysis_topic_id': analysis_topic_id,
+                            'is_hashtag': is_hashtag
+                        }
+                        current_analysis_id = self.current_analyses_table.insert(data)
+                        self.stream_listener.current_analysis_id = current_analysis_id
+                        self.stream.filter(track=[filter_term], languages=['en'], async=True)
+                        resp.body = dumps({'topic_id': analysis_topic_id, 'is_hashtag': is_hashtag,
+                                           'already_analysed': already_analysed, 'currently_analysing': True})
+                        resp.status = falcon.HTTP_OK
+                    else:
+                        resp.body = dumps({'topic_id': analysis_topic_id, 'is_hashtag': is_hashtag,
+                                           'already_analysed': already_analysed, 'currently_analysing': False})
+                        resp.status = falcon.HTTP_OK
+                else:
+                    log('Starting stream.')
+                    data = {
+                        'analysis_topic_id': analysis_topic_id,
+                        'is_hashtag': is_hashtag
+                    }
+                    current_analysis_id = self.current_analyses_table.insert(data)
+                    self.stream_listener.current_analysis_id = current_analysis_id
+                    self.stream.filter(track=[filter_term], languages=['en'], async=True)
+                    resp.body = dumps({'topic_id': analysis_topic_id, 'is_hashtag': is_hashtag,
+                                       'already_analysed': False, 'currently_analysing': True})
+                    resp.status = falcon.HTTP_OK
 
         # Only one stream can be running at once, so if another request comes
         # in before the previous one has been completed, return 409 conflict,
