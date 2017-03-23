@@ -41,6 +41,11 @@ class AnalysisObject
     private $timeLeftOnStream;
 
     /**
+     * @var bool
+     */
+    private $reanalysisAvailable;
+
+    /**
      * AnalysisObject constructor.
      *
      * @param bool $topic
@@ -48,19 +53,22 @@ class AnalysisObject
      * @param bool $rateLimited
      * @param int  $timeLeftOnStream
      * @param bool $hashtag
+     * @param bool $reanalysisAvailable
      */
     private function __construct(
         bool $topic = false,
         int $id = null,
         bool $rateLimited = false,
         int $timeLeftOnStream = null,
-        bool $hashtag = false
+        bool $hashtag = false,
+        bool $reanalysisAvailable = false
     ) {
         $this->topic = $topic;
         $this->id = $id;
         $this->rateLimited = $rateLimited;
         $this->timeLeftOnStream = $timeLeftOnStream;
         $this->hashtag = $hashtag;
+        $this->reanalysisAvailable = $reanalysisAvailable;
     }
 
     /**
@@ -74,33 +82,36 @@ class AnalysisObject
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromTopicResponse(int $id): self
+    public static function fromTopicResponse(int $id, bool $reanalysisAvailable): self
     {
-        return new self(true, $id, false, null);
+        return new self(true, $id, false, null, false, $reanalysisAvailable);
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromHashtagResponse(int $id): self
+    public static function fromHashtagResponse(int $id, bool $reanalysisAvailable): self
     {
-        return new self(true, $id, false, null, true);
+        return new self(true, $id, false, null, true, $reanalysisAvailable);
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromUserResponse(int $id): self
+    public static function fromUserResponse(int $id, bool $reanalysisAvailable): self
     {
-        return new self(false, $id, false, null);
+        return new self(false, $id, false, null, false, $reanalysisAvailable);
     }
 
     /**
@@ -149,5 +160,13 @@ class AnalysisObject
     public function isHashtag(): bool
     {
         return $this->hashtag;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReanalysisAvailable(): bool
+    {
+        return $this->reanalysisAvailable;
     }
 }
