@@ -8,23 +8,17 @@ volumes:
 services:
   nginx:
     build: ./nginx
-    ports:
-      - "80:80"
-      - "443"
     volumes_from:
       - frontend:ro
     volumes:
       - ./nginx/nginx_logs:/var/log/nginx
-
+      
   rabbit:
     build: ./rabbit
     hostname: "rabbit"
     environment:
       RABBITMQ_DEFAULT_USER: rabbit
       RABBITMQ_DEFAULT_PASS: rabbit
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
   db:
     build: ./mysql
@@ -33,16 +27,12 @@ services:
       MYSQL_DATABASE: twitter_analyser
       MYSQL_USER: twitter_analyser
       MYSQL_PASSWORD: password
-    ports:
-      - "3305:3306"
     volumes:
       - ./mysql/db_data:/var/lib/mysql
       - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
 
   frontend:
     build: ./frontend
-    ports:
-      - "9000"
     volumes:
       - ./frontend/twitteranalyser:/var/www/twitteranalyser
     depends_on:
@@ -51,8 +41,6 @@ services:
 
   api:
     build: ./api
-    ports:
-      - "80"
     environment:
       PYTHONUNBUFFERED: 0
       RABBIT_HOST: rabbit
