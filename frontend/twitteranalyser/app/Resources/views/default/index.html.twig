@@ -2,6 +2,7 @@
 
 {% block body %}
     <form action="{{ path('analyse') }}" method="get">
+        <input type="hidden" name="should_reanalyse" value="{{ shouldReanalyse }}">
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 <div class="input-group">

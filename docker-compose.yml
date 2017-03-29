@@ -12,7 +12,7 @@ services:
       - frontend:ro
     volumes:
       - ./nginx/nginx_logs:/var/log/nginx
-      
+
   rabbit:
     build: ./rabbit
     hostname: "rabbit"

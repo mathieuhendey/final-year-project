@@ -160,7 +160,7 @@ class AnalysisTopic implements AnalysisEntityInterface
      */
     public function getNormalisedNumberOfPositiveTweets(): int
     {
-        return floor($this->getNumberOfPositiveTweets() / $this->getNumberOfTweets() * 100);
+        return (int) floor($this->getNumberOfPositiveTweets() / $this->getNumberOfTweets() * 100);
     }
 
     /**

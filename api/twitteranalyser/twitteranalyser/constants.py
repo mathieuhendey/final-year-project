@@ -2,12 +2,14 @@
 # Source: https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
 # Part of the AJ02 project supervised by Anna Jurek
 
+"""This module contains constants related to the functionality of the app."""
+
 from os.path import join, dirname
 from os import environ
 from dotenv import load_dotenv
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+DOTENV_PATH = join(dirname(__file__), '.env')
+load_dotenv(DOTENV_PATH)
 
 TWITTER_APP_KEY = environ.get("TWITTER_APP_KEY")
 TWITTER_APP_SECRET = environ.get("TWITTER_APP_SECRET")

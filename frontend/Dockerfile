@@ -13,8 +13,8 @@ RUN \
   ca-certificates \
   vim
 
-  RUN wget -O- https://packages.sury.org/php/apt.gpg | apt-key add - && \
-      echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+RUN wget -O- https://packages.sury.org/php/apt.gpg | apt-key add - && \
+    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   php7.1-apcu \
@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   php7.1-opcache \
   php7.1-xml \
   php7.1-zip
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
 COPY timezone.ini /etc/php7.1/fpm/conf.d/
 COPY timezone.ini /etc/php7.1/cli/conf.d/

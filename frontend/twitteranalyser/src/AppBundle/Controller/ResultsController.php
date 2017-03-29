@@ -27,19 +27,18 @@ class ResultsController extends Controller
      * @Route("/topic/{term}", name="topic_results")
      * @Template("default/results.html.twig")
      *
-     * @param Request $request
-     * @param string  $term
+     * @param string $term
      *
      * @return array
      */
-    public function topicResultsAction(Request $request, string $term)
+    public function topicResultsAction(string $term)
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
-        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForTopic($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
+        $reanalysisAvailable = !$currentlyAnalysing;
 
         return [
             'tweets' => $results->getTweets(),
@@ -55,19 +54,18 @@ class ResultsController extends Controller
      * @Route("/hashtag/{term}", name="hashtag_results")
      * @Template("default/results.html.twig")
      *
-     * @param Request $request
-     * @param string  $term
+     * @param string $term
      *
      * @return array
      */
-    public function hashtagResultsAction(Request $request, string $term)
+    public function hashtagResultsAction(string $term)
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
-        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForHashtag($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
+        $reanalysisAvailable = !$currentlyAnalysing;
 
         return [
             'tweets' => $results->getTweets(),
@@ -83,19 +81,18 @@ class ResultsController extends Controller
      * @Route("/user/{term}", name="user_results")
      * @Template("default/results.html.twig")
      *
-     * @param Request $request
-     * @param string  $term
+     * @param string $term
      *
      * @return array
      */
-    public function userResultsAction(Request $request, string $term)
+    public function userResultsAction(string $term)
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
-        $reanalysisAvailable = $request->get('reanalysis_available');
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForUser($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
+        $reanalysisAvailable = !$currentlyAnalysing;
 
         return [
             'tweets' => $results->getTweets(),

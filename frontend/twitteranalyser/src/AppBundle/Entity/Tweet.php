@@ -33,7 +33,7 @@ class Tweet
      * This will be null if the Tweet was collected during streaming of a
      * topic.
      *
-     * @var string
+     * @var int
      *
      * @ORM\ManyToOne(targetEntity="AnalysisTopic", inversedBy="tweets")
      * @ORM\JoinColumn(name="analysis_topic_id", nullable=true)
@@ -43,7 +43,7 @@ class Tweet
     /**
      * This will be null if the Tweet was collected during streaming of a user.
      *
-     * @var string
+     * @var int
      *
      * @ORM\ManyToOne(targetEntity="AnalysisUser", inversedBy="tweets")
      * @ORM\JoinColumn(name="analysis_user_id", nullable=true)
@@ -113,11 +113,6 @@ class Tweet
      */
     protected $createdOn;
 
-    public function __construct()
-    {
-        $this->analysisTopicId = null;
-    }
-
     /**
      * @return int
      */
@@ -127,17 +122,17 @@ class Tweet
     }
 
     /**
-     * @return string
+     * @return int|null
      */
-    public function getAnalysisTopicId(): string
+    public function getAnalysisTopicId(): ?int
     {
         return $this->analysisTopicId;
     }
 
     /**
-     * @return string
+     * @return int|null
      */
-    public function getAnalysisUserId(): string
+    public function getAnalysisUserId(): ?int
     {
         return $this->analysisUserId;
     }

@@ -41,11 +41,6 @@ class AnalysisObject
     private $timeLeftOnStream;
 
     /**
-     * @var bool
-     */
-    private $reanalysisAvailable;
-
-    /**
      * AnalysisObject constructor.
      *
      * @param bool $topic
@@ -53,22 +48,19 @@ class AnalysisObject
      * @param bool $rateLimited
      * @param int  $timeLeftOnStream
      * @param bool $hashtag
-     * @param bool $reanalysisAvailable
      */
     private function __construct(
         bool $topic = false,
         int $id = null,
         bool $rateLimited = false,
         int $timeLeftOnStream = null,
-        bool $hashtag = false,
-        bool $reanalysisAvailable = false
+        bool $hashtag = false
     ) {
         $this->topic = $topic;
         $this->id = $id;
         $this->rateLimited = $rateLimited;
         $this->timeLeftOnStream = $timeLeftOnStream;
         $this->hashtag = $hashtag;
-        $this->reanalysisAvailable = $reanalysisAvailable;
     }
 
     /**
@@ -160,13 +152,5 @@ class AnalysisObject
     public function isHashtag(): bool
     {
         return $this->hashtag;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isReanalysisAvailable(): bool
-    {
-        return $this->reanalysisAvailable;
     }
 }

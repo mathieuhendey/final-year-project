@@ -37,9 +37,11 @@ class HomePageController extends Controller
     public function indexAction(Request $request): array
     {
         $searchTerm = $request->get('search_term', '');
+        $shouldReanalyse = $request->get('should_reanalyse', false);
 
         return [
             'searchTerm' => $searchTerm,
+            'shouldReanalyse' => $shouldReanalyse,
         ];
     }
 
@@ -78,7 +80,6 @@ class HomePageController extends Controller
                 'topic_results',
                     [
                         'term' => $topic->getTerm(),
-                        'reanalysis_available' => $result->isReanalysisAvailable(),
                     ]
             );
         } elseif ($result->isHashtag()) {
@@ -88,7 +89,6 @@ class HomePageController extends Controller
                 'hashtag_results',
                 [
                     'term' => $topic->getTerm(),
-                    'reanalysis_available' => $result->isReanalysisAvailable(),
                 ]
             );
         } else {
@@ -98,7 +98,6 @@ class HomePageController extends Controller
                 'user_results',
                 [
                     'term' => $user->getScreenName(),
-                    'reanalysis_available' => $result->isReanalysisAvailable(),
                 ]
             );
         }
