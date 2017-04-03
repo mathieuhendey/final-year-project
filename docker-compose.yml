@@ -71,3 +71,4 @@ services:
         condition: service_healthy
       rabbit:
         condition: service_healthy
+    restart: always
