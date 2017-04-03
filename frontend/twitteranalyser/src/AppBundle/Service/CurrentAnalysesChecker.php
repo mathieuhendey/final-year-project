@@ -15,7 +15,7 @@ use GuzzleHttp\Client;
 
 class CurrentAnalysesChecker
 {
-    const API_URL = 'http://api/current_analyses';
+    private const API_URI = 'http://api/current_analyses';
 
     /**
      * @var Client
@@ -40,7 +40,7 @@ class CurrentAnalysesChecker
             ? 'analysis_user_id'
             : 'analysis_topic_id';
 
-        $response = $this->guzzleClient->request('GET', self::API_URL, [
+        $response = $this->guzzleClient->request('GET', self::API_URI, [
             'query' => [
                 $paramKey => $term->getId(),
             ],
@@ -58,7 +58,7 @@ class CurrentAnalysesChecker
     {
         $ret = [];
 
-        $response = $this->guzzleClient->request('GET', self::API_URL, [
+        $response = $this->guzzleClient->request('GET', self::API_URI, [
             'query' => [
                 'all' => true,
             ],
@@ -66,10 +66,33 @@ class CurrentAnalysesChecker
 
         $responseBody = json_decode($response->getBody(), true);
 
-        foreach ($responseBody as $item) {
+        foreach ($responseBody['current_analyses'] as $item) {
             $ret[] = $item;
         }
 
         return $ret;
+    }
+
+    /**
+     * @param int    $termId
+     * @param string $termType
+     *
+     * @return bool
+     */
+    public function checkIfAnalysisIsRunningWithIdAndType(int $termId, string $termType): bool
+    {
+        $paramKey = $termType == AnalysisEntityInterface::USER_TYPE
+            ? 'analysis_user_id'
+            : 'analysis_topic_id';
+
+        $response = $this->guzzleClient->request('GET', self::API_URI, [
+            'query' => [
+                $paramKey => $termId,
+            ],
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+
+        return (bool) $responseBody['currently_analysing'];
     }
 }

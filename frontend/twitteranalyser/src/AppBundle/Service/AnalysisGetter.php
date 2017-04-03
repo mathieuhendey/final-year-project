@@ -16,25 +16,22 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AnalysisGetter
 {
-    const API_URL = 'http://api/tweets';
-    const TYPE_PARAM = 'type';
-    const TERM_PARAM = 'term';
-    const EXEC_TIME_PARAM = 'exec_time';
-    const EXEC_NUMBER_PARAM = 'exec_number';
-    const SHOULD_REANALYSE_PARAM = 'should_reanalyse';
+    private const API_URL = 'http://api/tweets';
+    private const TYPE_PARAM = 'type';
+    private const TERM_PARAM = 'term';
+    private const EXEC_TIME_PARAM = 'exec_time';
+    private const EXEC_NUMBER_PARAM = 'exec_number';
+    private const SHOULD_REANALYSE_PARAM = 'should_reanalyse';
 
-    const USER_RESPONSE_BODY_KEY = 'user_id';
-    const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
-    const HASHTAG_RESPONSE_BODY_KEY = 'is_hashtag';
-    const RATE_LIMITED_KEY = 'rate_limited';
-    const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
-    const ALREADY_ANALYSED_KEY = 'already_analysed';
+    private const USER_RESPONSE_BODY_KEY = 'user_id';
+    private const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
+    private const HASHTAG_RESPONSE_BODY_KEY = 'is_hashtag';
+    private const RATE_LIMITED_KEY = 'rate_limited';
+    private const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
+    private const ALREADY_ANALYSED_KEY = 'already_analysed';
 
-    const TYPE_PARAM_TOPIC_VALUE = 'topic';
-    const TYPE_PARAM_USER_VALUE = 'user';
-
-    const DEFAULT_EXEC_NUMBER = '10000';
-    const DEFAULT_EXEC_TIME = '30';
+    private const TYPE_PARAM_TOPIC_VALUE = 'topic';
+    private const TYPE_PARAM_USER_VALUE = 'user';
 
     /**
      * @var Client

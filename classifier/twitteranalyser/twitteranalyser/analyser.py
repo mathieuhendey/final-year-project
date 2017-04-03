@@ -175,11 +175,18 @@ class Classifier(object):
         Otherwise, load the pickled classifier and set self._classifier.
         """
         if self._classifier is None:
-            if Path('twitteranalyser/data/%s.p' % self.classifier_name).is_file():
+            if Path(
+                'twitteranalyser/data/%s.p' %
+                    self.classifier_name).is_file():
                 logging.info('Loaded classifier from disk.')
-                self.classifier = load(open('twitteranalyser/data/%s.p' % self.classifier_name, 'rb'))
+                self.classifier = load(
+                    open(
+                        'twitteranalyser/data/%s.p' %
+                        self.classifier_name,
+                        'rb'))
             else:
-                logging.warning('No classifier found, training new one. This will take a long time.')
+                logging.warning(
+                    'No classifier found, training new one. This will take a long time.')
                 if not self.labelled_tweets:
                     self.initialise_tweet_sets()
                     self.initialise_word_features()
@@ -197,8 +204,12 @@ class Classifier(object):
         This takes a very long time, so after training, pickle it and save it
         to disk.
         """
-        training_set = apply_features(self.extract_features_from_tweet, self.training_set)
-        testing_set = apply_features(self.extract_features_from_tweet, self.testing_set)
+        training_set = apply_features(
+            self.extract_features_from_tweet,
+            self.training_set)
+        testing_set = apply_features(
+            self.extract_features_from_tweet,
+            self.testing_set)
         self.testing_set = testing_set
         if self.classifier_name == self.NAIVE_BAYES:
             classifier = NaiveBayesClassifier.train(training_set)
@@ -206,12 +217,22 @@ class Classifier(object):
             classifier = DecisionTreeClassifier.train(training_set)
         else:
             raise ValueError("Couldn't create classifier")
-        dump(classifier, open('twitteranalyser/data/%s.p' % self.classifier_name, 'wb'), HIGHEST_PROTOCOL)
+        dump(
+            classifier,
+            open(
+                'twitteranalyser/data/%s.p' %
+                self.classifier_name,
+                'wb'),
+            HIGHEST_PROTOCOL)
         return classifier
 
     @staticmethod
     def get_labelled_data_from_file(filename):
-        csv_file = open('twitteranalyser/data/%s' % filename, encoding='utf-8', errors='ignore')
+        csv_file = open(
+            'twitteranalyser/data/%s' %
+            filename,
+            encoding='utf-8',
+            errors='ignore')
         raw_labelled_tweets = reader(csv_file, delimiter=',', quotechar='|')
         labelled_tweets_unsplit = []
         labelled_data = []
@@ -237,13 +258,16 @@ class Classifier(object):
         A row from the CSV looks like the following:
         |<sentiment>|,|<tweet_text>|
         """
-        self.training_set = self.get_labelled_data_from_file(self.TRAINING_FILE_NAME)
-        self.testing_set = self.get_labelled_data_from_file(self.TESTING_FILE_NAME)
+        self.training_set = self.get_labelled_data_from_file(
+            self.TRAINING_FILE_NAME)
+        self.testing_set = self.get_labelled_data_from_file(
+            self.TESTING_FILE_NAME)
         self.labelled_tweets = self.training_set + self.testing_set
 
     def initialise_word_features(self) -> None:
         """Initialise instance variable containing all words in vector"""
-        self.word_features = self.get_word_features(self.get_all_words_from_tweets(self.labelled_tweets))
+        self.word_features = self.get_word_features(
+            self.get_all_words_from_tweets(self.labelled_tweets))
 
     @staticmethod
     def get_all_words_from_tweets(tweets: list) -> list:
@@ -275,4 +299,6 @@ class Classifier(object):
     def classify(self, tweet: str):
         """Classify the given Tweet."""
         tweet = TweetPreprocessor().preprocess_tweet(tweet)
-        return self.classifier.classify(self.extract_features_from_tweet(tweet.split()))
+        return self.classifier.classify(
+            self.extract_features_from_tweet(
+                tweet.split()))

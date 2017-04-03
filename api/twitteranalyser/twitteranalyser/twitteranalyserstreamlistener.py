@@ -102,7 +102,13 @@ class StreamListener(Listener):
             return False
 
         # We don't care about retweets.
-        if getattr(status, 'retweeted_status', False) or 'RT @' in getattr(status, 'text', None):
+        if getattr(
+                status,
+                'retweeted_status',
+                False) or 'RT @' in getattr(
+                status,
+                'text',
+                None):
             return True
 
         # If we're streaming a user, we only care about replies to that user.
@@ -132,12 +138,15 @@ class StreamListener(Listener):
         table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
         if table_id:
             status_dict['table_id'] = table_id
-            self.channel.basic_publish(exchange='',
-                                       routing_key=environ.get('RABBIT_QUEUE', 'classifier_queue'),
-                                       body=dumps({
-                                           'tweet_text': status_dict['tweet_text'],
-                                           'table_id': status_dict['table_id']
-                                       }))
+            self.channel.basic_publish(
+                exchange='',
+                routing_key=environ.get(
+                    'RABBIT_QUEUE',
+                    'classifier_queue'),
+                body=dumps(
+                    {
+                        'tweet_text': status_dict['tweet_text'],
+                        'table_id': status_dict['table_id']}))
             self.num_tweets += 1
 
     def on_error(self, status_code: int) -> bool:

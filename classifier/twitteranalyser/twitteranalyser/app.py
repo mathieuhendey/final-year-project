@@ -6,7 +6,7 @@ from twitteranalyser.analyser import Classifier
 from twitteranalyser import constants
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 classifier = Classifier()
 
@@ -16,9 +16,11 @@ tweet_table = database[constants.TWEET_TABLE]
 creds = pika.PlainCredentials(username=environ.get('RABBIT_USER', 'rabbit'),
                               password=environ.get('RABBIT_PASS', 'rabbit'))
 
-connection_params = pika.ConnectionParameters(host=environ.get('RABBIT_HOST', 'rabbit'),
-                                              port=int(environ.get('RABBIT_PORT', 5672)),
-                                              credentials=creds)
+connection_params = pika.ConnectionParameters(
+    host=environ.get(
+        'RABBIT_HOST', 'rabbit'), port=int(
+            environ.get(
+                'RABBIT_PORT', 5672)), credentials=creds)
 
 connection = pika.BlockingConnection(connection_params)
 channel = connection.channel()

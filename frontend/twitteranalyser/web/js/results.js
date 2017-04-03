@@ -1,6 +1,9 @@
 var intervalInMs = 5000;
+var keepAnalysing = true;
 
 var tweetList = $("#tweet_list");
+var currentlyAnalysingNotice = $("#analysingNotice");
+var reanalyseNotice = $("#reanalyseNotice");
 
 var positiveTweets = tweetList.data('positive-tweets');
 var negativeTweets = tweetList.data('negative-tweets');
@@ -46,27 +49,35 @@ var myChart = new Chart(ctx, {
 });
 
 setInterval(function() {
-    var latest_tweet_in_list = 1;
-    if (tweetList.children().last().data("id")) {
-       latest_tweet_in_list = tweetList.children().last().data("id");
-    }
+    if (keepAnalysing) {
+        var latest_tweet_in_list = 1;
+        if (tweetList.children().last().data("id")) {
+            latest_tweet_in_list = tweetList.children().last().data("id");
+        }
 
-    var query_params = {
-        term_type: termType,
-        term_id: termId,
-        latest_tweet_in_list: latest_tweet_in_list
-    };
+        var query_params = {
+            term_type: termType,
+            term_id: termId,
+            latest_tweet_in_list: latest_tweet_in_list
+        };
 
-    $.ajax({
-        url: url,
-        data: query_params,
-        type: "GET",
-        dataType: "json"
-    })
-        .done(function (newTweets) {
-            myChart.data.datasets[0].data[0] = newTweets.positiveTweets;
-            myChart.data.datasets[0].data[1] = newTweets.negativeTweets;
-            myChart.update();
-            tweetList.append(newTweets.view)
+        $.ajax({
+            url: url,
+            data: query_params,
+            type: "GET",
+            dataType: "json"
         })
+            .done(function (newTweets) {
+                if (newTweets.analysing) {
+                    myChart.data.datasets[0].data[0] = newTweets.positiveTweets;
+                    myChart.data.datasets[0].data[1] = newTweets.negativeTweets;
+                    myChart.update();
+                    tweetList.append(newTweets.view);
+                } else {
+                    keepAnalysing = false;
+                    currentlyAnalysingNotice.hide();
+                    reanalyseNotice.show();
+                }
+            })
+    }
 }, intervalInMs);
