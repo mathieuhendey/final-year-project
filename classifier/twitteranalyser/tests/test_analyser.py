@@ -25,7 +25,8 @@ class TestTweetPreprocessor(object):
 
     def test_replace_letter_repetitions(self):
         test_tweet = 'aaaddddccc'
-        processed_tweets = self.preprocessor.fix_character_repetitions(test_tweet)
+        processed_tweets = self.preprocessor.fix_character_repetitions(
+            test_tweet)
         assert 'adc' == processed_tweets
 
     def test_remove_hashtags(self):
@@ -38,11 +39,13 @@ class TestTweetPreprocessor(object):
 
     def test_fix_whitespace(self):
         test_tweet = '   test  this is   a   test   '
-        assert 'test this is a test' == self.preprocessor.fix_whitespace(test_tweet)
+        assert 'test this is a test' == self.preprocessor.fix_whitespace(
+            test_tweet)
 
     @pytest.fixture(params=[['12asd', False], ['Test', True]])
     def alphabetic_fixture(self, request):
         yield request.param
 
     def test_alphabetic(self, alphabetic_fixture):
-        assert self.preprocessor.is_word_alpha(alphabetic_fixture[0]) is alphabetic_fixture[1]
+        assert self.preprocessor.is_word_alpha(
+            alphabetic_fixture[0]) is alphabetic_fixture[1]

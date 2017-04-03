@@ -13,8 +13,9 @@ use AppBundle\Entity\AnalysisEntityInterface;
 use AppBundle\Model\ResultsObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use PHPUnit\Framework\TestCase;
 
-class ResultsObjectTest extends \PHPUnit_Framework_TestCase
+class ResultsObjectTest extends TestCase
 {
     public function testCreate()
     {

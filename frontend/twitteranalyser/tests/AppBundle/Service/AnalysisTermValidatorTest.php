@@ -10,8 +10,9 @@
 namespace AppBundle\Test\Service;
 
 use AppBundle\Service\AnalysisTermValidator;
+use PHPUnit\Framework\TestCase;
 
-class AnalysisTermValidatorTest extends \PHPUnit_Framework_TestCase
+class AnalysisTermValidatorTest extends TestCase
 {
     /**
      * @var AnalysisTermValidator

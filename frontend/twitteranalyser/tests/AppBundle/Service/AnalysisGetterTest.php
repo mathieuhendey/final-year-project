@@ -12,10 +12,11 @@ namespace Tests\AppBundle\Service;
 use AppBundle\Model\AnalysisObject;
 use AppBundle\Service\AnalysisGetter;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
+class AnalysisGetterTest extends TestCase
 {
     private const RATE_LIMITED = 'rate_limited';
     private const TOPIC = 'topic';
@@ -35,9 +36,9 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
     public function testStartAnalysis(string $term, string $execTime, string $execNumber, string $responseBody, string $type)
     {
         $mockRequestReturnMap = [
-            [AnalysisGetter::TERM_PARAM, null, $term],
-            [AnalysisGetter::EXEC_TIME_PARAM, null, $execTime],
-            [AnalysisGetter::EXEC_NUMBER_PARAM, null, $execNumber],
+            ['term', null, $term],
+            ['exec_time', null, $execTime],
+            ['exec_number', null, $execNumber],
         ];
 
         /**
@@ -77,6 +78,11 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(1, $result->getId());
             $this->assertTrue($result->isTopic());
             $this->assertFalse($result->isUser());
+        } elseif ($type == self::HASHTAG) {
+            $this->assertInstanceOf(AnalysisObject::class, $result);
+            $this->assertEquals(1, $result->getId());
+            $this->assertTrue($result->isHashtag());
+            $this->assertFalse($result->isUser());
         } elseif ($type == self::USER) {
             $this->assertInstanceOf(AnalysisObject::class, $result);
             $this->assertEquals(1, $result->getId());
@@ -91,9 +97,9 @@ class AnalysisGetterTest extends \PHPUnit_Framework_TestCase
     {
         return [
             'rate_limited' => ['test', '60', '100', '{"rate_limited": true, "time_left_on_stream": 100}', self::RATE_LIMITED],
-            'topic' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": 0}', self::TOPIC],
-            'hashtag' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": 0}', self::HASHTAG],
-            'user' => ['@test', '60', '100', '{"user_id": 1}', self::USER],
+            'topic' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": true, "already_analysed": false}', self::TOPIC],
+            'hashtag' => ['test', '60', '100', '{"topic_id": 1, "is_hashtag": true, "already_analysed": false}', self::HASHTAG],
+            'user' => ['@test', '60', '100', '{"user_id": 1, "already_analysed": 0}', self::USER],
             'broken' => ['@test', '60', '100', '{"broken": 1}', self::BROKEN],
         ];
     }
