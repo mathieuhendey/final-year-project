@@ -9,7 +9,6 @@
 
 namespace AppBundle\Test\Service;
 
-use AppBundle\Entity\AnalysisEntityInterface;
 use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Model\ResultsObject;
 use AppBundle\Service\CurrentAnalysesChecker;
@@ -21,7 +20,7 @@ class CurrentAnalysesCheckerTest extends TestCase
 {
     /**
      * @param string $responseBody
-     * @param bool $expected
+     * @param bool   $expected
      *
      * @dataProvider checkIfAnalysisIsRunningProvider
      */
@@ -57,7 +56,6 @@ class CurrentAnalysesCheckerTest extends TestCase
             ->getMock();
         $mockResultsObject->method('getTerm')
             ->willReturn($mockTerm);
-
 
         $currentAnalysesChecker = new CurrentAnalysesChecker($mockGuzzleClient);
         $result = $currentAnalysesChecker->checkIfAnalysisIsRunning($mockResultsObject);
@@ -106,7 +104,7 @@ class CurrentAnalysesCheckerTest extends TestCase
 
     /**
      * @param string $responseBody
-     * @param bool $expected
+     * @param bool   $expected
      *
      * @dataProvider checkIfAnalysisIsRunningWithIdAndTypeProvider
      */
@@ -141,5 +139,4 @@ class CurrentAnalysesCheckerTest extends TestCase
             ['{"currently_analysing": false}', false],
         ];
     }
-
 }
