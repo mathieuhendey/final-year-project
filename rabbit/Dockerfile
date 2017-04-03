@@ -1,6 +1,8 @@
 FROM rabbitmq:3-management
 
-LABEL maintainer "Mathieu Hendey"
+LABEL maintainer="Mathieu Hendey" \
+      name="Queue for storing Tweets while waiting for the classifier" \
+      version="0.10"
 
 COPY ./docker-healthcheck /usr/local/bin/
 
