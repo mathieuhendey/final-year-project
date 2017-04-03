@@ -13,7 +13,7 @@ services:
 
   db:
     ports:
-      - 3306:3306
+      - 3305:3306
 
   frontend:
     ports:
