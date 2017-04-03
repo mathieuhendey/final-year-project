@@ -12,6 +12,7 @@ namespace Tests\AppBundle\Controller;
 use AppBundle\Entity\AnalysisEntityInterface;
 use AppBundle\Entity\Tweet;
 use AppBundle\Model\ResultsObject;
+use AppBundle\Service\CurrentAnalysesChecker;
 use AppBundle\Service\ResultsAnalyser;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -70,7 +71,15 @@ class ResultsControllerTest extends WebTestCase
         $mockResultsAnalyser->expects($this->once())->method('getResultsForTopic')
             ->willReturn($this->resultsObject);
 
+        $mockCurrentAnalysesChecker = $this->getMockBuilder(CurrentAnalysesChecker::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkIfAnalysisIsRunning'])
+            ->getMock();
+        $mockCurrentAnalysesChecker->expects($this->once())->method('checkIfAnalysisIsRunning')
+            ->willReturn(true);
+
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
         $this->client->request('GET', '/topic/test');
 
@@ -86,7 +95,15 @@ class ResultsControllerTest extends WebTestCase
         $mockResultsAnalyser->expects($this->once())->method('getResultsForUser')
             ->willReturn($this->resultsObject);
 
+        $mockCurrentAnalysesChecker = $this->getMockBuilder(CurrentAnalysesChecker::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkIfAnalysisIsRunning'])
+            ->getMock();
+        $mockCurrentAnalysesChecker->expects($this->once())->method('checkIfAnalysisIsRunning')
+            ->willReturn(true);
+
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
         $this->client->request('GET', '/user/test');
 
@@ -102,7 +119,15 @@ class ResultsControllerTest extends WebTestCase
         $mockResultsAnalyser->expects($this->once())->method('getNewTweetsForTopic')
             ->willReturn($this->resultsObject);
 
+        $mockCurrentAnalysesChecker = $this->getMockBuilder(CurrentAnalysesChecker::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkIfAnalysisIsRunningWithIdAndType'])
+            ->getMock();
+        $mockCurrentAnalysesChecker->expects($this->once())->method('checkIfAnalysisIsRunningWithIdAndType')
+            ->willReturn(true);
+
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
         $this->client->request('GET', '/refreshTweetList', [
             'term_type' => 'topic',
@@ -122,7 +147,15 @@ class ResultsControllerTest extends WebTestCase
         $mockResultsAnalyser->expects($this->once())->method('getNewTweetsForUser')
             ->willReturn($this->resultsObject);
 
+        $mockCurrentAnalysesChecker = $this->getMockBuilder(CurrentAnalysesChecker::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkIfAnalysisIsRunningWithIdAndType'])
+            ->getMock();
+        $mockCurrentAnalysesChecker->expects($this->once())->method('checkIfAnalysisIsRunningWithIdAndType')
+            ->willReturn(true);
+
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
+        $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
         $this->client->request('GET', '/refreshTweetList', [
             'term_type' => 'user',

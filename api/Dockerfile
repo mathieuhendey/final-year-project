@@ -1,6 +1,8 @@
 FROM python:3.6.0
 
-LABEL maintainer "Mathieu Hendey"
+LABEL maintainer="Mathieu Hendey" \
+      name="API exposing functionality related to classifying Tweets" \
+      version="0.10"
 
 COPY ./twitteranalyser/requirements.txt /twitteranalyser/requirements.txt
 WORKDIR /twitteranalyser

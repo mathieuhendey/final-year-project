@@ -16,23 +16,22 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AnalysisGetter
 {
-    const API_URL = 'http://api/tweets';
-    const TYPE_PARAM = 'type';
-    const TERM_PARAM = 'term';
-    const EXEC_TIME_PARAM = 'exec_time';
-    const EXEC_NUMBER_PARAM = 'exec_number';
+    private const API_URL = 'http://api/tweets';
+    private const TYPE_PARAM = 'type';
+    private const TERM_PARAM = 'term';
+    private const EXEC_TIME_PARAM = 'exec_time';
+    private const EXEC_NUMBER_PARAM = 'exec_number';
+    private const SHOULD_REANALYSE_PARAM = 'should_reanalyse';
 
-    const USER_RESPONSE_BODY_KEY = 'user_id';
-    const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
-    const HASHTAG_RESPONSE_BODY_KEY = 'is_hashtag';
-    const RATE_LIMITED_KEY = 'rate_limited';
-    const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
+    private const USER_RESPONSE_BODY_KEY = 'user_id';
+    private const TOPIC_RESPONSE_BODY_KEY = 'topic_id';
+    private const HASHTAG_RESPONSE_BODY_KEY = 'is_hashtag';
+    private const RATE_LIMITED_KEY = 'rate_limited';
+    private const TIME_LEFT_ON_STREAM_KEY = 'time_left_on_stream';
+    private const ALREADY_ANALYSED_KEY = 'already_analysed';
 
-    const TYPE_PARAM_TOPIC_VALUE = 'topic';
-    const TYPE_PARAM_USER_VALUE = 'user';
-
-    const DEFAULT_EXEC_NUMBER = '10000';
-    const DEFAULT_EXEC_TIME = '30';
+    private const TYPE_PARAM_TOPIC_VALUE = 'topic';
+    private const TYPE_PARAM_USER_VALUE = 'user';
 
     /**
      * @var Client
@@ -49,12 +48,13 @@ class AnalysisGetter
      *
      * @return AnalysisObject|null
      */
-    public function startAnalysis(Request $request)
+    public function startAnalysis(Request $request): ?AnalysisObject
     {
         $filterTerm = trim($request->get(self::TERM_PARAM));
         $filterType = $this->getFilterType($filterTerm);
         $execTime = $request->get(self::EXEC_TIME_PARAM);
         $execNumber = $request->get(self::EXEC_NUMBER_PARAM);
+        $shouldReanalyse = $request->get(self::SHOULD_REANALYSE_PARAM, false);
 
         $response = $this->guzzleClient->request('GET', self::API_URL, [
             'query' => [
@@ -62,24 +62,13 @@ class AnalysisGetter
                 self::TERM_PARAM => str_replace('@', '', $filterTerm),
                 self::EXEC_TIME_PARAM => $execTime,
                 self::EXEC_NUMBER_PARAM => $execNumber,
+                self::SHOULD_REANALYSE_PARAM => $shouldReanalyse,
             ],
         ]);
 
-        $responseBody = json_decode($response->getBody(), true);
+        $result = $this->handleResponseBody(json_decode($response->getBody(), true));
 
-        if (array_key_exists(self::RATE_LIMITED_KEY, $responseBody)) {
-            return AnalysisObject::fromRateLimitedResponse($responseBody[self::TIME_LEFT_ON_STREAM_KEY]);
-        } elseif (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $responseBody)) {
-            if ($responseBody[self::HASHTAG_RESPONSE_BODY_KEY] === true) {
-                return AnalysisObject::fromHashtagResponse($responseBody[self::TOPIC_RESPONSE_BODY_KEY]);
-            } else {
-                return AnalysisObject::fromTopicResponse($responseBody[self::TOPIC_RESPONSE_BODY_KEY]);
-            }
-        } elseif (array_key_exists(self::USER_RESPONSE_BODY_KEY, $responseBody)) {
-            return AnalysisObject::fromUserResponse($responseBody[self::USER_RESPONSE_BODY_KEY]);
-        }
-
-        return null;
+        return $result;
     }
 
     /**
@@ -90,5 +79,31 @@ class AnalysisGetter
     private function getFilterType(string $filterTerm): string
     {
         return $filterTerm[0] == '@' ? self::TYPE_PARAM_USER_VALUE : self::TYPE_PARAM_TOPIC_VALUE;
+    }
+
+    /**
+     * @param array $responseBody
+     *
+     * @return AnalysisObject|null
+     */
+    private function handleResponseBody(array $responseBody): ?AnalysisObject
+    {
+        if (array_key_exists(self::RATE_LIMITED_KEY, $responseBody)) {
+            return AnalysisObject::fromRateLimitedResponse($responseBody[self::TIME_LEFT_ON_STREAM_KEY]);
+        } elseif (array_key_exists(self::TOPIC_RESPONSE_BODY_KEY, $responseBody)) {
+            $id = $responseBody[self::TOPIC_RESPONSE_BODY_KEY];
+            $alreadyAnalysed = $responseBody[self::ALREADY_ANALYSED_KEY];
+
+            return $responseBody[self::HASHTAG_RESPONSE_BODY_KEY] === true
+                ? AnalysisObject::fromHashtagResponse($id, $alreadyAnalysed)
+                : AnalysisObject::fromTopicResponse($id, $alreadyAnalysed);
+        } elseif (array_key_exists(self::USER_RESPONSE_BODY_KEY, $responseBody)) {
+            $id = $responseBody[self::USER_RESPONSE_BODY_KEY];
+            $alreadyAnalysed = $responseBody[self::ALREADY_ANALYSED_KEY];
+
+            return AnalysisObject::fromUserResponse($id, $alreadyAnalysed);
+        }
+
+        return null;
     }
 }

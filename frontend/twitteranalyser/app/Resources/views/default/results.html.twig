@@ -9,6 +9,23 @@
 {% endblock %}
 
 {% block body %}
+    <div class="alert alert-info"
+         id="reanalyseNotice"
+         role="alert"
+         style="display: {% if not currentlyAnalysing %}block{% else %}none{% endif %};">
+        This {{ term.type }} has already been analysed. Would you like to <a href="{{ path('homepage', {'search_term': term.prettyTerm,
+                                                                                                 'should_reanalyse': true}) }}"
+                                                                             class="alert-link">update</a> it?
+    </div>
+    <div class="alert alert-success alert-dismissable fade show"
+         id="analysingNotice"
+         role="alert"
+         style="display: {% if currentlyAnalysing %}block{% else %}none{% endif %};">
+            <button class="close">
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        This {{ term.type }} is currently being analysed!
+    </div>
     <div id="chart" style="position: relative; height: 75vh">
         <canvas id="myChart"></canvas>
     </div>

@@ -17,8 +17,9 @@ use AppBundle\Repository\AnalysisUserRepository;
 use AppBundle\Repository\TweetRepository;
 use AppBundle\Service\ResultsAnalyser;
 use Doctrine\Common\Collections\Collection;
+use PHPUnit\Framework\TestCase;
 
-class ResultsAnalyserTest extends \PHPUnit_Framework_TestCase
+class ResultsAnalyserTest extends TestCase
 {
     public function testGetResultsForUser()
     {
@@ -80,6 +81,38 @@ class ResultsAnalyserTest extends \PHPUnit_Framework_TestCase
         $analyser = new ResultsAnalyser($mockTweetRepo, $mockUserRepo, $mockTopicRepo);
 
         $result = $analyser->getResultsForTopic('test');
+
+        $this->assertInstanceOf(ResultsObject::class, $result);
+    }
+
+    public function testGetResultsForHashtag()
+    {
+        $mockAnalysisTopic = $this->getMockBuilder(AnalysisTopic::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mockAnalysisTopic->expects($this->exactly(2))->method('getId')
+            ->willReturn(1);
+
+        $mockUserRepo = $this->getMockBuilder(AnalysisUserRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockTopicRepo = $this->getMockBuilder(AnalysisTopicRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mockTopicRepo->expects($this->once())->method('findOneBy')
+            ->willReturn($mockAnalysisTopic);
+
+        $mockTweetRepo = $this->getMockBuilder(TweetRepository::class)
+            ->setMethods(['getNumberOfTweetsForTopicIdWithSentiment'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mockTweetRepo->expects($this->exactly(2))->method('getNumberOfTweetsForTopicIdWithSentiment')
+            ->willReturn(20);
+
+        $analyser = new ResultsAnalyser($mockTweetRepo, $mockUserRepo, $mockTopicRepo);
+
+        $result = $analyser->getResultsForHashtag('test');
 
         $this->assertInstanceOf(ResultsObject::class, $result);
     }

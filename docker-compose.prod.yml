@@ -1,0 +1,24 @@
+version: '2.1'
+
+services:
+  nginx:
+    ports:
+      - 80:80
+      - 443
+
+  rabbit:
+    ports:
+      - 5672
+      - 15672
+
+  db:
+    ports:
+      - 3306
+
+  frontend:
+    ports:
+      - 9000
+
+  api:
+    ports:
+      - 80

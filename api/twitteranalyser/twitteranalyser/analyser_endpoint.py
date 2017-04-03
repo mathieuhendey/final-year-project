@@ -13,8 +13,12 @@ we could simply add another endpoint like '/analyse'.
 import falcon
 
 from twitteranalyser.tweetresource import Tweet
+from twitteranalyser.currentanalysesresource import CurrentAnalyses
 
 
 ENDPOINT = application = falcon.API()
 TWEETS = Tweet()
 ENDPOINT.add_route('/tweets', TWEETS)
+
+CURRENT_ANALYSES = CurrentAnalyses()
+ENDPOINT.add_route('/current_analyses', CURRENT_ANALYSES)

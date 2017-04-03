@@ -1,6 +1,8 @@
 FROM python:latest
 
-MAINTAINER Mathieu Hendey
+LABEL maintainer="Mathieu Hendey" \
+      name="Sentiment analyser for Tweets" \
+      version="0.10"
 
 COPY ./twitteranalyser/requirements.txt /twitteranalyser/requirements.txt
 WORKDIR /twitteranalyser

@@ -74,33 +74,36 @@ class AnalysisObject
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromTopicResponse(int $id): self
+    public static function fromTopicResponse(int $id, bool $reanalysisAvailable = false): self
     {
-        return new self(true, $id, false, null);
+        return new self(true, $id, false, null, false, $reanalysisAvailable);
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromHashtagResponse(int $id): self
+    public static function fromHashtagResponse(int $id, bool $reanalysisAvailable = false): self
     {
-        return new self(true, $id, false, null, true);
+        return new self(true, $id, false, null, true, $reanalysisAvailable);
     }
 
     /**
-     * @param int $id
+     * @param int  $id
+     * @param bool $reanalysisAvailable
      *
      * @return AnalysisObject
      */
-    public static function fromUserResponse(int $id): self
+    public static function fromUserResponse(int $id, bool $reanalysisAvailable = false): self
     {
-        return new self(false, $id, false, null);
+        return new self(false, $id, false, null, false, $reanalysisAvailable);
     }
 
     /**

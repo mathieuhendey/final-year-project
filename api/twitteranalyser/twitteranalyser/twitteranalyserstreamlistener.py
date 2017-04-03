@@ -7,6 +7,8 @@
 from json import dumps
 from logging import critical as log
 from os import environ
+
+from dataset import Table
 from pika.channel import Channel
 from time import time
 from tweepy import Status
@@ -31,10 +33,12 @@ class StreamListener(Listener):
         self.analysis_key_name = None
         self.analysis_key_value = None
         self.tweet_table = None
+        self.current_analyses_table = None  # type: Table
         self.channel = None  # type: Channel
         self._time_left_on_stream = 0
         self.streaming_hashtag = False
         self.search_term = ''
+        self.current_analysis_id = None
 
     @property
     def time_left_on_stream(self) -> float:
@@ -75,6 +79,7 @@ class StreamListener(Listener):
     def keep_alive(self):
         if time() >= self.start + self.max_exec_time:
             log('Stream closed due to filter constraints being met.')
+            self.current_analyses_table.delete(id=self.current_analysis_id)
             return False
 
     def on_status(self, status: Status) -> Union[bool, None]:
@@ -93,10 +98,17 @@ class StreamListener(Listener):
         # Returning false from the handler will close the stream.
         if time() >= self.start + self.max_exec_time:
             log('Stream closed due to filter constraints being met.')
+            self.current_analyses_table.delete(id=self.current_analysis_id)
             return False
 
         # We don't care about retweets.
-        if getattr(status, 'retweeted_status', False) or 'RT @' in getattr(status, 'text', None):
+        if getattr(
+                status,
+                'retweeted_status',
+                False) or 'RT @' in getattr(
+                status,
+                'text',
+                None):
             return True
 
         # If we're streaming a user, we only care about replies to that user.
@@ -126,12 +138,15 @@ class StreamListener(Listener):
         table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
         if table_id:
             status_dict['table_id'] = table_id
-            self.channel.basic_publish(exchange='',
-                                       routing_key=environ.get('RABBIT_QUEUE', 'classifier_queue'),
-                                       body=dumps({
-                                           'tweet_text': status_dict['tweet_text'],
-                                           'table_id': status_dict['table_id']
-                                       }))
+            self.channel.basic_publish(
+                exchange='',
+                routing_key=environ.get(
+                    'RABBIT_QUEUE',
+                    'classifier_queue'),
+                body=dumps(
+                    {
+                        'tweet_text': status_dict['tweet_text'],
+                        'table_id': status_dict['table_id']}))
             self.num_tweets += 1
 
     def on_error(self, status_code: int) -> bool:
@@ -147,4 +162,5 @@ class StreamListener(Listener):
         log(status_code)
         if status_code == 420:
             log('Rate limited, closing stream.')
+        self.current_analyses_table.delete(id=self.current_analysis_id)
         return False

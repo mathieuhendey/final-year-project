@@ -85,9 +85,9 @@ class AnalysisUser implements AnalysisEntityInterface
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getTwitterId(): string
+    public function getTwitterId(): int
     {
         return $this->twitterId;
     }
