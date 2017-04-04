@@ -9,6 +9,7 @@ from logging import critical as log
 from os import environ
 from time import time
 from urllib.parse import unquote
+from datetime import datetime
 
 import falcon
 import pika
@@ -131,6 +132,8 @@ class Tweet(object):
                         }
                         current_analysis_id = self.current_analyses_table.insert(
                             data)
+                        update_data = dict(id=analysis_user_id, updated_on=datetime.now())
+                        self.tweet_user_table.update(update_data, ['id'])
                         self.stream_listener.current_analysis_id = current_analysis_id
                         self.stream.filter(follow=[user.id_str], async=True)
                         resp.body = dumps({'user_id': analysis_user_id,
@@ -218,6 +221,8 @@ class Tweet(object):
                             'analysis_topic_id': analysis_topic_id,
                             'is_hashtag': is_hashtag
                         }
+                        update_data = dict(id=analysis_topic_id, updated_on=datetime.now())
+                        self.tweet_topic_table.update(update_data, ['id'])
                         current_analysis_id = self.current_analyses_table.insert(
                             data)
                         self.stream_listener.current_analysis_id = current_analysis_id
