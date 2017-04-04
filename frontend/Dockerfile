@@ -1,4 +1,4 @@
- FROM debian:jessie
+FROM debian:jessie
 
 LABEL maintainer="Mathieu Hendey" \
       name="PHP 7.1 FPM container basied on Debian Jessie" \
@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   php7.1-dev \
   php7.1-fpm \
   php7.1-intl \
+  php7.1-mbstring \
   php7.1-mcrypt \
   php7.1-mysqli \
   php7.1-opcache \
