@@ -12,5 +12,14 @@ return Config::create()
     ->setRules(array(
         '@Symfony' => true,
         'phpdoc_var_without_name' => false,
+        'phpdoc_order' => true,
+        'phpdoc_add_missing_param_annotation' => true,
+        'ordered_imports' => true,
+        'ordered_class_elements' => true,
+        'doctrine_annotation_spaces' => true,
+        'doctrine_annotation_indentation' => true,
+        'doctrine_annotation_braces' => true,
+        'ternary_to_null_coalescing' => true,
+        'visibility_required' => true,
     ))
     ->setFinder($finder);
