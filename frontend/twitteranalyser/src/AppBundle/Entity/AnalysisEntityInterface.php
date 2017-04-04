@@ -9,6 +9,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\Collection;
 
 interface AnalysisEntityInterface
@@ -35,7 +36,7 @@ interface AnalysisEntityInterface
 
     public function getNormalisedNumberOfNegativeTweets(): int;
 
-    public function getCreatedOn(): \DateTime;
+    public function getCreatedOn(): DateTime;
 
-    public function getUpdatedOn(): \DateTime;
+    public function getUpdatedOn(): DateTime;
 }

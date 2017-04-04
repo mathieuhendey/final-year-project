@@ -1,37 +1,68 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}{{ pageTitle }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/analyses.js') }}"></script>
+{% endblock %}
+
 {% block body %}
     <h2>{{ headerText }}</h2>
     <p class="lead">
         {{ leadText|raw }}
     </p>
-    {% for item in items %}
-        <div class="card" style="margin-bottom: 40px;">
-            <div class="card-header">
-                <div class="progress">
-                    {% if item.numberOfTweets == 0 %}
-                        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    {% else %}
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.getNormalisedNumberOfPositiveTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfPositiveTweets }}" aria-valuemin="0" aria-valuemax="100">Positive Tweets: {{ item.getNumberOfPositiveTweets }}</div>
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ item.getNormalisedNumberOfNegativeTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfNegativeTweets }}" aria-valuemin="0" aria-valuemax="100">Negative Tweets: {{ item.getNumberOfNegativeTweets }}</div>
-                    {% endif %}
+    <form>
+        {% for item in items %}
+            <div class="card" style="margin-bottom: 40px;">
+                <div class="card-header">
+                    <div class="progress">
+                        {% if item.numberOfTweets == 0 %}
+                            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        {% else %}
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.getNormalisedNumberOfPositiveTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfPositiveTweets }}" aria-valuemin="0" aria-valuemax="100">Positive Tweets: {{ item.getNumberOfPositiveTweets }}</div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ item.getNormalisedNumberOfNegativeTweets }}%" aria-valuenow="{{ item.getNormalisedNumberOfNegativeTweets }}" aria-valuemin="0" aria-valuemax="100">Negative Tweets: {{ item.getNumberOfNegativeTweets }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-block">
+                    <div class="pull-left"><p class="card-text">{{ item.getPrettyTerm }}</p></div>
+                    <div class="form-check pull-right" style="display: none;">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" name="terms[]" value="{{ item.id }}">
+                            <small>Include in comparison</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="pull-left">
+                        <small class="text-muted">First analysed <strong>{{ item.createdOn|time_diff }}</strong>, last updated <strong>{{ item.updatedOn|time_diff }}</strong>, analysed <strong>{{ item.numberOfTweets }} Tweet{% if item.numberOfTweets != 1 %}s{% endif %}</strong> in total</small>
+                    </div>
+                    <div class="pull-right">
+                        <a
+                            href="{% if item.type == 'user' %}{{ path('user_results', {'term': item.screenName}) }}{% elseif item.type == 'topic' %}{{ path('topic_results', {'term': item.term}) }}{% else %}{{ path('hashtag_results', {'term': item.term }) }}{% endif %}"
+                            class="btn btn-outline-info btn-sm">
+                                Go to analysis page
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="card-block">
-                <p class="card-text">{{ item.getPrettyTerm }}</p>
+        {% endfor %}
+        <nav class="navbar fixed-bottom navbar-light bg-faded navbar-toggleable-md">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-info my-2 my-sm-0" id="enableComparisonButton" type="button">Enable comparison</button>
+                    </li>
+                    <li class="nav-item">
+                        <span class="navbar-text" id="comparisonBarText" style="margin-left: 30px"></span>
+                    </li>
+                </ul>
+                <button class="btn btn-success my-2 my-sm-0" id="compareButton" type="submit" disabled>Compare</button>
             </div>
-            <div class="card-footer">
-                <div class="pull-left">
-                    <small class="text-muted">First analysed <strong>{{ item.createdOn|time_diff }}</strong>, last updated <strong>{{ item.updatedOn|time_diff }}</strong>, analysed <strong>{{ item.numberOfTweets }} Tweet{% if item.numberOfTweets != 1 %}s{% endif %}</strong> in total</small>
-                </div>
-                <div class="pull-right">
-                    <a
-                        href="{% if item.type == 'user' %}{{ path('user_results', {'term': item.screenName}) }}{% elseif item.type == 'topic' %}{{ path('topic_results', {'term': item.term}) }}{% else %}{{ path('hashtag_results', {'term': item.term }) }}{% endif %}"
-                        class="btn btn-outline-info btn-sm">
-                            Go to analysis page
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
+        </nav>
+    </form>
 {% endblock %}

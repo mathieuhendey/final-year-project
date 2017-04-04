@@ -41,11 +41,8 @@ class ResultsAnalyser
      * @param AnalysisUserRepository  $analysisUserRepository
      * @param AnalysisTopicRepository $analysisTopicRepository
      */
-    public function __construct(
-        TweetRepository $tweetRepository,
-        AnalysisUserRepository $analysisUserRepository,
-        AnalysisTopicRepository $analysisTopicRepository
-    ) {
+    public function __construct(TweetRepository $tweetRepository, AnalysisUserRepository $analysisUserRepository, AnalysisTopicRepository $analysisTopicRepository)
+    {
         $this->tweetRepository = $tweetRepository;
         $this->analysisUserRepository = $analysisUserRepository;
         $this->analysisTopicRepository = $analysisTopicRepository;

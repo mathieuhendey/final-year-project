@@ -1,9 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: mathieuhendey
- * Date: 2017-03-03
- * Time: 17:47.
+ * Part of the AJ02 project at Queen's University Belfast.
+ *
+ * PHP version 7
+ *
+ * @see https://gitlab.eeecs.qub.ac.uk/40100521/AJ02
  */
 
 namespace AppBundle\Repository;

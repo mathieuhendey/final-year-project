@@ -10,11 +10,11 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles the page showing the results of the analysis of a term.
@@ -25,40 +25,36 @@ class ResultsController extends Controller
 {
     /**
      * @Route("/topic/{term}", name="topic_results")
-     * @Template("default/results.html.twig")
      *
      * @param string $term
      *
-     * @return array
+     * @return Response
      */
-    public function topicResultsAction(string $term)
+    public function topicResultsAction(string $term): Response
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
         $resultsAnalyser = $this->get('app.results_analyser');
         $results = $resultsAnalyser->getResultsForTopic($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
-        $reanalysisAvailable = !$currentlyAnalysing;
 
-        return [
+        return $this->render('default/results.html.twig', [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
-            'reanalysisAvailable' => $reanalysisAvailable,
             'currentlyAnalysing' => $currentlyAnalysing,
-        ];
+        ]);
     }
 
     /**
      * @Route("/hashtag/{term}", name="hashtag_results")
-     * @Template("default/results.html.twig")
      *
      * @param string $term
      *
-     * @return array
+     * @return Response
      */
-    public function hashtagResultsAction(string $term)
+    public function hashtagResultsAction(string $term): Response
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
@@ -66,24 +62,23 @@ class ResultsController extends Controller
         $results = $resultsAnalyser->getResultsForHashtag($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
 
-        return [
+        return $this->render('default/results.html.twig', [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
             'currentlyAnalysing' => $currentlyAnalysing,
-        ];
+        ]);
     }
 
     /**
      * @Route("/user/{term}", name="user_results")
-     * @Template("default/results.html.twig")
      *
      * @param string $term
      *
-     * @return array
+     * @return Response
      */
-    public function userResultsAction(string $term)
+    public function userResultsAction(string $term): Response
     {
         $currentAnalysesChecker = $this->get('app.current_analyses_checker');
 
@@ -91,13 +86,13 @@ class ResultsController extends Controller
         $results = $resultsAnalyser->getResultsForUser($term);
         $currentlyAnalysing = $currentAnalysesChecker->checkIfAnalysisIsRunning($results);
 
-        return [
+        return $this->render('default/results.html.twig', [
             'tweets' => $results->getTweets(),
             'term' => $results->getTerm(),
             'positiveTweets' => $results->getPositiveTweets(),
             'negativeTweets' => $results->getNegativeTweets(),
             'currentlyAnalysing' => $currentlyAnalysing,
-        ];
+        ]);
     }
 
     /**
@@ -149,5 +144,10 @@ class ResultsController extends Controller
         $response = new JsonResponse($data);
 
         return $response;
+    }
+
+    public function compareAction(Request $request): Response
+    {
+
     }
 }

@@ -13,19 +13,19 @@ use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Entity\AnalysisUser;
 use AppBundle\Entity\Tweet;
 use NumberFormatter;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AnalysesController extends Controller
 {
     /**
      * @Route("/analyses/topics", name="topic_analyses")
-     * @Template("default/analyses.html.twig")
      *
-     * @return array
+     * @return Response
      */
-    public function topicAnalysesAction()
+    public function topicAnalysesAction(): Response
     {
         $spellerFormatter = new NumberFormatter('en-GB', NumberFormatter::SPELLOUT);
         $spellerFormatter->setTextAttribute(NumberFormatter::DEFAULT_RULESET, '%spellout-cardinal-verbose');
@@ -52,21 +52,21 @@ class AnalysesController extends Controller
                 $leadText = "That's <strong>$tweetsSpelled</strong> Tweets' worth!";
         }
 
-        return [
+        return $this->render('default/analyses.html.twig', [
+            'pageTitle' => 'Analyser - Topics',
             'number' => count($topics),
             'headerText' => $headerText,
             'leadText' => $leadText,
             'items' => $topics,
-        ];
+        ]);
     }
 
     /**
      * @Route("/analyses/users", name="user_analyses")
-     * @Template("default/analyses.html.twig")
      *
-     * @return array
+     * @return Response
      */
-    public function userAnalysesAction()
+    public function userAnalysesAction(): Response
     {
         $spellerFormatter = new NumberFormatter('en-GB', NumberFormatter::SPELLOUT);
         $spellerFormatter->setTextAttribute(NumberFormatter::DEFAULT_RULESET, '%spellout-cardinal-verbose');
@@ -93,11 +93,12 @@ class AnalysesController extends Controller
                 $leadText = "That's <strong>$tweetsSpelled</strong> Tweets' worth!";
         }
 
-        return [
+        return $this->render('default/analyses.html.twig', [
+            'pageTitle' => 'Analyser - Users',
             'number' => count($users),
             'headerText' => $headerText,
             'leadText' => $leadText,
             'items' => $users,
-        ];
+        ]);
     }
 }

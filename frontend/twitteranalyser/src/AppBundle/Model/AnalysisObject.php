@@ -49,13 +49,8 @@ class AnalysisObject
      * @param int  $timeLeftOnStream
      * @param bool $hashtag
      */
-    private function __construct(
-        bool $topic = false,
-        int $id = null,
-        bool $rateLimited = false,
-        int $timeLeftOnStream = null,
-        bool $hashtag = false
-    ) {
+    private function __construct(bool $topic = false, int $id = null, bool $rateLimited = false, int $timeLeftOnStream = null, bool $hashtag = false)
+    {
         $this->topic = $topic;
         $this->id = $id;
         $this->rateLimited = $rateLimited;

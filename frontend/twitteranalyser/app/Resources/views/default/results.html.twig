@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}'Results - {{ term.prettyTerm }}'{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('js/results.js') }}"></script>

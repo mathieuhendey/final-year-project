@@ -10,6 +10,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
@@ -47,14 +48,14 @@ class AnalysisTopic implements AnalysisEntityInterface
     protected $hashtag;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_on", type="datetime", nullable=false)
      */
     protected $createdOn;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_on", type="datetime", nullable=false)
      */
@@ -98,7 +99,7 @@ class AnalysisTopic implements AnalysisEntityInterface
      */
     public function getTweets(): Collection
     {
-        return $this->tweets;
+        return new ArrayCollection(array_reverse($this->tweets->toArray()));
     }
 
     /**
@@ -172,17 +173,17 @@ class AnalysisTopic implements AnalysisEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedOn(): \DateTime
+    public function getCreatedOn(): DateTime
     {
         return $this->createdOn;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdatedOn(): \DateTime
+    public function getUpdatedOn(): DateTime
     {
         return $this->updatedOn;
     }
