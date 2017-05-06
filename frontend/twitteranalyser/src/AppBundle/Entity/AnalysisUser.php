@@ -9,6 +9,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
@@ -46,14 +47,14 @@ class AnalysisUser implements AnalysisEntityInterface
     protected $screenName;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_on", type="datetime", nullable=false)
      */
     protected $createdOn;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_on", type="datetime", nullable=false)
      */
@@ -97,7 +98,7 @@ class AnalysisUser implements AnalysisEntityInterface
      */
     public function getTweets(): Collection
     {
-        return $this->tweets;
+        return new ArrayCollection(array_reverse($this->tweets->toArray()));
     }
 
     /**
@@ -175,18 +176,52 @@ class AnalysisUser implements AnalysisEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedOn(): \DateTime
+    public function getCreatedOn(): DateTime
     {
         return $this->createdOn;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdatedOn(): \DateTime
+    public function getUpdatedOn(): DateTime
     {
         return $this->updatedOn;
     }
+
+    public function getDataForLastTwelveHours(): array
+    {
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $dateA = strtotime('-'.$i.' hour');
+            $dateB = strtotime('-'.($i-1).' hour');
+
+            $positiveCriteria = Criteria::create()
+                ->where(Criteria::expr()->eq('sentiment', 'positive'))
+                ->andWhere(Criteria::expr()->gt('created_on', new DateTime("@".($dateA + 3600))))
+                ->andWhere(Criteria::expr()->lt('created_on', new DateTime("@".($dateB + 3600))));
+
+            $totalCriteria = Criteria::create()
+                ->where(Criteria::expr()->gt('created_on', new DateTime("@".($dateA + 3600))))
+                ->andWhere(Criteria::expr()->lt('created_on', new DateTime("@".($dateB + 3600))));
+
+            $positiveTweets = count($this->getTweets()->matching($positiveCriteria));
+            $totalTweets = count($this->getTweets()->matching($totalCriteria));
+
+            if ($totalTweets > 0) {
+                $score = (int) floor($positiveTweets / $totalTweets * 100);
+            } else {
+                $score = 0;
+            }
+
+
+            $data[] = $score;
+        }
+
+        return array_reverse($data);
+    }
+
 }

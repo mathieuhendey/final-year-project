@@ -42,12 +42,8 @@ class ResultsObject
      * @param int                     $negativeTweets
      * @param int                     $positiveTweets
      */
-    public function __construct(
-        Collection $tweets,
-        AnalysisEntityInterface $term,
-        int $negativeTweets,
-        int $positiveTweets
-    ) {
+    public function __construct(Collection $tweets, AnalysisEntityInterface $term, int $negativeTweets, int $positiveTweets)
+    {
         $this->tweets = $tweets;
         $this->term = $term;
         $this->negativeTweets = $negativeTweets;

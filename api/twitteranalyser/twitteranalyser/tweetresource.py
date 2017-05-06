@@ -9,6 +9,8 @@ from logging import critical as log
 from os import environ
 from time import time
 from urllib.parse import unquote
+from datetime import datetime
+import pytz
 
 import falcon
 import pika
@@ -131,6 +133,8 @@ class Tweet(object):
                         }
                         current_analysis_id = self.current_analyses_table.insert(
                             data)
+                        update_data = dict(id=analysis_user_id, updated_on=datetime.now(pytz.timezone('Europe/London')))
+                        self.tweet_user_table.update(update_data, ['id'])
                         self.stream_listener.current_analysis_id = current_analysis_id
                         self.stream.filter(follow=[user.id_str], async=True)
                         resp.body = dumps({'user_id': analysis_user_id,
@@ -218,6 +222,8 @@ class Tweet(object):
                             'analysis_topic_id': analysis_topic_id,
                             'is_hashtag': is_hashtag
                         }
+                        update_data = dict(id=analysis_topic_id, updated_on=datetime.now(pytz.timezone('Europe/London')))
+                        self.tweet_topic_table.update(update_data, ['id'])
                         current_analysis_id = self.current_analyses_table.insert(
                             data)
                         self.stream_listener.current_analysis_id = current_analysis_id
@@ -267,13 +273,13 @@ class Tweet(object):
         credentials = pika.PlainCredentials(
             username=environ.get(
                 'RABBIT_USER', 'rabbit'), password=environ.get(
-                'RABBIT_PASS', 'rabbit'))
+                    'RABBIT_PASS', 'rabbit'))
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=environ.get(
                     'RABBIT_HOST', 'rabbit'), port=int(
-                    environ.get(
-                        'RABBIT_PORT', 5672)), credentials=credentials))
+                        environ.get(
+                            'RABBIT_PORT', 5672)), credentials=credentials))
         channel = connection.channel()
         channel.queue_declare(environ.get('RABBIT_QUEUE', 'classifier_queue'))
         return channel

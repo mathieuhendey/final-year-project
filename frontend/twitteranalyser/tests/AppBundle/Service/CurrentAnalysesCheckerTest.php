@@ -79,14 +79,16 @@ class CurrentAnalysesCheckerTest extends TestCase
             ->getMock();
         $mockResponse->method('getBody')
             ->with()
-            ->willReturn('{
-                                  "current_analyses": [
-                                    {
-                                      "type": "topic",
-                                      "analysis_topic_id": 1
-                                    }
-                                  ]
-                                }');
+            ->willReturn(
+                '{
+                    "current_analyses": [
+                    {
+                        "type": "topic",
+                        "analysis_topic_id": 1
+                    }
+                    ]
+                }'
+            );
 
         /**
          * @var Client|\PHPUnit_Framework_MockObject_MockObject $mockGuzzleClient

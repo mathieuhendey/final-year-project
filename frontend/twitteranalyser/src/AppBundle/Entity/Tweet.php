@@ -10,6 +10,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -107,7 +108,7 @@ class Tweet
     protected $sentiment;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_on", type="datetime")
      */
@@ -210,9 +211,9 @@ class Tweet
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedOn(): \DateTime
+    public function getCreatedOn(): DateTime
     {
         return $this->createdOn;
     }

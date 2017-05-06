@@ -25,10 +25,11 @@
         "components/jquery": "^3.1",
         "nnnick/chartjs": "^2.5",
         "twbs/bootstrap": "4.0.0-alpha.6",
-        "friendsofphp/php-cs-fixer": "^2.1",
+        "friendsofphp/php-cs-fixer": "^2.2",
         "guzzlehttp/guzzle": "~6.0",
         "twig/extensions": "^1.4",
-        "phpunit/phpunit": "^6.0"
+        "phpunit/phpunit": "^6.0",
+        "moment/moment": "^2.18"
     },
     "scripts": {
         "symfony-scripts": [
@@ -45,7 +46,8 @@
 	        "cp vendor/nnnick/chartjs/dist/Chart.min.js web/js/Chart.min.js",
             "cp vendor/twbs/bootstrap/dist/css/* web/css/",
             "cp vendor/twbs/bootstrap/js/dist/collapse.js web/js/collapse.js",
-            "cp vendor/twbs/bootstrap/js/dist/util.js web/js/util.js"
+            "cp vendor/twbs/bootstrap/js/dist/util.js web/js/util.js",
+            "cp vendor/moment/moment/moment.js web/js/moment.js"
         ],
         "post-update-cmd": [
             "@symfony-scripts"
@@ -72,6 +74,7 @@
         }
     },
     "require-dev": {
-        "etsy/phan": "0.9.1"
+        "squizlabs/php_codesniffer": "^3.0",
+        "escapestudios/symfony2-coding-standard": "~2.0"
     }
 }

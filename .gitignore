@@ -14,6 +14,7 @@ jquery.min.js
 Chart.min.js
 collapse.js
 util.js
+moment.js
 frontend/twitteranalyser/web/css/*
 !frontend/twitteranalyser/web/css/.gitkeep 
 api/twitteranalyser/twitteranalyser/.env

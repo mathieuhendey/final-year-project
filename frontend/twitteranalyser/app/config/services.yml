@@ -31,3 +31,6 @@ services:
   app.current_analyses_checker:
     class: AppBundle\Service\CurrentAnalysesChecker
     arguments: ['@guzzle.client']
+  app.comparator:
+    class: AppBundle\Service\Comparator
+    arguments: ['@app.tweet_repository', '@app.analysis_user_repository', '@app.analysis_topic_repository']

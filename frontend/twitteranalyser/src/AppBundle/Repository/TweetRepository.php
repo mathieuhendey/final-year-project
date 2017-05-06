@@ -33,7 +33,8 @@ class TweetRepository extends EntityRepository
 
         $criteria = Criteria::create()
             ->where(Criteria::expr()->gt('id', $tweetId))
-            ->andWhere(Criteria::expr()->neq('sentiment', null));
+            ->andWhere(Criteria::expr()->neq('sentiment', null))
+            ->orderBy(['created_on' => Criteria::DESC]);
 
         return $topicTweets->matching($criteria);
     }
@@ -54,7 +55,8 @@ class TweetRepository extends EntityRepository
 
         $criteria = Criteria::create()
             ->where(Criteria::expr()->gt('id', $tweetId))
-            ->andWhere(Criteria::expr()->neq('sentiment', null));
+            ->andWhere(Criteria::expr()->neq('sentiment', null))
+            ->orderBy(['created_on' => Criteria::DESC]);
 
         return $userTweets->matching($criteria);
     }

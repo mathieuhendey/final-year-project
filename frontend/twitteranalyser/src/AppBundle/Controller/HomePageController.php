@@ -13,10 +13,10 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\AnalysisTopic;
 use AppBundle\Entity\AnalysisUser;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
@@ -28,21 +28,22 @@ class HomePageController extends Controller
 {
     /**
      * @Route("/", name="homepage")
-     * @Template("default/index.html.twig")
      *
      * @param Request $request
      *
-     * @return array
+     * @return Response
      */
-    public function indexAction(Request $request): array
+    public function indexAction(Request $request): Response
     {
         $searchTerm = $request->get('search_term', '');
         $shouldReanalyse = $request->get('should_reanalyse', false);
 
-        return [
-            'searchTerm' => $searchTerm,
-            'shouldReanalyse' => $shouldReanalyse,
-        ];
+        return $this->render(
+            'default/index.html.twig', [
+                'searchTerm' => $searchTerm,
+                'shouldReanalyse' => $shouldReanalyse,
+            ]
+        );
     }
 
     /**
@@ -50,9 +51,9 @@ class HomePageController extends Controller
      *
      * @param Request $request
      *
-     * @return RedirectResponse
-     *
      * @throws TooManyRequestsHttpException
+     *
+     * @return RedirectResponse
      */
     public function beginAnalysisAction(Request $request): RedirectResponse
     {
@@ -78,9 +79,9 @@ class HomePageController extends Controller
 
             return $this->redirectToRoute(
                 'topic_results',
-                    [
-                        'term' => $topic->getTerm(),
-                    ]
+                [
+                    'term' => $topic->getTerm(),
+                ]
             );
         } elseif ($result->isHashtag()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());

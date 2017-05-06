@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}'Comparison'{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/comparison.js') }}"></script>
+    <script>
+        var url = "{{ url('compareAjax') }}"
+    </script>
+    <script>
+        var term_ids = {{ ids|json_encode|raw }};
+    </script>
+    <script>
+        var term_type = "{{ type }}"
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div id="chart" style="position: relative; height: 75vh">
+        <canvas id="myChart"></canvas>
+    </div>
+{% endblock %}

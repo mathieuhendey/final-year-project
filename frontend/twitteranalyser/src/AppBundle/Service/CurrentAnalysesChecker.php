@@ -40,11 +40,13 @@ class CurrentAnalysesChecker
             ? 'analysis_user_id'
             : 'analysis_topic_id';
 
-        $response = $this->guzzleClient->request('GET', self::API_URI, [
+        $response = $this->guzzleClient->request(
+            'GET', self::API_URI, [
             'query' => [
                 $paramKey => $term->getId(),
             ],
-        ]);
+            ]
+        );
 
         $responseBody = json_decode($response->getBody(), true);
 
@@ -58,11 +60,13 @@ class CurrentAnalysesChecker
     {
         $ret = [];
 
-        $response = $this->guzzleClient->request('GET', self::API_URI, [
+        $response = $this->guzzleClient->request(
+            'GET', self::API_URI, [
             'query' => [
                 'all' => true,
             ],
-        ]);
+            ]
+        );
 
         $responseBody = json_decode($response->getBody(), true);
 
@@ -85,11 +89,13 @@ class CurrentAnalysesChecker
             ? 'analysis_user_id'
             : 'analysis_topic_id';
 
-        $response = $this->guzzleClient->request('GET', self::API_URI, [
+        $response = $this->guzzleClient->request(
+            'GET', self::API_URI, [
             'query' => [
                 $paramKey => $termId,
             ],
-        ]);
+            ]
+        );
 
         $responseBody = json_decode($response->getBody(), true);
 
