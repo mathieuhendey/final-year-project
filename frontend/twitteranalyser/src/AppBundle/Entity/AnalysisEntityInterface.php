@@ -39,4 +39,6 @@ interface AnalysisEntityInterface
     public function getCreatedOn(): DateTime;
 
     public function getUpdatedOn(): DateTime;
+
+    public function getDataForLastTwelveHours(): array;
 }

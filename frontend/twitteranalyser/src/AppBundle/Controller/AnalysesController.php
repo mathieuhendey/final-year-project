@@ -15,7 +15,6 @@ use AppBundle\Entity\Tweet;
 use NumberFormatter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AnalysesController extends Controller
@@ -52,13 +51,15 @@ class AnalysesController extends Controller
                 $leadText = "That's <strong>$tweetsSpelled</strong> Tweets' worth!";
         }
 
-        return $this->render('default/analyses.html.twig', [
-            'pageTitle' => 'Analyser - Topics',
-            'number' => count($topics),
-            'headerText' => $headerText,
-            'leadText' => $leadText,
-            'items' => $topics,
-        ]);
+        return $this->render(
+            'default/analyses.html.twig', [
+                'pageTitle' => 'Analyser - Topics',
+                'number' => count($topics),
+                'headerText' => $headerText,
+                'leadText' => $leadText,
+                'items' => $topics,
+                ]
+        );
     }
 
     /**
@@ -93,12 +94,14 @@ class AnalysesController extends Controller
                 $leadText = "That's <strong>$tweetsSpelled</strong> Tweets' worth!";
         }
 
-        return $this->render('default/analyses.html.twig', [
-            'pageTitle' => 'Analyser - Users',
-            'number' => count($users),
-            'headerText' => $headerText,
-            'leadText' => $leadText,
-            'items' => $users,
-        ]);
+        return $this->render(
+            'default/analyses.html.twig', [
+                'pageTitle' => 'Analyser - Users',
+                'number' => count($users),
+                'headerText' => $headerText,
+                'leadText' => $leadText,
+                'items' => $users,
+                ]
+        );
     }
 }

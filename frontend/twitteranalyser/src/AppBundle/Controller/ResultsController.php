@@ -145,9 +145,4 @@ class ResultsController extends Controller
 
         return $response;
     }
-
-    public function compareAction(Request $request): Response
-    {
-
-    }
 }

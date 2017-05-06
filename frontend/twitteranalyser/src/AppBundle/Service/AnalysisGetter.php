@@ -56,15 +56,17 @@ class AnalysisGetter
         $execNumber = $request->get(self::EXEC_NUMBER_PARAM);
         $shouldReanalyse = $request->get(self::SHOULD_REANALYSE_PARAM, false);
 
-        $response = $this->guzzleClient->request('GET', self::API_URL, [
+        $response = $this->guzzleClient->request(
+            'GET', self::API_URL, [
             'query' => [
                 self::TYPE_PARAM => $filterType,
                 self::TERM_PARAM => str_replace('@', '', $filterTerm),
                 self::EXEC_TIME_PARAM => $execTime,
                 self::EXEC_NUMBER_PARAM => $execNumber,
                 self::SHOULD_REANALYSE_PARAM => $shouldReanalyse,
-            ],
-        ]);
+                ],
+            ]
+        );
 
         $result = $this->handleResponseBody(json_decode($response->getBody(), true));
 

@@ -36,8 +36,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
-COPY timezone.ini /etc/php7.1/fpm/conf.d/
-COPY timezone.ini /etc/php7.1/cli/conf.d/
+COPY timezone.ini /etc/php/7.1/cli
+COPY timezone.ini /etc/php/7.1/fpm/conf.d
 COPY twitteranalyser.pool.conf /etc/php7.1/fpm/pool.d/
 
 RUN sed -i "/listen = .*/c\listen = [::]:9000" /etc/php/7.1/fpm/pool.d/www.conf \

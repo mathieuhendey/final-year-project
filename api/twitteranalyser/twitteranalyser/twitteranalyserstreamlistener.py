@@ -7,13 +7,16 @@
 from json import dumps
 from logging import critical as log
 from os import environ
+from time import time
+from typing import Union
+
+from datetime import datetime
+import pytz
 
 from dataset import Table
 from pika.channel import Channel
-from time import time
 from tweepy import Status
 from tweepy import StreamListener as Listener
-from typing import Union
 
 from twitteranalyser import constants
 
@@ -106,9 +109,9 @@ class StreamListener(Listener):
                 status,
                 'retweeted_status',
                 False) or 'RT @' in getattr(
-                status,
-                'text',
-                None):
+                    status,
+                    'text',
+                    None):
             return True
 
         # If we're streaming a user, we only care about replies to that user.
@@ -133,7 +136,7 @@ class StreamListener(Listener):
             'tweet_id': getattr(status, 'id_str', None),
             'tweet_text': getattr(status, 'text', None),
             self.analysis_key_name: self.analysis_key_value,
-            'created_on': getattr(status, 'created_at', None),
+            'created_on': datetime.now(pytz.timezone('Europe/London')),
         }
         table_id = self.tweet_table.insert_ignore(status_dict, ['tweet_id'])
         if table_id:

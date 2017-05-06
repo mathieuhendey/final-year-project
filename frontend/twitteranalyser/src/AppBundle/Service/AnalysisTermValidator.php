@@ -72,8 +72,14 @@ class AnalysisTermValidator
             }
         }
 
-        $numberOfTermTypes = count(array_filter([$this->hasKeywords, $this->hasHashtags, $this->hasScreenNames],
-            function ($v) {return $v === true; }));
+        $numberOfTermTypes = count(
+            array_filter(
+                [$this->hasKeywords, $this->hasHashtags, $this->hasScreenNames],
+                function ($v) {
+                return $v === true;
+                }
+            )
+        );
 
         if ($numberOfTermTypes > 1) {
             $validationMessages[] = self::TOO_MANY_TERM_TYPES;

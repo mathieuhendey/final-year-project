@@ -27,6 +27,7 @@ services:
       MYSQL_DATABASE: twitter_analyser
       MYSQL_USER: twitter_analyser
       MYSQL_PASSWORD: password
+      TZ: Europe/London
     volumes:
       - ./mysql/db_data:/var/lib/mysql
       - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro

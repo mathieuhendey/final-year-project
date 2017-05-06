@@ -9,6 +9,7 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\AnalysisEntityInterface;
 use AppBundle\Repository\AnalysisTopicRepository;
 use AppBundle\Repository\AnalysisUserRepository;
 use AppBundle\Repository\TweetRepository;
@@ -35,5 +36,29 @@ class Comparator
         $this->tweetRepository = $tweetRepository;
         $this->analysisUserRepository = $analysisTopicRepository;
         $this->analysisTopicRepository = $analysisTopicRepository;
+    }
+
+    public function getDatasets(array $termIds, string $type): array
+    {
+        if ($type == 'topic') {
+            $repository = $this->analysisTopicRepository;
+        } else {
+            $repository = $this->analysisUserRepository;
+        }
+
+        $datasets = [];
+        foreach ($termIds as $termId) {
+            /**
+             * @var AnalysisEntityInterface $term
+             */
+            $term = $repository->find($termId);
+
+            $dataset = [
+                'label' => $term->getPrettyTerm(),
+                'data' => $term->getDataForLastTwelveHours(),
+            ];
+            $datasets[] = $dataset;
+        }
+        return $datasets;
     }
 }

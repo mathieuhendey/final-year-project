@@ -38,10 +38,12 @@ class HomePageController extends Controller
         $searchTerm = $request->get('search_term', '');
         $shouldReanalyse = $request->get('should_reanalyse', false);
 
-        return $this->render('default/index.html.twig', [
-            'searchTerm' => $searchTerm,
-            'shouldReanalyse' => $shouldReanalyse,
-        ]);
+        return $this->render(
+            'default/index.html.twig', [
+                'searchTerm' => $searchTerm,
+                'shouldReanalyse' => $shouldReanalyse,
+            ]
+        );
     }
 
     /**
@@ -77,9 +79,9 @@ class HomePageController extends Controller
 
             return $this->redirectToRoute(
                 'topic_results',
-                    [
-                        'term' => $topic->getTerm(),
-                    ]
+                [
+                    'term' => $topic->getTerm(),
+                ]
             );
         } elseif ($result->isHashtag()) {
             $topic = $this->getDoctrine()->getRepository(AnalysisTopic::class)->find($result->getId());

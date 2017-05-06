@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * A topic, as opposed to a user.
@@ -186,5 +187,37 @@ class AnalysisTopic implements AnalysisEntityInterface
     public function getUpdatedOn(): DateTime
     {
         return $this->updatedOn;
+    }
+
+    public function getDataForLastTwelveHours(): array
+    {
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $dateA = new DateTime('@'.(strtotime('-'.$i.' hour') + 3600));
+            $dateB = new DateTime('@'.(strtotime('-'.($i-1).' hour') + 3600));
+
+            $positiveCriteria = Criteria::create()
+                ->where(Criteria::expr()->eq('sentiment', 'positive'))
+                ->andWhere(Criteria::expr()->gt('created_on', $dateA))
+                ->andWhere(Criteria::expr()->lt('created_on', $dateB));
+
+            $totalCriteria = Criteria::create()
+                ->where(Criteria::expr()->gt('created_on', $dateA))
+                ->andWhere(Criteria::expr()->lt('created_on', $dateB));
+
+            $positiveTweets = count($this->getTweets()->matching($positiveCriteria));
+            $totalTweets = count($this->getTweets()->matching($totalCriteria));
+
+            if ($totalTweets > 0) {
+                $score = (int) floor($positiveTweets / $totalTweets * 100);
+            } else {
+                $score = 0;
+            }
+
+            array_push($data, $score);
+        }
+
+        return array_reverse($data);
     }
 }

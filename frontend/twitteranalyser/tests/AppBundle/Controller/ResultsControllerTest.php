@@ -129,11 +129,13 @@ class ResultsControllerTest extends WebTestCase
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
         $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
-        $this->client->request('GET', '/refreshTweetList', [
+        $this->client->request(
+            'GET', '/refreshTweetList', [
             'term_type' => 'topic',
             'term_id' => 1,
             'latest_tweet_in_list' => 1,
-        ]);
+            ]
+        );
 
         $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
@@ -157,11 +159,13 @@ class ResultsControllerTest extends WebTestCase
         $this->client->getContainer()->set('app.results_analyser', $mockResultsAnalyser);
         $this->client->getContainer()->set('app.current_analyses_checker', $mockCurrentAnalysesChecker);
 
-        $this->client->request('GET', '/refreshTweetList', [
+        $this->client->request(
+            'GET', '/refreshTweetList', [
             'term_type' => 'user',
             'term_id' => 1,
             'latest_tweet_in_list' => 1,
-        ]);
+            ]
+        );
 
         $this->assertTrue($this->client->getResponse()->isSuccessful());
     }

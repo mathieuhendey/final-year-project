@@ -190,4 +190,38 @@ class AnalysisUser implements AnalysisEntityInterface
     {
         return $this->updatedOn;
     }
+
+    public function getDataForLastTwelveHours(): array
+    {
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $dateA = strtotime('-'.$i.' hour');
+            $dateB = strtotime('-'.($i-1).' hour');
+
+            $positiveCriteria = Criteria::create()
+                ->where(Criteria::expr()->eq('sentiment', 'positive'))
+                ->andWhere(Criteria::expr()->gt('created_on', new DateTime("@".($dateA + 3600))))
+                ->andWhere(Criteria::expr()->lt('created_on', new DateTime("@".($dateB + 3600))));
+
+            $totalCriteria = Criteria::create()
+                ->where(Criteria::expr()->gt('created_on', new DateTime("@".($dateA + 3600))))
+                ->andWhere(Criteria::expr()->lt('created_on', new DateTime("@".($dateB + 3600))));
+
+            $positiveTweets = count($this->getTweets()->matching($positiveCriteria));
+            $totalTweets = count($this->getTweets()->matching($totalCriteria));
+
+            if ($totalTweets > 0) {
+                $score = (int) floor($positiveTweets / $totalTweets * 100);
+            } else {
+                $score = 0;
+            }
+
+
+            $data[] = $score;
+        }
+
+        return array_reverse($data);
+    }
+
 }
