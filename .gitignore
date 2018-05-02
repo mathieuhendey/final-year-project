@@ -10,8 +10,8 @@ db_data/
 .cache
 nginx_logs
 frontend_logs
-jquery.min.js
 Chart.min.js
+JavaScript frontend/twitteranalyser/components/
 collapse.js
 util.js
 moment.js
